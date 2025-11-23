@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #f7f7f4;
+  --color-fg: #26251e;
+  --color-accent: #f54e00;
+  --color-card: #f2f1ed;
+  --color-card-01: #f0efeb;
+  --color-card-02: #ebeaE5;
+  --color-card-03: #e6e5e0;
+  --color-card-04: #e1e0db;
+  
+  --font-display: "Inter", system-ui, sans-serif;
+  --font-mono: "Space Mono", "Roboto Mono", monospace;
+}
+
+@layer base {
+  body {
+    @apply bg-bg text-fg antialiased font-display;
+  }
+}
