@@ -1,32 +1,35 @@
-import type { Profile } from "@/types/form";
-import { PolaroidProfileRow, MergedProfileRow } from "./polaroid-profile-row";
+import type { CursorProfile } from "@/types/form";
+import { CursorProfileRow, MergedCursorRow } from "./polaroid-profile-row";
 import cursorLogo from "@/assets/cursor.svg";
 
 interface PolaroidCaptionProps {
-  profiles: Profile[];
+  profiles: CursorProfile[];
 }
 
 export function PolaroidCaption({ profiles }: PolaroidCaptionProps) {
   const hasMultipleProfiles = profiles.length > 1;
 
   return (
-    <div className="pt-6 px-1 relative min-h-[100px] flex flex-col justify-between">
+    <div className="pt-5 px-1 relative min-h-[100px] flex flex-col justify-between">
       <div className="space-y-2 pr-8">
         {hasMultipleProfiles ? (
-           <MergedProfileRow profiles={profiles} />
+           <MergedCursorRow profiles={profiles} />
         ) : (
             profiles.map((profile, index) => (
-              <PolaroidProfileRow key={`${profile.platform}-${index}`} profile={profile} />
+              <CursorProfileRow key={index} profile={profile} />
             ))
         )}
       </div>
       
-      {/* Cursor Sticker - Stamp Style */}
-      <div className="absolute bottom-3 right-3 transform -rotate-6 opacity-90 hover:opacity-100 hover:rotate-0 transition-all duration-300">
+      {/* Cafe Cursor Badge */}
+      <div className="absolute bottom-0 right-0 flex items-center gap-2 opacity-90">
+        <span className="font-display text-[10px] font-bold uppercase tracking-widest text-fg-muted mt-0.5">
+          Cafe Cursor
+        </span>
         <img 
           src={cursorLogo}
           alt="Cursor" 
-          className="h-8 w-8 object-contain drop-shadow-md"
+          className="h-5 w-5 object-contain"
         />
       </div>
     </div>

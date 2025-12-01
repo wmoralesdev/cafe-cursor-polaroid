@@ -50,9 +50,9 @@ export function PolaroidImage({
   return (
     <div
       className={clsx(
-        "aspect-square w-full bg-card-01 rounded-sm overflow-hidden relative mb-6 shadow-[inset_0_2px_4px_rgba(0,0,0,0.1)] border border-black/5 transition-colors",
+        "aspect-square w-full bg-card-01 rounded-sm overflow-hidden relative mb-6 shadow-[inset_0_2px_4px_rgba(0,0,0,0.1)] border border-border/20 transition-colors",
         editable && "group cursor-pointer",
-        isDragOver && "bg-accent/10 border-accent"
+        isDragOver && "bg-accent/10 border-gold"
       )}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
@@ -81,7 +81,7 @@ export function PolaroidImage({
                 e.stopPropagation();
                 clearImage();
               }}
-              className="absolute top-2 right-2 p-1.5 bg-white/90 rounded-full text-red-500 hover:bg-red-50 hover:scale-110 transition-all shadow-md opacity-0 group-hover:opacity-100 z-20"
+              className="absolute top-2 right-2 p-1.5 bg-white/90 rounded-full text-burgundy hover:bg-burgundy/10 hover:scale-110 transition-all shadow-sm opacity-0 group-hover:opacity-100 z-20"
               title="Remove image"
             >
               <X className="w-4 h-4" />
@@ -90,33 +90,33 @@ export function PolaroidImage({
         </div>
       ) : (
         <div className={clsx(
-          "absolute inset-0 flex flex-col items-center justify-center text-fg/40 p-4 text-center transition-colors",
-          isDragOver ? "bg-accent/5 text-accent" : "bg-card-02/30"
+          "absolute inset-0 flex flex-col items-center justify-center text-fg-muted/60 p-4 text-center transition-colors",
+          isDragOver ? "bg-gold/5 text-gold" : "bg-card-02/30"
         )}>
           {editable ? (
             <>
               <div className={clsx(
-                "w-12 h-12 mb-3 flex items-center justify-center rounded-full border-2 border-current transition-transform duration-300",
+                "w-12 h-12 mb-3 flex items-center justify-center rounded-full border border-current transition-transform duration-300",
                 isDragOver ? "scale-110" : "group-hover:scale-110"
               )}>
-                <Upload className="w-6 h-6" />
+                <Upload className="w-6 h-6" strokeWidth={1.5} />
               </div>
-              <span className="text-sm font-black uppercase tracking-wider">
+              <span className="text-sm font-medium uppercase tracking-wider font-display">
                 {isDragOver ? "Drop it!" : "Add Photo"}
               </span>
               <span className="text-[10px] font-mono mt-1 opacity-60 uppercase">
                 Drag & Drop or Click
               </span>
               {error && (
-                <p className="mt-2 text-[10px] text-white font-bold bg-red-500 px-2 py-0.5 rounded uppercase">
+                <p className="mt-2 text-[10px] text-white font-bold bg-burgundy px-2 py-0.5 rounded uppercase">
                   {error}
                 </p>
               )}
             </>
           ) : (
             <>
-              <ImageIcon className="w-12 h-12 mb-2 opacity-50" />
-              <span className="text-sm font-medium font-hand text-lg">No image</span>
+              <ImageIcon className="w-12 h-12 mb-2 opacity-50" strokeWidth={1.5} />
+              <span className="text-sm font-medium font-display text-lg">No image</span>
             </>
           )}
         </div>

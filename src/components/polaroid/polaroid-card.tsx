@@ -1,12 +1,12 @@
 import { forwardRef } from "react";
 import { clsx } from "clsx";
-import type { Profile } from "@/types/form";
+import type { CursorProfile } from "@/types/form";
 import { PolaroidImage } from "./polaroid-image";
 import { PolaroidCaption } from "./polaroid-caption";
 
 interface PolaroidCardProps {
   image: string | null;
-  profiles: Profile[];
+  profiles: CursorProfile[];
   className?: string;
   variant?: "preview" | "export";
   // Image interaction
@@ -36,17 +36,18 @@ export const PolaroidCard = forwardRef<HTMLDivElement, PolaroidCardProps>(
       <div
         ref={ref}
         className={clsx(
-          "bg-white p-4 pb-8 transition-all duration-500 ease-out transform origin-center",
+          "bg-white transition-all duration-500 ease-out transform origin-center paper-texture",
           // Variant specific sizing
           variant === "preview" && [
             "hover:scale-[1.01] hover:rotate-1",
-            "w-full aspect-[3/4] max-w-[420px]", // Responsive preview
-            "shadow-[0_20px_40px_-5px_rgba(0,0,0,0.15),0_10px_20px_-5px_rgba(0,0,0,0.1)]"
+            "w-full aspect-[2/3] max-w-[340px]", // 2:3 aspect ratio
+            "p-3 pb-12", // Reduced padding for larger image, classic bottom space
+            "shadow-polaroid"
           ],
           variant === "export" && [
-             "w-[3in] h-[4in]", // Physical sizing for export
+             "w-[4in] h-[6in]", // 2:3 ratio (4x6 inches)
+             "p-[0.15in] pb-[0.6in]", // Scaled padding to match preview proportions
           ],
-          "paper-texture border-4 border-white",
           className
         )}
       >

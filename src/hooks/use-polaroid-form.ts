@@ -1,10 +1,14 @@
 import { useForm, useFieldArray } from "react-hook-form";
-import type { PolaroidFormValues, Profile } from "@/types/form";
+import type { PolaroidFormValues, CursorProfile } from "@/types/form";
 
-const DEFAULT_PROFILE: Profile = {
-  platform: "github",
-  handle: "",
-  techStack: [],
+const DEFAULT_PROFILE: CursorProfile = {
+  primaryModel: "gpt-5",
+  secondaryModel: "o3",
+  favoriteFeature: "agent",
+  planTier: "pro",
+  projectType: "",
+  extras: [],
+  isMaxMode: false,
 };
 
 export function usePolaroidForm() {
@@ -39,4 +43,3 @@ export function usePolaroidForm() {
 }
 
 export type UsePolaroidFormReturn = ReturnType<typeof usePolaroidForm>;
-

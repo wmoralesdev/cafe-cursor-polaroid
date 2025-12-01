@@ -1,148 +1,90 @@
-import { Github, Instagram, AtSign } from "lucide-react";
-import { XIcon } from "@/components/ui/x-icon";
-import type { Profile } from "@/types/form";
-import { TECH_STACKS, type TechGroup } from "@/constants/tech-stack";
+import { Sparkles, Cpu, Zap, Brain, Flame } from "lucide-react";
+import type { CursorProfile, CursorModel, CursorFeature, PlanTier } from "@/types/form";
+import { CURSOR_MODELS, CURSOR_FEATURES, PLAN_TIERS } from "@/constants/cursor-data";
 
-interface PolaroidProfileRowProps {
-  profile: Profile;
+interface CursorProfileRowProps {
+  profile: CursorProfile;
 }
 
-const getTechGroup = (tech: string): TechGroup | undefined => {
-  for (const [group, stack] of Object.entries(TECH_STACKS)) {
-    if (stack.includes(tech)) return group as TechGroup;
-  }
-  return undefined;
-};
+const getModelLabel = (id: CursorModel) => CURSOR_MODELS.find(m => m.id === id)?.label || id;
+const getFeatureLabel = (id: CursorFeature) => CURSOR_FEATURES.find(f => f.id === id)?.label || id;
+const getPlanLabel = (id: PlanTier) => PLAN_TIERS.find(p => p.id === id)?.label || id;
 
-const getGroupColor = (group?: TechGroup) => {
-  switch (group) {
-    case "Frontend": return "bg-blue-600";
-    case "Backend": return "bg-green-600";
-    case "Mobile": return "bg-purple-600";
-    case "Data/Infra": return "bg-orange-600";
-    case "Tooling": return "bg-gray-600";
-    default: return "bg-gray-500";
-  }
-};
-
-export function PolaroidProfileRow({ profile }: PolaroidProfileRowProps) {
-  if (!profile.handle && profile.techStack.length === 0) return null;
-
-  const techs = profile.techStack;
-  const techCount = techs.length;
-
-  // Scale chip size down when there are many items so everything stays visible
-  const chipBaseClasses =
-    techCount > 10
-      ? "px-1.5 py-0.5 text-[7px]"
-      : techCount > 6
-      ? "px-1.5 py-0.5 text-[8px]"
-      : "px-2 py-0.5 text-[9px]";
+export function CursorProfileRow({ profile }: CursorProfileRowProps) {
+  // Ensure we have data to show
+  if (!profile.projectType && !profile.primaryModel) return null;
 
   return (
-    <div className="flex flex-col gap-3 border-b border-black/10 last:border-0 pb-4 last:pb-0 mb-4 last:mb-0">
-      <div className="flex items-center gap-2.5 text-fg">
-        <div className="p-1 rounded bg-black text-white">
-            {profile.platform === "github" && (
-              <Github className="w-3.5 h-3.5" />
-            )}
-            {profile.platform === "x" && <XIcon className="w-3.5 h-3.5" />}
-            {profile.platform === "instagram" && (
-              <Instagram className="w-3.5 h-3.5" />
-            )}
-            {!profile.platform && <AtSign className="w-3.5 h-3.5" />}
+    <div className="flex flex-col gap-3 border-b border-border/50 last:border-0 pb-4 last:pb-0 mb-4 last:mb-0 font-body">
+      {/* Primary Line: Project */}
+      <div className="text-fg">
+        <div className="flex items-center justify-between mb-1">
+          <div className="text-[10px] font-mono uppercase tracking-widest text-fg-muted opacity-80">
+            Building
+          </div>
+          {profile.isMaxMode && (
+            <div className="flex items-center gap-1 px-1.5 py-0.5 bg-black text-white rounded-sm text-[9px] font-bold uppercase tracking-wider shadow-sm animate-pulse">
+              <Flame className="w-2.5 h-2.5 text-gold fill-gold" />
+              <span>Max Mode</span>
+            </div>
+          )}
         </div>
-        <span className="font-mono text-[15px] font-bold tracking-tight text-black">
-          @{profile.handle || "username"}
-        </span>
+        <div className="font-display text-xl font-semibold leading-tight text-fg line-clamp-2 overflow-hidden text-ellipsis" title={profile.projectType}>
+          {profile.projectType || "Something amazing..."}
+        </div>
+      </div>
+
+      {/* Secondary Line: Context */}
+      <div className="flex flex-col gap-1.5 text-sm text-fg-muted">
+        <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex items-center gap-1.5" title="Coding Model">
+            <Cpu className="w-3.5 h-3.5 opacity-70" />
+            <span className="font-medium">{getModelLabel(profile.primaryModel)}</span>
+          </div>
+          <span className="opacity-30 text-[10px]">•</span>
+          <div className="flex items-center gap-1.5" title="Thinking Model">
+            <Brain className="w-3.5 h-3.5 opacity-70" />
+            <span className="font-medium">{getModelLabel(profile.secondaryModel)}</span>
+          </div>
+        </div>
+        <div className="flex items-center gap-3 flex-wrap mt-0.5">
+           <div className="flex items-center gap-1.5">
+            <Zap className="w-3.5 h-3.5 opacity-70" />
+            <span>{getPlanLabel(profile.planTier)} Plan</span>
+          </div>
+        </div>
       </div>
       
-      {techs.length > 0 && (
-        <div className="flex flex-wrap gap-1.5">
-          {techs.map((tech) => {
-            const group = getTechGroup(tech);
-            return (
-              <span
-                key={tech}
-                className={`inline-flex items-center gap-1.5 rounded font-extrabold bg-white text-black border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] uppercase tracking-wider ${chipBaseClasses}`}
-              >
-                <span className={`w-1.5 h-1.5 rounded-full ${getGroupColor(group)} ring-1 ring-black/10`} />
-                {tech}
-              </span>
-            );
-          })}
-        </div>
-      )}
+      {/* Tertiary Line: Feature & Extras */}
+      <div className="flex flex-wrap gap-1.5 mt-1">
+        {/* Favorite Feature Pill */}
+        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-gold/10 text-gold border border-gold/30 uppercase tracking-wide shadow-sm">
+          <Sparkles className="w-2.5 h-2.5" />
+          {getFeatureLabel(profile.favoriteFeature)}
+        </span>
+
+        {/* Tech Extras Pills */}
+        {profile.extras?.map((tech) => (
+          <span
+            key={tech}
+            className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-linen text-fg-muted border border-border/50 shadow-sm font-mono"
+          >
+            {tech}
+          </span>
+        ))}
+      </div>
     </div>
   );
 }
 
-// New component for Merged view
-export function MergedProfileRow({ profiles }: { profiles: Profile[] }) {
-    // Filter valid profiles with handles
-    const validProfiles = profiles.filter(p => p.handle);
-    
-    // Merge and deduplicate tech stacks
-    const allTechs = Array.from(new Set(profiles.flatMap(p => p.techStack)));
-    const techCount = allTechs.length;
-
-    const chipBaseClasses =
-      techCount > 12
-        ? "px-1.5 py-0.5 text-[7px]"
-        : techCount > 8
-        ? "px-1.5 py-0.5 text-[8px]"
-        : "px-2 py-0.5 text-[9px]";
-  
+// Merged view for multiple profiles (Team View)
+export function MergedCursorRow({ profiles }: { profiles: CursorProfile[] }) {
+    // Just stack them for simplicity
     return (
-      <div className="flex flex-col gap-4">
-        {/* Merged Handles Row */}
-        {validProfiles.length > 0 && (
-             <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-fg">
-                {validProfiles.map((profile, idx) => (
-                  <div
-                    key={`${profile.platform}-${profile.handle}-${idx}`}
-                    className="flex items-center gap-1.5"
-                  >
-                    <div className="p-1 rounded bg-black text-white">
-                      {profile.platform === "github" && (
-                        <Github className="w-3 h-3" />
-                      )}
-                      {profile.platform === "x" && (
-                        <XIcon className="w-3 h-3" />
-                      )}
-                      {profile.platform === "instagram" && (
-                        <Instagram className="w-3 h-3" />
-                      )}
-                      {!profile.platform && <AtSign className="w-3 h-3" />}
-                    </div>
-                    <span className="font-mono text-[14px] font-bold tracking-tight text-black">
-                      @{profile.handle}
-                    </span>
-                    {idx < validProfiles.length - 1 && (
-                      <span className="text-black/30 font-black ml-1">&</span>
-                    )}
-                  </div>
-                ))}
-             </div>
-        )}
-  
-        {/* Merged Tech Stack */}
-        {techCount > 0 && (
-          <div className="flex flex-wrap gap-1.5">
-            {allTechs.map((tech) => {
-              const group = getTechGroup(tech);
-              return (
-                <span
-                  key={tech}
-                  className={`inline-flex items-center gap-1.5 rounded font-extrabold bg-white text-black border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] uppercase tracking-wider ${chipBaseClasses}`}
-                >
-                  <span className={`w-1.5 h-1.5 rounded-full ${getGroupColor(group)} ring-1 ring-black/10`} />
-                  {tech}
-                </span>
-              );
-            })}
-          </div>
-        )}
+      <div className="flex flex-col gap-6">
+        {profiles.map((p, i) => (
+          <CursorProfileRow key={i} profile={p} />
+        ))}
       </div>
     );
-  }
+}

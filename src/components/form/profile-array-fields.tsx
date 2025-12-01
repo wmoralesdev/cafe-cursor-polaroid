@@ -2,9 +2,9 @@ import { useState } from "react";
 import { type Control, type UseFormRegister, type FieldErrors, type UseFieldArrayReturn } from "react-hook-form";
 import { Plus, Trash2, User, ChevronLeft, ChevronRight } from "lucide-react";
 import type { PolaroidFormValues } from "@/types/form";
-import { PlatformSelector } from "./platform-selector";
-import { HandleInput } from "./handle-input";
-import { TechStackGroups } from "./tech-stack-groups";
+import { CodingModelSelector, ThinkingModelSelector, FeatureSelector, PlanSelector, MaxModeToggle } from "./cursor-selectors";
+import { ProjectInput } from "./project-input";
+import { TechExtras } from "./tech-extras";
 
 interface ProfileArrayFieldsProps {
   control: Control<PolaroidFormValues>;
@@ -27,7 +27,6 @@ export function ProfileArrayFields({
 
   const handleAppend = () => {
     append();
-    // Wait for state update then switch to new index
     setTimeout(() => setActiveIndex(fields.length), 0);
   };
 
@@ -46,84 +45,104 @@ export function ProfileArrayFields({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between border-b-4 border-black pb-4">
+      {/* Header with navigation */}
+      <div className="flex items-center justify-between border-b border-border pb-4">
         <div className="flex items-center gap-3">
-           <div className="bg-accent text-white px-2 py-1 font-mono text-xs font-bold border-2 border-black uppercase">
-             User {activeIndex + 1}/{fields.length}
+           <div className="bg-gold text-cream px-2.5 py-1 font-mono text-xs font-medium rounded-sm">
+             {activeIndex + 1}/{fields.length}
            </div>
-           <div className="h-6 w-[2px] bg-black/20" />
-           <h3 className="text-lg font-black text-fg tracking-tighter uppercase">Profile Data</h3>
+           <h3 className="text-lg font-display font-semibold text-fg">Cursor Profile</h3>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-1.5">
             <button
               type="button"
               onClick={() => setActiveIndex(Math.max(0, activeIndex - 1))}
               disabled={activeIndex === 0}
-              className="p-2 border-2 border-black bg-white hover:bg-black hover:text-white disabled:opacity-50 disabled:hover:bg-white disabled:hover:text-fg transition-colors shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"
+              className="p-2 rounded-sm border border-border bg-cream hover:bg-parchment hover:border-border-strong disabled:opacity-40 disabled:hover:bg-cream disabled:hover:border-border transition-all duration-150"
             >
-               <ChevronLeft className="w-4 h-4" />
+               <ChevronLeft className="w-4 h-4" strokeWidth={1.5} />
             </button>
             <button
               type="button"
               onClick={() => setActiveIndex(Math.min(fields.length - 1, activeIndex + 1))}
               disabled={activeIndex === fields.length - 1}
-              className="p-2 border-2 border-black bg-white hover:bg-black hover:text-white disabled:opacity-50 disabled:hover:bg-white disabled:hover:text-fg transition-colors shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"
+              className="p-2 rounded-sm border border-border bg-cream hover:bg-parchment hover:border-border-strong disabled:opacity-40 disabled:hover:bg-cream disabled:hover:border-border transition-all duration-150"
             >
-               <ChevronRight className="w-4 h-4" />
+               <ChevronRight className="w-4 h-4" strokeWidth={1.5} />
             </button>
         </div>
       </div>
 
+      {/* Profile Card */}
       <div className="relative min-h-[300px]">
           <div
             key={currentField.id}
-            className="bg-white border-4 border-black p-6 space-y-6 relative shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]"
+            className="warm-panel p-6 space-y-6 relative"
           >
-             {/* Decorative corner accent */}
-             <div className="absolute -top-1 -right-1 w-8 h-8 bg-[repeating-linear-gradient(45deg,transparent,transparent_5px,#000_5px,#000_10px)] border-l-4 border-b-4 border-black" />
-             
-            <div className="flex items-center justify-between mb-2 border-b-2 border-black pb-3">
-              <div className="flex items-center gap-2 text-fg">
-                <div className="w-8 h-8 bg-black text-white flex items-center justify-center border-2 border-black">
-                  <User className="w-4 h-4" />
+            {/* Card header */}
+            <div className="flex items-center justify-between mb-2 border-b border-border pb-3">
+              <div className="flex items-center gap-2.5 text-fg">
+                <div className="w-8 h-8 bg-gold/10 text-gold flex items-center justify-center rounded-sm">
+                  <User className="w-4 h-4" strokeWidth={1.5} />
                 </div>
-                <span className="font-mono text-sm font-bold uppercase tracking-wide">User {activeIndex + 1} ID</span>
+                <span className="font-mono text-sm font-medium text-fg-muted">User {activeIndex + 1}</span>
               </div>
               <div className="flex items-center gap-2">
                   {fields.length > 1 && (
                     <button
                       type="button"
                       onClick={() => handleRemove(activeIndex)}
-                      className="text-red-600 hover:bg-red-50 p-2 border-2 border-transparent hover:border-red-600 transition-all uppercase font-bold text-xs tracking-wider flex items-center gap-1"
+                      className="text-burgundy hover:bg-burgundy/10 p-2 rounded-sm transition-all duration-150 flex items-center gap-1.5 text-sm font-medium"
                       aria-label={`Remove Person ${activeIndex + 1}`}
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-4 h-4" strokeWidth={1.5} />
                       <span className="hidden sm:inline">Remove</span>
                     </button>
                   )}
               </div>
             </div>
 
-            <PlatformSelector control={control} index={activeIndex} />
-            <HandleInput
+            <div className="grid grid-cols-1 sm:grid-cols-12 gap-6">
+               <div className="sm:col-span-8">
+                 <PlanSelector control={control} index={activeIndex} />
+               </div>
+               <div className="sm:col-span-4">
+                 <div className="space-y-2">
+                    <label className="block text-xs font-medium text-fg-muted uppercase tracking-[0.08em] font-display">
+                      Options
+                    </label>
+                    <MaxModeToggle control={control} index={activeIndex} />
+                 </div>
+               </div>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+               <CodingModelSelector control={control} index={activeIndex} />
+               <ThinkingModelSelector control={control} index={activeIndex} />
+            </div>
+            
+            <FeatureSelector control={control} index={activeIndex} />
+            
+            <ProjectInput
               register={register}
-              control={control}
               errors={errors}
               index={activeIndex}
             />
-            <TechStackGroups control={control} index={activeIndex} />
+            
+            <TechExtras control={control} index={activeIndex} />
           </div>
       </div>
       
+      {/* Add user button */}
       <div className="pt-2 flex justify-center">
          <button
           type="button"
           onClick={handleAppend}
           disabled={fields.length >= 4}
-          className="flex items-center gap-2 text-sm font-black text-white bg-accent px-6 py-3 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[2px] hover:translate-x-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all active:translate-y-[4px] active:translate-x-[4px] active:shadow-none disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none uppercase tracking-widest w-full justify-center sm:w-auto"
+          className="flex items-center gap-2 text-sm font-medium text-fg bg-cream border border-border px-5 py-2.5 rounded-sm hover:bg-parchment hover:border-border-strong transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed w-full justify-center sm:w-auto font-body"
         >
-          <Plus className="w-5 h-5" />
-          Add Another User
+          <Plus className="w-4 h-4" strokeWidth={1.5} />
+          Add Another Profile
         </button>
       </div>
     </div>
