@@ -1,6 +1,7 @@
 import { clsx } from "clsx";
 import { Image as ImageIcon, Upload, X } from "lucide-react";
 import React, { useState } from "react";
+import { useLanguage } from "@/contexts/language-context";
 
 interface PolaroidImageProps {
   image: string | null;
@@ -23,6 +24,7 @@ export function PolaroidImage({
   zoom = 1,
   position = { x: 0, y: 0 },
 }: PolaroidImageProps) {
+  const { t } = useLanguage();
   const [isDragOver, setIsDragOver] = useState(false);
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -50,15 +52,14 @@ export function PolaroidImage({
   return (
     <div
       className={clsx(
-        "aspect-square w-full bg-card-01 rounded-sm overflow-hidden relative mb-6 shadow-[inset_0_2px_4px_rgba(0,0,0,0.1)] border border-border/20 transition-colors",
+        "aspect-square w-full bg-card-01 rounded-sm overflow-hidden relative shadow-[inset_0_2px_4px_rgba(0,0,0,0.1)] border border-border/20 transition-colors shrink-0",
         editable && "group cursor-pointer",
-        isDragOver && "bg-accent/10 border-gold"
+        isDragOver && "bg-accent/10 border-accent"
       )}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
-      {/* Image Area */}
       {image ? (
         <div className="w-full h-full relative overflow-hidden">
           <img
@@ -70,19 +71,17 @@ export function PolaroidImage({
             }}
           />
           
-          {/* Overlays */}
           <div className="absolute inset-0 bg-radial-gradient-to-tr from-black/10 to-transparent pointer-events-none mix-blend-multiply" />
           <div className="absolute inset-0 noise-bg opacity-[0.15] mix-blend-overlay pointer-events-none" />
 
-          {/* Clear Button (Only visible in edit mode on hover) */}
           {editable && clearImage && (
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 clearImage();
               }}
-              className="absolute top-2 right-2 p-1.5 bg-white/90 rounded-full text-burgundy hover:bg-burgundy/10 hover:scale-110 transition-all shadow-sm opacity-0 group-hover:opacity-100 z-20"
-              title="Remove image"
+              className="absolute top-2 right-2 p-1.5 bg-white/90 rounded-full text-accent hover:bg-accent/10 hover:scale-110 transition-all shadow-sm opacity-0 group-hover:opacity-100 z-20"
+              title={t.imageUpload.removeImage}
             >
               <X className="w-4 h-4" />
             </button>
@@ -91,24 +90,24 @@ export function PolaroidImage({
       ) : (
         <div className={clsx(
           "absolute inset-0 flex flex-col items-center justify-center text-fg-muted/60 p-4 text-center transition-colors",
-          isDragOver ? "bg-gold/5 text-gold" : "bg-card-02/30"
+          isDragOver ? "bg-accent/5 text-accent" : "bg-card-02/30"
         )}>
           {editable ? (
             <>
               <div className={clsx(
                 "w-12 h-12 mb-3 flex items-center justify-center rounded-full border border-current transition-transform duration-300",
-                isDragOver ? "scale-110" : "group-hover:scale-110"
+                isDragOver ? "scale-110 rotate-3" : "group-hover:scale-110 group-hover:rotate-2"
               )}>
                 <Upload className="w-6 h-6" strokeWidth={1.5} />
               </div>
               <span className="text-sm font-medium uppercase tracking-wider font-display">
-                {isDragOver ? "Drop it!" : "Add Photo"}
+                {isDragOver ? t.imageUpload.perfect : t.imageUpload.showBestSide}
               </span>
               <span className="text-[10px] font-mono mt-1 opacity-60 uppercase">
-                Drag & Drop or Click
+                {t.imageUpload.dropHere}
               </span>
               {error && (
-                <p className="mt-2 text-[10px] text-white font-bold bg-burgundy px-2 py-0.5 rounded uppercase">
+                <p className="mt-2 text-[10px] text-white font-bold bg-accent px-2 py-0.5 rounded uppercase">
                   {error}
                 </p>
               )}
@@ -116,24 +115,22 @@ export function PolaroidImage({
           ) : (
             <>
               <ImageIcon className="w-12 h-12 mb-2 opacity-50" strokeWidth={1.5} />
-              <span className="text-sm font-medium font-display text-lg">No image</span>
+              <span className="text-sm font-medium font-display text-lg">{t.imageUpload.noImage}</span>
             </>
           )}
         </div>
       )}
 
-      {/* File Input Overlay */}
       {editable && onFileChange && (
         <input
           type="file"
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
           onChange={onFileChange}
           accept="image/*"
-          title="" // Hide tooltip
+          title=""
         />
       )}
 
-      {/* Glossy reflection */}
       <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-white/20 pointer-events-none mix-blend-soft-light z-0" />
     </div>
   );

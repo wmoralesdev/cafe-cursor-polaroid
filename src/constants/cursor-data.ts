@@ -1,4 +1,4 @@
-import type { CursorModel, CursorFeature, PlanTier } from "@/types/form";
+import type { CursorFeature, PlanTier, CursorTenure } from "@/types/form";
 
 export const CURSOR_MODELS: { id: string; label: string }[] = [
   // GPT-5 Series
@@ -92,4 +92,11 @@ export const TECH_EXTRAS = [
   "Tailwind", "Supabase", "Postgres", "Swift", "Kotlin", "Svelte", "Vue",
   "LangChain", "Pydantic AI", "Vercel", "Cloudflare", "Stripe", "Turso",
   "Bun", "Deno", "Hono", "Astro", "Solid", "Qwik"
+];
+
+export const CURSOR_TENURES: { id: CursorTenure; label: string }[] = [
+  { id: "day-1", label: "Day 1" },
+  { id: "2023", label: "2023" },
+  { id: "2024", label: "2024" },
+  { id: "recently", label: "Recently" },
 ];

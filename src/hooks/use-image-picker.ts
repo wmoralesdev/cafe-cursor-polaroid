@@ -16,7 +16,6 @@ export function useImagePicker() {
     reader.onload = (e) => {
       setImage(e.target?.result as string);
       setError(null);
-      // Reset transform on new image
       setZoom(1);
       setPosition({ x: 0, y: 0 });
     };

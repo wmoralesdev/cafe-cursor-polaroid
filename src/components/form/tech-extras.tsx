@@ -1,22 +1,23 @@
 import { type Control, Controller } from "react-hook-form";
 import { clsx } from "clsx";
 import type { PolaroidFormValues } from "@/types/form";
+import { useLanguage } from "@/contexts/language-context";
 import { TECH_EXTRAS } from "@/constants/cursor-data";
 
 interface TechExtrasProps {
   control: Control<PolaroidFormValues>;
-  index: number;
 }
 
-export function TechExtras({ control, index }: TechExtrasProps) {
+export function TechExtras({ control }: TechExtrasProps) {
+  const { t } = useLanguage();
   return (
     <div className="space-y-2">
       <label className="block text-xs font-medium text-fg-muted uppercase tracking-[0.08em] font-display">
-        Tech Stack (Max 2)
+        {t.form.techStack}
       </label>
       <Controller
         control={control}
-        name={`profiles.${index}.extras`}
+        name="profile.extras"
         render={({ field }) => {
           const currentExtras = field.value || [];
           
@@ -24,7 +25,7 @@ export function TechExtras({ control, index }: TechExtrasProps) {
             if (currentExtras.includes(tech)) {
               field.onChange(currentExtras.filter((t) => t !== tech));
             } else {
-              if (currentExtras.length >= 2) return; // Limit to 2
+              if (currentExtras.length >= 2) return;
               field.onChange([...currentExtras, tech]);
             }
           };

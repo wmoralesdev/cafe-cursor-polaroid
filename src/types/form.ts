@@ -1,17 +1,26 @@
 export type CursorModel = string;
 export type CursorFeature = "agent" | "tab" | "voice" | "browser" | "rules";
 export type PlanTier = "free" | "pro" | "pro-plus" | "ultra" | "student";
+export type CursorTenure = "day-1" | "2023" | "2024" | "recently";
+export type SocialPlatform = "x" | "linkedin";
+
+export interface HandleEntry {
+  handle: string;
+  platform: SocialPlatform;
+}
 
 export interface CursorProfile {
-  primaryModel: CursorModel; // Coding Model
-  secondaryModel: CursorModel; // Thinking Model
+  handles: HandleEntry[];
+  primaryModel: CursorModel;
+  secondaryModel: CursorModel;
   favoriteFeature: CursorFeature;
   planTier: PlanTier;
-  projectType: string; // "Building..."
-  extras: string[]; // Optional tech tags
+  projectType: string;
+  extras: string[];
   isMaxMode: boolean;
+  cursorSince: CursorTenure;
 }
 
 export interface PolaroidFormValues {
-  profiles: CursorProfile[];
+  profile: CursorProfile;
 }

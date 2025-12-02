@@ -1,14 +1,21 @@
 import { useForm, useFieldArray } from "react-hook-form";
-import type { PolaroidFormValues, CursorProfile } from "@/types/form";
+import type { PolaroidFormValues, CursorProfile, HandleEntry } from "@/types/form";
+
+const DEFAULT_HANDLE: HandleEntry = {
+  handle: "",
+  platform: "x",
+};
 
 const DEFAULT_PROFILE: CursorProfile = {
-  primaryModel: "gpt-5",
-  secondaryModel: "o3",
+  handles: [DEFAULT_HANDLE],
+  primaryModel: "composer-1",
+  secondaryModel: "gpt-5.1",
   favoriteFeature: "agent",
   planTier: "pro",
   projectType: "",
   extras: [],
   isMaxMode: false,
+  cursorSince: "2024",
 };
 
 export function usePolaroidForm() {
@@ -20,14 +27,14 @@ export function usePolaroidForm() {
     reset,
   } = useForm<PolaroidFormValues>({
     defaultValues: {
-      profiles: [DEFAULT_PROFILE],
+      profile: DEFAULT_PROFILE,
     },
     mode: "onChange",
   });
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields: handleFields, append: appendHandle, remove: removeHandle } = useFieldArray({
     control,
-    name: "profiles",
+    name: "profile.handles",
   });
 
   return {
@@ -35,9 +42,9 @@ export function usePolaroidForm() {
     register,
     watch,
     errors,
-    fields,
-    append: () => append({ ...DEFAULT_PROFILE }),
-    remove,
+    handleFields,
+    appendHandle: () => appendHandle({ ...DEFAULT_HANDLE }),
+    removeHandle,
     reset,
   };
 }

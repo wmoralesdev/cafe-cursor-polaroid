@@ -6,23 +6,47 @@ import { PolaroidCaption } from "./polaroid-caption";
 
 interface PolaroidCardProps {
   image: string | null;
-  profiles: CursorProfile[];
+  profile: CursorProfile;
   className?: string;
   variant?: "preview" | "export";
-  // Image interaction
   onDrop?: (e: React.DragEvent<HTMLDivElement>) => void;
   onFileChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   clearImage?: () => void;
   error?: string | null;
-  // Image transform
   zoom?: number;
   position?: { x: number; y: number };
+}
+
+function TapeStrip({ position, variant }: { position: "top-left" | "top-right"; variant: "preview" | "export" }) {
+  const isExport = variant === "export";
+  const size = isExport ? "w-8 h-3" : "w-12 h-4";
+  const rotation = position === "top-left" ? "-rotate-12" : "rotate-12";
+  const placement = position === "top-left" 
+    ? (isExport ? "-left-2 -top-1" : "-left-3 -top-1.5")
+    : (isExport ? "-right-2 -top-1" : "-right-3 -top-1.5");
+  
+  return (
+    <div 
+      className={clsx(
+        "absolute z-10",
+        size,
+        rotation,
+        placement,
+        "bg-gradient-to-b from-amber-100/90 to-amber-50/80",
+        "border border-amber-200/50",
+        "shadow-sm",
+        "backdrop-blur-[1px]",
+        "before:absolute before:inset-0 before:bg-[linear-gradient(90deg,transparent_0%,rgba(255,255,255,0.3)_50%,transparent_100%)]",
+        "after:absolute after:inset-0 after:opacity-30 after:bg-[repeating-linear-gradient(90deg,transparent,transparent_2px,rgba(0,0,0,0.03)_2px,rgba(0,0,0,0.03)_4px)]"
+      )}
+    />
+  );
 }
 
 export const PolaroidCard = forwardRef<HTMLDivElement, PolaroidCardProps>(
   ({ 
     image, 
-    profiles, 
+    profile, 
     className, 
     variant = "preview",
     onDrop,
@@ -33,35 +57,46 @@ export const PolaroidCard = forwardRef<HTMLDivElement, PolaroidCardProps>(
     position
   }, ref) => {
     return (
-      <div
-        ref={ref}
-        className={clsx(
-          "bg-white transition-all duration-500 ease-out transform origin-center paper-texture",
-          // Variant specific sizing
+      <div className="relative">
+        {variant === "preview" && (
+          <>
+            <TapeStrip position="top-left" variant={variant} />
+            <TapeStrip position="top-right" variant={variant} />
+          </>
+        )}
+        
+        <div
+          ref={ref}
+          className={clsx(
+            "bg-white transition-all duration-500 ease-out transform origin-center paper-texture relative polaroid-card-light",
           variant === "preview" && [
             "hover:scale-[1.01] hover:rotate-1",
-            "w-full aspect-[2/3] max-w-[340px]", // 2:3 aspect ratio
-            "p-3 pb-12", // Reduced padding for larger image, classic bottom space
-            "shadow-polaroid"
+            "w-full max-w-[340px] h-[510px]",
+            "p-3",
+            "shadow-polaroid",
+            "flex flex-col"
           ],
-          variant === "export" && [
-             "w-[4in] h-[6in]", // 2:3 ratio (4x6 inches)
-             "p-[0.15in] pb-[0.6in]", // Scaled padding to match preview proportions
-          ],
-          className
-        )}
-      >
-        <PolaroidImage 
-          image={image} 
-          editable={variant === "preview"}
-          onDrop={onDrop}
-          onFileChange={onFileChange}
-          clearImage={clearImage}
-          error={error}
-          zoom={zoom}
-          position={position}
-        />
-        <PolaroidCaption profiles={profiles} />
+            variant === "export" && [
+               "w-[340px] h-[510px]",
+               "p-3",
+               "shadow-polaroid",
+               "flex flex-col",
+            ],
+            className
+          )}
+        >
+          <PolaroidImage 
+            image={image} 
+            editable={variant === "preview"}
+            onDrop={onDrop}
+            onFileChange={onFileChange}
+            clearImage={clearImage}
+            error={error}
+            zoom={zoom}
+            position={position}
+          />
+          <PolaroidCaption profile={profile} />
+        </div>
       </div>
     );
   }
