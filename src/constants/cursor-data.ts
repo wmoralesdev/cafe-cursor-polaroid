@@ -98,5 +98,6 @@ export const CURSOR_TENURES: { id: CursorTenure; label: string }[] = [
   { id: "day-1", label: "Day 1" },
   { id: "2023", label: "2023" },
   { id: "2024", label: "2024" },
+  { id: "2025", label: "2025" },
   { id: "recently", label: "Recently" },
 ];
