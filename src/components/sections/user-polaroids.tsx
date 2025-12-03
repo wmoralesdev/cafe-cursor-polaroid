@@ -9,7 +9,7 @@ import type { PolaroidRecord } from "@/lib/polaroids";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 
 interface UserPolaroidsProps {
-  onSelectPolaroid?: (polaroid: PolaroidRecord) => void;
+  onSelectPolaroid?: (polaroid: PolaroidRecord | null) => void;
   onAddNew?: () => void;
   activePolaroidId?: string | null;
 }

@@ -111,7 +111,7 @@ function AppContent() {
     }
   }, [userPolaroids, activePolaroid]);
 
-  const handleSelectPolaroid = useCallback((polaroid: PolaroidRecord) => {
+  const handleSelectPolaroid = useCallback((polaroid: PolaroidRecord | null) => {
     setActivePolaroid(polaroid);
     setNewCardRequested(false);
     document.getElementById("editor")?.scrollIntoView({ behavior: "smooth" });

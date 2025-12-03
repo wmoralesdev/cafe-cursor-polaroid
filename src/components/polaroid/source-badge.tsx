@@ -15,14 +15,6 @@ const sourceLabels: Record<string, string> = {
   direct: "Direct",
 };
 
-const sourceColors: Record<string, string> = {
-  event: "bg-blue-500/90 text-white",
-  x: "bg-black text-white",
-  github: "bg-[#24292e] text-white",
-  shared: "bg-purple-500/90 text-white",
-  direct: "bg-gray-500/90 text-white",
-};
-
 export function SourceBadge({ source, className }: SourceBadgeProps) {
   if (!source || source === "direct") {
     return null;
