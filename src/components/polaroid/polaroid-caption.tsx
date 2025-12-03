@@ -1,5 +1,8 @@
+import { format } from "date-fns";
+import { es, enUS } from "date-fns/locale";
 import type { CursorProfile } from "@/types/form";
 import { CursorProfileRow } from "./polaroid-profile-row";
+import { useLanguage } from "@/contexts/language-context";
 import cursorLogo from "@/assets/cursor.svg";
 
 interface PolaroidCaptionProps {
@@ -9,15 +12,15 @@ interface PolaroidCaptionProps {
 interface EventStampProps {
   rotation?: number;
   generatedAt?: string;
+  locale: typeof es | typeof enUS;
 }
 
-function formatShortDate(dateString?: string): string {
+function formatShortDate(dateString: string | undefined, locale: typeof es | typeof enUS): string {
   if (!dateString) return "";
-  const date = new Date(dateString);
-  return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  return format(new Date(dateString), "MMM d, yyyy", { locale });
 }
 
-function EventStamp({ rotation = -12, generatedAt }: EventStampProps) {
+function EventStamp({ rotation = -12, generatedAt, locale }: EventStampProps) {
   return (
     <div className="relative flex items-center justify-center opacity-40">
       <div 
@@ -37,7 +40,7 @@ function EventStamp({ rotation = -12, generatedAt }: EventStampProps) {
         </div>
         
         <div className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 text-[6px] font-mono font-bold text-accent/60 uppercase tracking-wider">
-          {generatedAt ? formatShortDate(generatedAt) : "3rd Ed."}
+          {generatedAt ? formatShortDate(generatedAt, locale) : "3rd Ed."}
         </div>
       </div>
     </div>
@@ -45,6 +48,8 @@ function EventStamp({ rotation = -12, generatedAt }: EventStampProps) {
 }
 
 export function PolaroidCaption({ profile }: PolaroidCaptionProps) {
+  const { lang } = useLanguage();
+  const locale = lang === "es" ? es : enUS;
   const stampRotation = profile.stampRotation ?? -12;
 
   return (
@@ -54,7 +59,7 @@ export function PolaroidCaption({ profile }: PolaroidCaptionProps) {
       </div>
       
       <div className="absolute bottom-0 right-0">
-        <EventStamp rotation={stampRotation} generatedAt={profile.generatedAt} />
+        <EventStamp rotation={stampRotation} generatedAt={profile.generatedAt} locale={locale} />
       </div>
     </div>
   );

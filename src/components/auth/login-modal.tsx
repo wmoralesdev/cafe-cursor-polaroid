@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useLanguage } from "@/contexts/language-context";
-import { Linkedin, Twitter, X } from "lucide-react";
+import { Github, Twitter, X } from "lucide-react";
 import { clsx } from "clsx";
 
 interface LoginModalProps {
@@ -10,15 +10,15 @@ interface LoginModalProps {
 
 export function LoginModal({ onClose }: LoginModalProps) {
   const { t } = useLanguage();
-  const { signInWithLinkedIn, signInWithTwitter } = useAuth();
+  const { signInWithGitHub, signInWithTwitter } = useAuth();
   const [isLoading, setIsLoading] = useState<string | null>(null);
 
-  const handleLinkedInLogin = async () => {
-    setIsLoading("linkedin");
+  const handleGitHubLogin = async () => {
+    setIsLoading("github");
     try {
-      await signInWithLinkedIn();
+      await signInWithGitHub();
     } catch (error) {
-      console.error("LinkedIn login failed:", error);
+      console.error("GitHub login failed:", error);
       setIsLoading(null);
     }
   };

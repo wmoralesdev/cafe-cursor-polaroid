@@ -1,4 +1,5 @@
-import React, { useState, useRef } from "react";
+import type React from "react";
+import { useState, useRef } from "react";
 import { useImagePicker } from "@/hooks/use-image-picker";
 import { usePolaroidForm } from "@/hooks/use-polaroid-form";
 import { useExportPolaroid } from "@/hooks/use-export-polaroid";
@@ -36,7 +37,7 @@ export function EditorSection({ initialPolaroid, onPolaroidChange }: EditorSecti
     clearImage 
   } = useImagePicker({ initialImage: initialPolaroid?.image_url });
   
-  const { control, register, watch, errors, handleFields, appendHandle, removeHandle, reset } = usePolaroidForm({
+  const { control, register, watch, errors, handleFields, appendHandle, removeHandle } = usePolaroidForm({
     initialProfile: initialPolaroid?.profile,
   });
   
@@ -56,8 +57,6 @@ export function EditorSection({ initialPolaroid, onPolaroidChange }: EditorSecti
     onFileChange(e);
   };
   const { ref: polaroidRef, exportImage, isExporting } = useExportPolaroid();
-  const [isFlashing, setIsFlashing] = useState(false);
-  
   const profile = watch("profile");
   
   const { currentPolaroidId, syncStatus, forceSave } = usePolaroidAutosave({
@@ -108,9 +107,6 @@ export function EditorSection({ initialPolaroid, onPolaroidChange }: EditorSecti
 
     setShowExportChoice(false);
     await forceSave();
-
-    setIsFlashing(true);
-    await new Promise(resolve => setTimeout(resolve, 100)); 
     
     const dataUrl = await exportImage();
     
@@ -137,8 +133,6 @@ export function EditorSection({ initialPolaroid, onPolaroidChange }: EditorSecti
         console.error("Failed to export polaroid", err);
       }
     }
-    
-    setTimeout(() => setIsFlashing(false), 300);
   };
 
   // Generate a random stamp rotation between -12 and 12 degrees
@@ -254,11 +248,15 @@ export function EditorSection({ initialPolaroid, onPolaroidChange }: EditorSecti
           <div className={`relative w-full max-w-[340px] mx-auto ${!user ? "opacity-40" : ""}`}>
             <div 
               ref={tiltRef}
-              className="relative w-full"
+              className="relative w-full cursor-default"
               style={{ perspective: "1000px" }}
               onMouseMove={handleMouseMove}
               onMouseEnter={() => setIsHovering(true)}
               onMouseLeave={handleMouseLeave}
+              onKeyDown={() => {}}
+              role="img"
+              aria-label="Polaroid card preview with 3D tilt effect"
+              tabIndex={-1}
             >
 
              <div 

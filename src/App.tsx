@@ -66,9 +66,10 @@ function AppContent() {
   }, [theme]);
 
   useEffect(() => {
-    if (sharedPolaroid?.profile?.name) {
+    const handle = sharedPolaroid?.profile?.handles?.[0]?.handle;
+    if (handle) {
       const originalTitle = document.title;
-      document.title = `Cafe Cursor – ${sharedPolaroid.profile.name}'s card`;
+      document.title = `Cafe Cursor – ${handle}'s card`;
       return () => {
         document.title = originalTitle;
       };

@@ -96,17 +96,6 @@ export interface Translations {
     noImage: string;
     removeImage: string;
   };
-  time: {
-    today: string;
-    dayAgo: string;
-    daysAgo: string;
-    weekAgo: string;
-    weeksAgo: string;
-    monthAgo: string;
-    monthsAgo: string;
-    yearAgo: string;
-    yearsAgo: string;
-  };
 }
 
 export const translations: Record<Language, Translations> = {

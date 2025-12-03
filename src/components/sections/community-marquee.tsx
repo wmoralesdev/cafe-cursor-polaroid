@@ -1,3 +1,5 @@
+import { formatDistanceToNow } from "date-fns";
+import { es, enUS } from "date-fns/locale";
 import { PolaroidCard } from "@/components/polaroid/polaroid-card";
 import { useLanguage } from "@/contexts/language-context";
 import { useCommunityPolaroids } from "@/hooks/use-polaroids-query";
@@ -5,27 +7,6 @@ import { useCommunityRealtime } from "@/hooks/use-community-realtime";
 import type { PolaroidRecord } from "@/lib/polaroids";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
-
-function formatRelativeTime(dateString: string): string {
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-  
-  if (diffDays === 0) return "Today";
-  if (diffDays === 1) return "1 day ago";
-  if (diffDays < 7) return `${diffDays} days ago`;
-  if (diffDays < 30) {
-    const weeks = Math.floor(diffDays / 7);
-    return `${weeks} ${weeks === 1 ? "week" : "weeks"} ago`;
-  }
-  if (diffDays < 365) {
-    const months = Math.floor(diffDays / 30);
-    return `${months} ${months === 1 ? "month" : "months"} ago`;
-  }
-  const years = Math.floor(diffDays / 365);
-  return `${years} ${years === 1 ? "year" : "years"} ago`;
-}
 
 function getUserDisplayInfo(polaroid: PolaroidRecord, userAvatarUrl?: string | null) {
   const firstHandle = polaroid.profile.handles[0];
@@ -41,11 +22,12 @@ function getUserDisplayInfo(polaroid: PolaroidRecord, userAvatarUrl?: string | n
 }
 
 export function CommunityMarquee() {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const { user } = useAuth();
   const { data: polaroids = [], isLoading: loading } = useCommunityPolaroids(20);
   useCommunityRealtime();
   
+  const locale = lang === "es" ? es : enUS;
   const userAvatarUrl = user?.user_metadata?.avatar_url || user?.user_metadata?.picture || null;
 
   const duplicatedPolaroids = polaroids.length > 0 
@@ -111,7 +93,7 @@ export function CommunityMarquee() {
                         </p>
                       </div>
                       <span className="text-xs text-fg-muted font-body whitespace-nowrap">
-                        {formatRelativeTime(polaroid.created_at)}
+                        {formatDistanceToNow(new Date(polaroid.created_at), { addSuffix: true, locale })}
                       </span>
                     </div>
 

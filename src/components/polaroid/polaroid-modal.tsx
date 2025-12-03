@@ -1,9 +1,7 @@
-import React, { useEffect } from "react";
-import { X } from "lucide-react";
+import { useEffect } from "react";
+import { X, Loader2, AlertCircle } from "lucide-react";
 import { PolaroidPreview } from "./polaroid-card";
 import { usePolaroid } from "@/hooks/use-polaroids-query";
-import { useLanguage } from "@/contexts/language-context";
-import { Loader2, AlertCircle } from "lucide-react";
 
 interface PolaroidModalProps {
   polaroidId: string | null;
@@ -12,7 +10,6 @@ interface PolaroidModalProps {
 
 export function PolaroidModal({ polaroidId, onClose }: PolaroidModalProps) {
   const { data: polaroid, isLoading, error } = usePolaroid(polaroidId);
-  const { t } = useLanguage();
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {

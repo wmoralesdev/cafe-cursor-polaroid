@@ -27,15 +27,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const signInWithLinkedIn = async () => {
+  const signInWithGitHub = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
-      provider: "linkedin_oidc",
+      provider: "github",
       options: {
         redirectTo: window.location.origin,
       },
     });
     if (error) {
-      console.error("Error signing in with LinkedIn:", error);
+      console.error("Error signing in with GitHub:", error);
       throw error;
     }
   };
@@ -62,11 +62,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const getProvider = (): "twitter" | "linkedin_oidc" | null => {
+  const getProvider = (): "twitter" | "github" | null => {
     if (!session?.user) return null;
     
     const provider = session.user.app_metadata?.provider;
-    if (provider === "twitter" || provider === "linkedin_oidc") {
+    if (provider === "twitter" || provider === "github") {
       return provider;
     }
     
@@ -74,7 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (identities.length > 0) {
       const identityProvider = identities[0].provider;
       if (identityProvider === "twitter") return "twitter";
-      if (identityProvider === "linkedin_oidc") return "linkedin_oidc";
+      if (identityProvider === "github") return "github";
     }
     
     return null;
@@ -87,7 +87,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         session,
         loading,
         provider: getProvider(),
-        signInWithLinkedIn,
+        signInWithGitHub,
         signInWithTwitter,
         signOut,
       }}
