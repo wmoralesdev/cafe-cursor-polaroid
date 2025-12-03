@@ -88,10 +88,12 @@ export const PLAN_TIERS: { id: PlanTier; label: string }[] = [
 ];
 
 export const TECH_EXTRAS = [
-  "React", "Next.js", "TypeScript", "Python", "Rust", "Go", 
-  "Tailwind", "Supabase", "Postgres", "Swift", "Kotlin", "Svelte", "Vue",
-  "LangChain", "Pydantic AI", "Vercel", "Cloudflare", "Stripe", "Turso",
-  "Bun", "Deno", "Hono", "Astro", "Solid", "Qwik"
+  "React", "Vue", "Angular", "Next.js", "Nuxt", "Svelte",
+  "Node.js", "Express", "NestJS", "Laravel", ".NET", "Spring Boot",
+  "Django", "FastAPI", "Ruby on Rails", "Go", "Rust",
+  "TypeScript", "Python", "Java", "C#", "PHP",
+  "Tailwind", "PostgreSQL", "MongoDB", "MySQL", "Redis",
+  "AWS", "Azure", "GCP", "Docker", "Kubernetes"
 ];
 
 export const CURSOR_TENURES: { id: CursorTenure; label: string }[] = [

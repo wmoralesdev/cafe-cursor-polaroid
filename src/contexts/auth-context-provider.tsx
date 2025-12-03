@@ -62,12 +62,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const getProvider = (): "twitter" | "linkedin_oidc" | null => {
+    if (!session?.user) return null;
+    
+    const provider = session.user.app_metadata?.provider;
+    if (provider === "twitter" || provider === "linkedin_oidc") {
+      return provider;
+    }
+    
+    const identities = session.user.identities || [];
+    if (identities.length > 0) {
+      const identityProvider = identities[0].provider;
+      if (identityProvider === "twitter") return "twitter";
+      if (identityProvider === "linkedin_oidc") return "linkedin_oidc";
+    }
+    
+    return null;
+  };
+
   return (
     <AuthContext.Provider
       value={{
         user,
         session,
         loading,
+        provider: getProvider(),
         signInWithLinkedIn,
         signInWithTwitter,
         signOut,

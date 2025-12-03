@@ -19,6 +19,8 @@ export interface CursorProfile {
   extras: string[];
   isMaxMode: boolean;
   cursorSince: CursorTenure;
+  stampRotation?: number;
+  generatedAt?: string; // ISO date string (YYYY-MM-DD)
 }
 
 export interface PolaroidFormValues {

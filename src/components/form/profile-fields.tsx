@@ -13,6 +13,7 @@ interface ProfileFieldsProps {
   handleFields: UseFieldArrayReturn<PolaroidFormValues, "profile.handles", "id">["fields"];
   appendHandle: () => void;
   removeHandle: (index: number) => void;
+  onInteraction?: () => void;
 }
 
 export function ProfileFields({
@@ -22,8 +23,13 @@ export function ProfileFields({
   handleFields,
   appendHandle,
   removeHandle,
+  onInteraction,
 }: ProfileFieldsProps) {
   const { t } = useLanguage();
+  
+  const handleInputInteraction = () => {
+    onInteraction?.();
+  };
   
   return (
     <div className="space-y-6">
@@ -41,7 +47,7 @@ export function ProfileFields({
             const inputId = `handle-${index}`;
             return (
               <div key={field.id} className="flex gap-2 items-center">
-                <HandlePlatformSelector control={control} handleIndex={index} />
+                <HandlePlatformSelector control={control} handleIndex={index} onInteraction={handleInputInteraction} />
                 <div className="flex-1 relative">
                   <label htmlFor={inputId} className="sr-only">
                     {t.form.socialHandles.label}
@@ -53,6 +59,11 @@ export function ProfileFields({
                     id={inputId}
                     {...register(`profile.handles.${index}.handle`, { required: t.form.socialHandles.errorRequired })}
                     placeholder={t.form.socialHandles.placeholder}
+                    onFocus={handleInputInteraction}
+                    onChange={(e) => {
+                      handleInputInteraction();
+                      register(`profile.handles.${index}.handle`).onChange(e);
+                    }}
                     className="block w-full pl-9 pr-4 py-2.5 bg-card border border-border rounded-sm text-sm font-mono font-medium text-fg placeholder:text-fg-muted/50 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
                   />
                 </div>
@@ -88,34 +99,35 @@ export function ProfileFields({
 
         <div className="grid grid-cols-1 sm:grid-cols-12 gap-6">
           <div className="sm:col-span-8">
-            <PlanSelector control={control} />
+            <PlanSelector control={control} onInteraction={handleInputInteraction} />
           </div>
           <div className="sm:col-span-4">
             <div className="space-y-2">
               <div className="block text-xs font-medium text-fg-muted uppercase tracking-[0.08em] font-display">
                 {t.form.options}
               </div>
-              <MaxModeToggle control={control} />
+              <MaxModeToggle control={control} onInteraction={handleInputInteraction} />
             </div>
           </div>
         </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <CodingModelSelector control={control} />
-          <ThinkingModelSelector control={control} />
+          <CodingModelSelector control={control} onInteraction={handleInputInteraction} />
+          <ThinkingModelSelector control={control} onInteraction={handleInputInteraction} />
         </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <FeatureSelector control={control} />
-          <TenureSelector control={control} />
+          <FeatureSelector control={control} onInteraction={handleInputInteraction} />
+          <TenureSelector control={control} onInteraction={handleInputInteraction} />
         </div>
         
         <ProjectInput
           register={register}
           errors={errors}
+          onInteraction={handleInputInteraction}
         />
         
-        <TechExtras control={control} />
+        <TechExtras control={control} onInteraction={handleInputInteraction} />
       </div>
     </div>
   );

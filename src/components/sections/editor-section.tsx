@@ -2,32 +2,28 @@ import React, { useState, useRef } from "react";
 import { useImagePicker } from "@/hooks/use-image-picker";
 import { usePolaroidForm } from "@/hooks/use-polaroid-form";
 import { useExportPolaroid } from "@/hooks/use-export-polaroid";
+import { usePolaroidAutosave } from "@/hooks/use-polaroid-autosave";
 import { ProfileFields } from "@/components/form/profile-fields";
 import { PolaroidPreview } from "@/components/polaroid/polaroid-card";
 import { useLanguage } from "@/contexts/language-context";
 import { useAuth } from "@/hooks/use-auth";
 import { AuthOverlay } from "@/components/auth/auth-overlay";
-import { Download, Maximize2, Move, Coffee } from "lucide-react";
+import { Download, Maximize2, Move, Loader2, CheckCircle2, AlertCircle, Linkedin, Plus } from "lucide-react";
+import { useUpdatePolaroid, useCreatePolaroid } from "@/hooks/use-polaroids-query";
+import { XIcon } from "@/components/ui/x-icon";
+import type { PolaroidRecord } from "@/lib/polaroids";
 
-function FloatingBean({ delay, x, size }: { delay: number; x: number; size: "sm" | "md" }) {
-  const sizeClass = size === "sm" ? "w-3 h-3" : "w-4 h-4";
-  return (
-    <div 
-      className={`absolute pointer-events-none ${sizeClass} text-accent/20`}
-      style={{
-        left: `${x}%`,
-        top: "10%",
-        animation: `drift 20s ease-in-out ${delay}s infinite`,
-      }}
-    >
-      <Coffee className="w-full h-full" strokeWidth={1.5} />
-    </div>
-  );
+interface EditorSectionProps {
+  initialPolaroid?: PolaroidRecord | null;
+  onPolaroidChange?: (polaroid: PolaroidRecord | null) => void;
 }
 
-export function EditorSection() {
+export function EditorSection({ initialPolaroid, onPolaroidChange }: EditorSectionProps) {
   const { t } = useLanguage();
-  const { user } = useAuth();
+  const { user, provider } = useAuth();
+  const [hasUserInteracted, setHasUserInteracted] = useState(false);
+  const isEditingExisting = !!initialPolaroid;
+  
   const { 
     image, 
     error: imageError, 
@@ -38,11 +34,44 @@ export function EditorSection() {
     onDrop, 
     onFileChange, 
     clearImage 
-  } = useImagePicker();
+  } = useImagePicker({ initialImage: initialPolaroid?.image_url });
   
-  const { control, register, watch, errors, handleFields, appendHandle, removeHandle } = usePolaroidForm();
+  const { control, register, watch, errors, handleFields, appendHandle, removeHandle, reset } = usePolaroidForm({
+    initialProfile: initialPolaroid?.profile,
+  });
+  
+  const handleInteraction = () => {
+    if (!hasUserInteracted) {
+      setHasUserInteracted(true);
+    }
+  };
+  
+  const handleImageDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    handleInteraction();
+    onDrop(e);
+  };
+  
+  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    handleInteraction();
+    onFileChange(e);
+  };
   const { ref: polaroidRef, exportImage, isExporting } = useExportPolaroid();
   const [isFlashing, setIsFlashing] = useState(false);
+  
+  const profile = watch("profile");
+  
+  const { currentPolaroidId, syncStatus, forceSave } = usePolaroidAutosave({
+    profile,
+    image,
+    user: user || null,
+    hasUserInteracted,
+    initialPolaroidId: initialPolaroid?.id,
+  });
+
+  const updateMutation = useUpdatePolaroid();
+  const createMutation = useCreatePolaroid();
+  const [isSharing, setIsSharing] = useState(false);
+  const [showExportChoice, setShowExportChoice] = useState(false);
   
   const tiltRef = useRef<HTMLDivElement>(null);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
@@ -63,43 +92,144 @@ export function EditorSection() {
     setIsHovering(false);
   };
 
-  const profile = watch("profile");
+  const handleExportClick = () => {
+    if (!user || !currentPolaroidId) return;
+    if (isEditingExisting) {
+      setShowExportChoice(true);
+    } else {
+      performExport("overwrite");
+    }
+  };
 
-  const handleExport = async () => {
-    if (!user) {
+  const performExport = async (mode: "overwrite" | "create-new") => {
+    if (!user || !currentPolaroidId) {
       return;
     }
+
+    setShowExportChoice(false);
+    await forceSave();
 
     setIsFlashing(true);
     await new Promise(resolve => setTimeout(resolve, 100)); 
     
-    await exportImage();
+    const dataUrl = await exportImage();
+    
+    if (dataUrl) {
+      try {
+        if (mode === "overwrite") {
+          await updateMutation.mutateAsync({
+            id: currentPolaroidId,
+            params: {
+              imageDataUrl: dataUrl,
+            },
+          });
+        } else {
+          const newPolaroid = await createMutation.mutateAsync({
+            profile: {
+              ...profile,
+              stampRotation: profile.stampRotation ?? generateStampRotation(),
+            },
+            imageDataUrl: dataUrl,
+          });
+          onPolaroidChange?.(newPolaroid);
+        }
+      } catch (err) {
+        console.error("Failed to export polaroid", err);
+      }
+    }
     
     setTimeout(() => setIsFlashing(false), 300);
   };
 
+  // Generate a random stamp rotation between -12 and 12 degrees
+  function generateStampRotation(): number {
+    return Math.round((Math.random() * 24 - 12) * 10) / 10;
+  }
+
+  const handleShare = async (socialProvider: "twitter" | "linkedin_oidc") => {
+    if (!user || !currentPolaroidId || !image) {
+      return;
+    }
+
+    setIsSharing(true);
+
+    try {
+      await forceSave();
+      const dataUrl = await exportImage();
+      
+      if (dataUrl && currentPolaroidId) {
+        try {
+          await updateMutation.mutateAsync({
+            id: currentPolaroidId,
+            params: {
+              imageDataUrl: dataUrl,
+              is_published: true,
+              provider: socialProvider === "twitter" ? "twitter" : "linkedin",
+            },
+          });
+        } catch (err) {
+          console.error("Failed to update polaroid", err);
+        }
+      }
+
+      const baseUrl = window.location.origin + window.location.pathname;
+      const shareUrl = new URL(baseUrl);
+      shareUrl.searchParams.set("p", currentPolaroidId);
+      const shareUrlString = shareUrl.toString();
+      const shareText = `Check out my dev card: ${shareUrlString}`;
+
+      if (socialProvider === "twitter") {
+        const twitterIntentUrl = new URL("https://twitter.com/intent/tweet");
+        twitterIntentUrl.searchParams.set("text", shareText);
+        twitterIntentUrl.searchParams.set("url", shareUrlString);
+        window.open(twitterIntentUrl.toString(), "_blank", "noopener,noreferrer");
+      } else {
+        const linkedInIntentUrl = new URL("https://www.linkedin.com/sharing/share-offsite");
+        linkedInIntentUrl.searchParams.set("url", shareUrlString);
+        window.open(linkedInIntentUrl.toString(), "_blank", "noopener,noreferrer");
+      }
+    } catch (err) {
+      console.error("Failed to share polaroid", err);
+    } finally {
+      setIsSharing(false);
+    }
+  };
+
   return (
     <section id="editor" className="py-8 lg:min-h-[700px] flex flex-col justify-center mb-16 relative overflow-hidden">
-      <FloatingBean delay={0} x={5} size="sm" />
-      <FloatingBean delay={3} x={15} size="md" />
-      <FloatingBean delay={7} x={85} size="sm" />
-      <FloatingBean delay={10} x={92} size="md" />
-      
-      <div 
-        className="absolute top-20 right-[5%] w-24 h-24 rounded-full border-2 border-accent/5 opacity-40 pointer-events-none"
-        style={{
-          background: "radial-gradient(circle at 30% 30%, transparent 50%, rgba(245, 78, 0, 0.03) 70%, transparent 90%)",
-        }}
-      />
       
       <div className="max-w-7xl mx-auto w-full mb-12 relative z-10 animate-[fadeInUp_0.6s_ease-out_forwards]">
-        <div className="max-w-2xl">
-          <h1 className="font-display text-4xl md:text-5xl font-semibold text-fg tracking-tight leading-tight">
-            {t.editor.title}
-          </h1>
-          <p className="text-fg-muted font-body text-lg mt-3 max-w-xl leading-relaxed">
-            {t.editor.subtitle}
-          </p>
+        <div className="max-w-2xl flex items-start justify-between gap-4">
+          <div>
+            <h1 className="font-display text-4xl md:text-5xl font-semibold text-fg tracking-tight leading-tight">
+              {t.editor.title}
+            </h1>
+            <p className="text-fg-muted font-body text-lg mt-3 max-w-xl leading-relaxed">
+              {t.editor.subtitle}
+            </p>
+          </div>
+          {user && syncStatus !== "idle" && (
+            <div className="flex items-center gap-2 text-xs font-medium text-fg-muted mt-2">
+              {syncStatus === "saving" && (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" strokeWidth={1.5} />
+                  <span>{t.editor.syncStatus.saving}</span>
+                </>
+              )}
+              {syncStatus === "saved" && (
+                <>
+                  <CheckCircle2 className="w-3.5 h-3.5 text-accent" strokeWidth={1.5} />
+                  <span className="text-accent">{t.editor.syncStatus.saved}</span>
+                </>
+              )}
+              {syncStatus === "error" && (
+                <>
+                  <AlertCircle className="w-3.5 h-3.5 text-accent" strokeWidth={1.5} />
+                  <span className="text-accent">{t.editor.syncStatus.error}</span>
+                </>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
@@ -114,16 +244,12 @@ export function EditorSection() {
               handleFields={handleFields}
               appendHandle={appendHandle}
               removeHandle={removeHandle}
+              onInteraction={handleInteraction}
             />
           </div>
         </div>
 
         <div className="lg:col-span-6 flex flex-col items-center justify-center lg:h-full relative animate-[fadeInUp_0.6s_ease-out_0.2s_forwards] opacity-0">
-          <div 
-            className="absolute top-1/2 left-1/2 w-[600px] h-[600px] pointer-events-none -z-10 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(245,78,0,0.08)_0%,transparent_70%)] animate-[spotlight_15s_ease-in-out_infinite]"
-          />
-          
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-accent/[0.03] blur-[80px] rounded-full pointer-events-none -z-10" />
 
           <div className={`relative w-full max-w-[340px] mx-auto ${!user ? "opacity-40" : ""}`}>
             <div 
@@ -134,9 +260,6 @@ export function EditorSection() {
               onMouseEnter={() => setIsHovering(true)}
               onMouseLeave={handleMouseLeave}
             >
-             <div 
-               className={`absolute inset-0 bg-card z-50 pointer-events-none transition-opacity duration-300 ease-out rounded-sm ${isFlashing ? 'opacity-90' : 'opacity-0'}`}
-             />
 
              <div 
                className="w-full transition-transform duration-200 ease-out"
@@ -151,8 +274,8 @@ export function EditorSection() {
                  image={image}
                  profile={profile}
                  variant="preview"
-                 onDrop={onDrop}
-                 onFileChange={onFileChange}
+                 onDrop={handleImageDrop}
+                 onFileChange={handleImageFileChange}
                  clearImage={clearImage}
                  error={imageError}
                  zoom={zoom}
@@ -242,15 +365,88 @@ export function EditorSection() {
                   </div>
                )}
 
-               <button 
-                 type="button"
-                 onClick={handleExport}
-                 disabled={isExporting || !image || !user}
-                 className="w-full py-4 px-8 bg-accent text-white rounded-sm font-semibold tracking-wide shadow-md hover:bg-accent/90 hover:shadow-lg hover:-translate-y-0.5 hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-md disabled:hover:scale-100 font-body"
-               >
-                 <Download className={`w-5 h-5 ${isExporting ? "animate-bounce" : ""}`} strokeWidth={1.5} />
-                 {isExporting ? t.editor.exportButton.exporting : t.editor.exportButton.default}
-               </button>
+               <div className="space-y-3">
+                 {user && (
+                   <div className="text-xs text-fg-muted font-body text-center mb-2">
+                     {isEditingExisting ? (
+                       <span>Editing existing card</span>
+                     ) : (
+                       <span>Creating new card</span>
+                     )}
+                   </div>
+                 )}
+
+                 {showExportChoice && (
+                   <div className="p-4 card-panel border border-border rounded-sm space-y-3 animate-[fadeIn_0.2s_ease-out]">
+                     <p className="text-sm text-fg font-body text-center">
+                       What would you like to do?
+                     </p>
+                     <div className="flex gap-2">
+                       <button
+                         type="button"
+                         onClick={() => performExport("overwrite")}
+                         className="flex-1 py-2 px-3 bg-accent text-white rounded-sm font-medium text-sm hover:bg-accent/90 transition-colors"
+                       >
+                         Overwrite
+                       </button>
+                       <button
+                         type="button"
+                         onClick={() => performExport("create-new")}
+                         className="flex-1 py-2 px-3 bg-card border border-border text-fg rounded-sm font-medium text-sm hover:bg-card-02 transition-colors"
+                       >
+                         <Plus className="w-3.5 h-3.5 inline mr-1" />
+                         New card
+                       </button>
+                     </div>
+                     <button
+                       type="button"
+                       onClick={() => setShowExportChoice(false)}
+                       className="w-full text-xs text-fg-muted hover:text-fg transition-colors"
+                     >
+                       Cancel
+                     </button>
+                   </div>
+                 )}
+
+                 {!showExportChoice && (
+                   <button 
+                     type="button"
+                     onClick={handleExportClick}
+                     disabled={isExporting || !image || !user || !currentPolaroidId}
+                     className="w-full py-4 px-8 bg-accent text-white rounded-sm font-semibold tracking-wide shadow-md hover:bg-accent/90 hover:shadow-lg hover:-translate-y-0.5 hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-md disabled:hover:scale-100 font-body"
+                   >
+                     <Download className={`w-5 h-5 ${isExporting ? "animate-bounce" : ""}`} strokeWidth={1.5} />
+                     {isExporting ? t.editor.exportButton.exporting : t.editor.exportButton.default}
+                   </button>
+                 )}
+
+                 {provider && currentPolaroidId && (
+                   <>
+                     {provider === "twitter" && (
+                       <button
+                         type="button"
+                         onClick={() => handleShare("twitter")}
+                         disabled={isSharing || isExporting || !image || !user || !currentPolaroidId}
+                         className="w-full py-3 px-6 bg-card border border-border text-fg rounded-sm font-medium tracking-wide shadow-sm hover:bg-card-02 hover:shadow-md hover:-translate-y-0.5 hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-sm disabled:hover:scale-100 font-body"
+                       >
+                         <XIcon className="w-4 h-4" />
+                         <span>{isSharing ? "Opening X…" : "Share on X"}</span>
+                       </button>
+                     )}
+                     {provider === "linkedin_oidc" && (
+                       <button
+                         type="button"
+                         onClick={() => handleShare("linkedin_oidc")}
+                         disabled={isSharing || isExporting || !image || !user || !currentPolaroidId}
+                         className="w-full py-3 px-6 bg-card border border-border text-fg rounded-sm font-medium tracking-wide shadow-sm hover:bg-card-02 hover:shadow-md hover:-translate-y-0.5 hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-sm disabled:hover:scale-100 font-body"
+                       >
+                         <Linkedin className="w-4 h-4" strokeWidth={1.5} />
+                         <span>{isSharing ? "Opening LinkedIn…" : "Share on LinkedIn"}</span>
+                       </button>
+                     )}
+                   </>
+                 )}
+               </div>
             </div>
         </div>
       </div>

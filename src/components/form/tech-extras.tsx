@@ -6,9 +6,10 @@ import { TECH_EXTRAS } from "@/constants/cursor-data";
 
 interface TechExtrasProps {
   control: Control<PolaroidFormValues>;
+  onInteraction?: () => void;
 }
 
-export function TechExtras({ control }: TechExtrasProps) {
+export function TechExtras({ control, onInteraction }: TechExtrasProps) {
   const { t } = useLanguage();
   return (
     <div className="space-y-2">
@@ -22,10 +23,11 @@ export function TechExtras({ control }: TechExtrasProps) {
           const currentExtras = field.value || [];
           
           const toggleExtra = (tech: string) => {
+            onInteraction?.();
             if (currentExtras.includes(tech)) {
               field.onChange(currentExtras.filter((t) => t !== tech));
             } else {
-              if (currentExtras.length >= 2) return;
+              if (currentExtras.length >= 4) return;
               field.onChange([...currentExtras, tech]);
             }
           };
@@ -34,7 +36,7 @@ export function TechExtras({ control }: TechExtrasProps) {
             <div className="flex flex-wrap gap-2">
               {TECH_EXTRAS.map((tech) => {
                 const isSelected = currentExtras.includes(tech);
-                const limitReached = !isSelected && currentExtras.length >= 2;
+                const limitReached = !isSelected && currentExtras.length >= 4;
                 
                 return (
                   <button
@@ -44,10 +46,10 @@ export function TechExtras({ control }: TechExtrasProps) {
                     className={clsx(
                       "px-2.5 py-1 rounded-full text-[11px] font-medium border transition-all duration-150 font-mono",
                       isSelected
-                        ? "bg-fg text-white border-fg"
+                        ? "bg-accent text-white border-accent"
                         : clsx(
-                            "bg-transparent text-fg-muted border-border hover:border-fg-muted",
-                            limitReached && "opacity-40 cursor-not-allowed hover:border-border"
+                            "bg-card text-fg-muted border-border hover:border-fg-muted hover:bg-card-02",
+                            limitReached && "opacity-40 cursor-not-allowed hover:border-border hover:bg-card"
                           )
                     )}
                     disabled={limitReached}

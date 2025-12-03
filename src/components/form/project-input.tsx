@@ -7,9 +7,10 @@ import { useLanguage } from "@/contexts/language-context";
 interface ProjectInputProps {
   register: UseFormRegister<PolaroidFormValues>;
   errors: FieldErrors<PolaroidFormValues>;
+  onInteraction?: () => void;
 }
 
-export function ProjectInput({ register, errors }: ProjectInputProps) {
+export function ProjectInput({ register, errors, onInteraction }: ProjectInputProps) {
   const { t } = useLanguage();
   const error = errors.profile?.projectType;
   
@@ -28,6 +29,11 @@ export function ProjectInput({ register, errors }: ProjectInputProps) {
         id="project"
         maxLength={60}
         {...register("profile.projectType", { required: t.form.currentProject.errorRequired })}
+        onFocus={onInteraction}
+        onChange={(e) => {
+          onInteraction?.();
+          register("profile.projectType").onChange(e);
+        }}
         className={clsx(
           "block w-full px-4 py-2.5 bg-card border rounded-sm text-sm font-body placeholder-fg-muted/70 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-150",
           error ? "border-accent focus:border-accent" : "border-border hover:border-border-strong"

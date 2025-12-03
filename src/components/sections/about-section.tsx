@@ -1,5 +1,6 @@
-import { Github, Coffee, Users } from "lucide-react";
+import { Github, Users } from "lucide-react";
 import { XIcon } from "@/components/ui/x-icon";
+import { CursorIcon } from "@/components/ui/cursor-icon";
 import { useLanguage } from "@/contexts/language-context";
 
 export function AboutSection() {
@@ -9,7 +10,7 @@ export function AboutSection() {
       <div className="card-panel p-8 sm:p-12 text-center max-w-2xl mx-auto">
         
         <div className="flex items-center justify-center gap-2 mb-4">
-          <Coffee className="w-6 h-6 text-accent" strokeWidth={1.5} />
+          <CursorIcon className="w-6 h-6" />
           <Users className="w-5 h-5 text-fg-muted" strokeWidth={1.5} />
         </div>
         

@@ -5,9 +5,9 @@ export function useExportPolaroid() {
   const ref = useRef<HTMLDivElement>(null);
   const [isExporting, setIsExporting] = useState(false);
 
-  const exportImage = useCallback(async () => {
+  const exportImage = useCallback(async (): Promise<string | null> => {
     if (ref.current === null) {
-      return;
+      return null;
     }
 
     setIsExporting(true);
@@ -16,7 +16,7 @@ export function useExportPolaroid() {
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       const dataUrl = await domToPng(ref.current, {
-        scale: 2,
+        scale: 4,
         backgroundColor: "#ffffff",
       });
 
@@ -24,8 +24,11 @@ export function useExportPolaroid() {
       link.download = `polaroid-${Date.now()}.png`;
       link.href = dataUrl;
       link.click();
+
+      return dataUrl;
     } catch (err) {
       console.error("Failed to export polaroid", err);
+      return null;
     } finally {
       setIsExporting(false);
     }

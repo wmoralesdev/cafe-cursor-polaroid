@@ -1,7 +1,7 @@
 import React from "react";
-import { Coffee } from "lucide-react";
 import { useLanguage } from "@/contexts/language-context";
 import { LanguageToggle } from "@/components/ui/language-toggle";
+import { CursorIcon } from "@/components/ui/cursor-icon";
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -16,7 +16,7 @@ export function AppShell({ children }: AppShellProps) {
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6">
           <div className="flex items-center gap-3">
             <div className="text-accent">
-               <Coffee className="h-6 w-6" strokeWidth={1.5} />
+               <CursorIcon className="h-6 w-6" />
             </div>
             <div className="flex flex-col">
                 <span className="text-2xl font-semibold tracking-tight font-display text-fg">Cafe Cursor</span>

@@ -14,14 +14,16 @@ const SOCIAL_PLATFORMS: { id: SocialPlatform; label: string; icon: React.ReactNo
 
 interface SelectorProps {
   control: Control<PolaroidFormValues>;
+  onInteraction?: () => void;
 }
 
 interface HandlePlatformSelectorProps {
   control: Control<PolaroidFormValues>;
   handleIndex: number;
+  onInteraction?: () => void;
 }
 
-function BaseModelSelector({ control, name, labelKey }: { control: Control<PolaroidFormValues>; name: "primaryModel" | "secondaryModel"; labelKey: "codingModel" | "thinkingModel" }) {
+function BaseModelSelector({ control, name, labelKey, onInteraction }: { control: Control<PolaroidFormValues>; name: "primaryModel" | "secondaryModel"; labelKey: "codingModel" | "thinkingModel"; onInteraction?: () => void }) {
   const { t } = useLanguage();
   const selectId = `select-${name}`;
   return (
@@ -37,6 +39,11 @@ function BaseModelSelector({ control, name, labelKey }: { control: Control<Polar
             <select
               id={selectId}
               {...field}
+              onChange={(e) => {
+                onInteraction?.();
+                field.onChange(e);
+              }}
+              onFocus={onInteraction}
               className="block w-full appearance-none bg-card border border-border rounded-sm py-2.5 pl-3 pr-10 text-sm font-body text-fg focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors cursor-pointer"
             >
               {CURSOR_MODELS.map((model) => (
@@ -55,15 +62,15 @@ function BaseModelSelector({ control, name, labelKey }: { control: Control<Polar
   );
 }
 
-export function CodingModelSelector({ control }: SelectorProps) {
-  return <BaseModelSelector control={control} name="primaryModel" labelKey="codingModel" />;
+export function CodingModelSelector({ control, onInteraction }: SelectorProps) {
+  return <BaseModelSelector control={control} name="primaryModel" labelKey="codingModel" onInteraction={onInteraction} />;
 }
 
-export function ThinkingModelSelector({ control }: SelectorProps) {
-  return <BaseModelSelector control={control} name="secondaryModel" labelKey="thinkingModel" />;
+export function ThinkingModelSelector({ control, onInteraction }: SelectorProps) {
+  return <BaseModelSelector control={control} name="secondaryModel" labelKey="thinkingModel" onInteraction={onInteraction} />;
 }
 
-export function MaxModeToggle({ control }: SelectorProps) {
+export function MaxModeToggle({ control, onInteraction }: SelectorProps) {
   const { t } = useLanguage();
   return (
     <Controller
@@ -72,7 +79,10 @@ export function MaxModeToggle({ control }: SelectorProps) {
       render={({ field: { value, onChange } }) => (
         <button
           type="button"
-          onClick={() => onChange(!value)}
+          onClick={() => {
+            onInteraction?.();
+            onChange(!value);
+          }}
           className={clsx(
             "flex items-center gap-2 px-3 py-2 rounded-sm border transition-all duration-200 w-full justify-center text-xs font-medium font-body uppercase tracking-wider",
             "hover:scale-[1.02] active:scale-[0.98]",
@@ -90,7 +100,7 @@ export function MaxModeToggle({ control }: SelectorProps) {
   );
 }
 
-export function FeatureSelector({ control }: SelectorProps) {
+export function FeatureSelector({ control, onInteraction }: SelectorProps) {
   const { t } = useLanguage();
   return (
     <div className="space-y-2">
@@ -109,7 +119,10 @@ export function FeatureSelector({ control }: SelectorProps) {
                 <button
                   key={feature.id}
                   type="button"
-                  onClick={() => field.onChange(feature.id)}
+                  onClick={() => {
+                    onInteraction?.();
+                    field.onChange(feature.id);
+                  }}
                   className={clsx(
                     "px-3 py-1.5 rounded-sm text-xs font-medium transition-all duration-150 font-body border",
                     "hover:scale-[1.03] active:scale-[0.97]",
@@ -130,7 +143,7 @@ export function FeatureSelector({ control }: SelectorProps) {
   );
 }
 
-export function PlanSelector({ control }: SelectorProps) {
+export function PlanSelector({ control, onInteraction }: SelectorProps) {
   const { t } = useLanguage();
   return (
     <div className="space-y-2">
@@ -149,7 +162,10 @@ export function PlanSelector({ control }: SelectorProps) {
                 <button
                   key={plan.id}
                   type="button"
-                  onClick={() => field.onChange(plan.id)}
+                  onClick={() => {
+                    onInteraction?.();
+                    field.onChange(plan.id);
+                  }}
                   className={clsx(
                     "flex-1 min-w-[60px] py-2 px-3 rounded-sm text-xs font-medium transition-all duration-150 font-body border text-center whitespace-nowrap flex items-center justify-center",
                     "hover:scale-[1.02] active:scale-[0.98]",
@@ -170,7 +186,7 @@ export function PlanSelector({ control }: SelectorProps) {
   );
 }
 
-export function TenureSelector({ control }: SelectorProps) {
+export function TenureSelector({ control, onInteraction }: SelectorProps) {
   const { t } = useLanguage();
   return (
     <div className="space-y-2">
@@ -189,7 +205,10 @@ export function TenureSelector({ control }: SelectorProps) {
                 <button
                   key={tenure.id}
                   type="button"
-                  onClick={() => field.onChange(tenure.id)}
+                  onClick={() => {
+                    onInteraction?.();
+                    field.onChange(tenure.id);
+                  }}
                   className={clsx(
                     "px-3 py-1.5 rounded-sm text-xs font-medium transition-all duration-150 font-body border",
                     "hover:scale-[1.03] active:scale-[0.97]",
@@ -210,7 +229,7 @@ export function TenureSelector({ control }: SelectorProps) {
   );
 }
 
-export function HandlePlatformSelector({ control, handleIndex }: HandlePlatformSelectorProps) {
+export function HandlePlatformSelector({ control, handleIndex, onInteraction }: HandlePlatformSelectorProps) {
   return (
     <Controller
       control={control}
@@ -223,7 +242,10 @@ export function HandlePlatformSelector({ control, handleIndex }: HandlePlatformS
               <button
                 key={platform.id}
                 type="button"
-                onClick={() => field.onChange(platform.id)}
+                onClick={() => {
+                  onInteraction?.();
+                  field.onChange(platform.id);
+                }}
                 className={clsx(
                   "p-2 rounded-sm border transition-all duration-150",
                   "hover:scale-[1.05] active:scale-[0.95]",

@@ -6,10 +6,24 @@ interface PolaroidCaptionProps {
   profile: CursorProfile;
 }
 
-function EventStamp() {
+interface EventStampProps {
+  rotation?: number;
+  generatedAt?: string;
+}
+
+function formatShortDate(dateString?: string): string {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+}
+
+function EventStamp({ rotation = -12, generatedAt }: EventStampProps) {
   return (
     <div className="relative flex items-center justify-center opacity-40">
-      <div className="relative w-20 h-20 rounded-full border-2 border-accent/70 flex items-center justify-center rotate-[-12deg]">
+      <div 
+        className="relative w-20 h-20 rounded-full border-2 border-accent/70 flex items-center justify-center"
+        style={{ transform: `rotate(${rotation}deg)` }}
+      >
         <div className="absolute inset-2 rounded-full border border-accent/50 border-dashed" />
         
         <div className="flex flex-col items-center justify-center text-accent gap-0.5">
@@ -23,7 +37,7 @@ function EventStamp() {
         </div>
         
         <div className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 text-[6px] font-mono font-bold text-accent/60 uppercase tracking-wider">
-          3rd Ed.
+          {generatedAt ? formatShortDate(generatedAt) : "3rd Ed."}
         </div>
       </div>
     </div>
@@ -31,6 +45,8 @@ function EventStamp() {
 }
 
 export function PolaroidCaption({ profile }: PolaroidCaptionProps) {
+  const stampRotation = profile.stampRotation ?? -12;
+
   return (
     <div className="pt-3 px-1 relative flex-1 flex flex-col min-h-0 overflow-hidden">
       <div className="flex-1 overflow-hidden pr-20">
@@ -38,7 +54,7 @@ export function PolaroidCaption({ profile }: PolaroidCaptionProps) {
       </div>
       
       <div className="absolute bottom-0 right-0">
-        <EventStamp />
+        <EventStamp rotation={stampRotation} generatedAt={profile.generatedAt} />
       </div>
     </div>
   );

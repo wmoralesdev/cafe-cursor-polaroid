@@ -1,0 +1,47 @@
+import { useEffect, useState } from "react";
+
+interface CursorIconProps {
+  className?: string;
+  strokeWidth?: number;
+}
+
+export function CursorIcon({ className = "w-6 h-6" }: CursorIconProps) {
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    const checkTheme = () => {
+      setIsDark(document.documentElement.getAttribute("data-theme") === "dark");
+    };
+
+    checkTheme();
+
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === "data-theme") {
+          checkTheme();
+        }
+      });
+    });
+
+    observer.observe(document.documentElement, { attributes: true });
+
+    return () => observer.disconnect();
+  }, []);
+
+  const fillColor = isDark ? "#F7F7F4" : "#14120B";
+
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 39 45"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M38.2221 10.5235L20.4233 0.247542C19.8518 -0.0825138 19.1465 -0.0825138 18.575 0.247542L0.777092 10.5235C0.296632 10.801 0 11.314 0 11.8697V32.5913C0 33.1461 0.296632 33.66 0.777092 33.9374L18.5758 44.2134C19.1474 44.5435 19.8526 44.5435 20.4242 44.2134L38.2229 33.9374C38.7034 33.66 39 33.147 39 32.5913V11.8697C39 11.3148 38.7025 10.801 38.2221 10.5235ZM37.1041 12.7002L19.922 42.4604C19.8058 42.6609 19.4992 42.579 19.4992 42.3467V22.8601C19.4992 22.4707 19.2911 22.1106 18.9535 21.915L2.07809 12.1721C1.87756 12.056 1.95944 11.7493 2.19173 11.7493H36.5559C37.0439 11.7493 37.3489 12.2783 37.1049 12.7011L37.1041 12.7002Z"
+        fill={fillColor}
+      />
+    </svg>
+  );
+}
+

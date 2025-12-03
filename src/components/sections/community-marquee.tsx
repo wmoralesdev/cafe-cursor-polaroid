@@ -1,10 +1,56 @@
-import { communityPolaroids } from "@/constants/mock-polaroids";
 import { PolaroidCard } from "@/components/polaroid/polaroid-card";
 import { useLanguage } from "@/contexts/language-context";
+import { useCommunityPolaroids } from "@/hooks/use-polaroids-query";
+import { useCommunityRealtime } from "@/hooks/use-community-realtime";
+import type { PolaroidRecord } from "@/lib/polaroids";
+import { Loader2 } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
+
+function formatRelativeTime(dateString: string): string {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  
+  if (diffDays === 0) return "Today";
+  if (diffDays === 1) return "1 day ago";
+  if (diffDays < 7) return `${diffDays} days ago`;
+  if (diffDays < 30) {
+    const weeks = Math.floor(diffDays / 7);
+    return `${weeks} ${weeks === 1 ? "week" : "weeks"} ago`;
+  }
+  if (diffDays < 365) {
+    const months = Math.floor(diffDays / 30);
+    return `${months} ${months === 1 ? "month" : "months"} ago`;
+  }
+  const years = Math.floor(diffDays / 365);
+  return `${years} ${years === 1 ? "year" : "years"} ago`;
+}
+
+function getUserDisplayInfo(polaroid: PolaroidRecord, userAvatarUrl?: string | null) {
+  const firstHandle = polaroid.profile.handles[0];
+  const handle = firstHandle ? `@${firstHandle.handle}` : "@user";
+  const name = firstHandle?.handle || "User";
+  
+  const avatar = userAvatarUrl || (() => {
+    const avatarSeed = firstHandle?.handle || polaroid.user_id;
+    return `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(avatarSeed)}`;
+  })();
+  
+  return { name, handle, avatar };
+}
 
 export function CommunityMarquee() {
   const { t } = useLanguage();
-  const duplicatedPolaroids = [...communityPolaroids, ...communityPolaroids];
+  const { user } = useAuth();
+  const { data: polaroids = [], isLoading: loading } = useCommunityPolaroids(20);
+  useCommunityRealtime();
+  
+  const userAvatarUrl = user?.user_metadata?.avatar_url || user?.user_metadata?.picture || null;
+
+  const duplicatedPolaroids = polaroids.length > 0 
+    ? [...polaroids, ...polaroids, ...polaroids]
+    : [];
 
   return (
     <section className="w-full py-12 overflow-hidden bg-gradient-to-b from-transparent via-card/30 to-transparent">
@@ -21,55 +67,70 @@ export function CommunityMarquee() {
         <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-bg to-transparent z-10 pointer-events-none" />
         <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-bg to-transparent z-10 pointer-events-none" />
 
-        <div 
-          className="flex gap-6 group" 
-          style={{ animation: "marquee 60s linear infinite" }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.animationPlayState = "paused";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.animationPlayState = "running";
-          }}
-        >
-          {duplicatedPolaroids.map((polaroid, index) => (
-            <div
-              key={`${polaroid.id}-${index}`}
-              className="flex-shrink-0 w-[280px] md:w-[320px]"
-            >
-              <div className="card-panel p-4 rounded-sm shadow-sm hover:shadow-md transition-shadow duration-200">
-                <div className="flex items-center gap-3 mb-3 pb-3 border-b border-border/50">
-                  <img
-                    src={polaroid.avatar}
-                    alt={polaroid.name}
-                    className="w-10 h-10 rounded-full border-2 border-accent/20"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <p className="font-body font-semibold text-fg text-sm truncate">
-                      {polaroid.name}
-                    </p>
-                    <p className="font-mono text-xs text-fg-muted truncate">
-                      {polaroid.handle}
-                    </p>
-                  </div>
-                  <span className="text-xs text-fg-muted font-body whitespace-nowrap">
-                    {polaroid.date}
-                  </span>
-                </div>
+        {loading ? (
+          <div className="flex justify-center items-center py-12">
+            <Loader2 className="w-8 h-8 animate-spin text-accent" strokeWidth={1.5} />
+          </div>
+        ) : duplicatedPolaroids.length === 0 ? (
+          <div className="flex justify-center items-center py-12">
+            <p className="text-fg-muted font-body text-sm">No community cards yet</p>
+          </div>
+        ) : (
+          <div 
+            className="flex gap-6 group" 
+            style={{ animation: "marquee 60s linear infinite" }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.animationPlayState = "paused";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.animationPlayState = "running";
+            }}
+          >
+            {duplicatedPolaroids.map((polaroid, index) => {
+              const isCurrentUser = user && polaroid.user_id === user.id;
+              const avatarUrl = isCurrentUser ? userAvatarUrl : null;
+              const { name, handle, avatar } = getUserDisplayInfo(polaroid, avatarUrl);
+              return (
+                <div
+                  key={`${polaroid.id}-${index}`}
+                  className="flex-shrink-0 w-[280px] md:w-[320px]"
+                >
+                  <div className="card-panel p-4 rounded-sm shadow-sm hover:shadow-md transition-shadow duration-200">
+                    <div className="flex items-center gap-3 mb-3 pb-3 border-b border-border/50">
+                      <img
+                        src={avatar}
+                        alt={name}
+                        className="w-10 h-10 rounded-full border-2 border-accent/20"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="font-body font-semibold text-fg text-sm truncate">
+                          {name}
+                        </p>
+                        <p className="font-mono text-xs text-fg-muted truncate">
+                          {handle}
+                        </p>
+                      </div>
+                      <span className="text-xs text-fg-muted font-body whitespace-nowrap">
+                        {formatRelativeTime(polaroid.created_at)}
+                      </span>
+                    </div>
 
-                <div className="relative">
-                  <PolaroidCard
-                    image={polaroid.image}
-                    profile={polaroid.profile}
-                    variant="preview"
-                    className="pointer-events-none"
-                    zoom={1}
-                    position={{ x: 0, y: 0 }}
-                  />
+                    <div className="relative">
+                      <PolaroidCard
+                        image={polaroid.image_url || null}
+                        profile={polaroid.profile}
+                        variant="preview"
+                        className="pointer-events-none"
+                        zoom={1}
+                        position={{ x: 0, y: 0 }}
+                      />
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          ))}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </section>
   );

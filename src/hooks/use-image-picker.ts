@@ -1,10 +1,23 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 
-export function useImagePicker() {
-  const [image, setImage] = useState<string | null>(null);
+interface UseImagePickerOptions {
+  initialImage?: string | null;
+}
+
+export function useImagePicker(options: UseImagePickerOptions = {}) {
+  const [image, setImage] = useState<string | null>(options.initialImage ?? null);
   const [error, setError] = useState<string | null>(null);
   const [zoom, setZoom] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
+
+  // Hydrate from initial image when it changes (e.g., loading an existing polaroid)
+  useEffect(() => {
+    if (options.initialImage !== undefined) {
+      setImage(options.initialImage);
+      setZoom(1);
+      setPosition({ x: 0, y: 0 });
+    }
+  }, [options.initialImage]);
 
   const processFile = useCallback((file: File) => {
     if (!file.type.startsWith("image/")) {

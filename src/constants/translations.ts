@@ -21,6 +21,12 @@ export interface Translations {
       default: string;
       exporting: string;
     };
+    syncStatus: {
+      idle: string;
+      saving: string;
+      saved: string;
+      error: string;
+    };
     imageControls: {
       zoom: string;
       panX: string;
@@ -90,6 +96,17 @@ export interface Translations {
     noImage: string;
     removeImage: string;
   };
+  time: {
+    today: string;
+    dayAgo: string;
+    daysAgo: string;
+    weekAgo: string;
+    weeksAgo: string;
+    monthAgo: string;
+    monthsAgo: string;
+    yearAgo: string;
+    yearsAgo: string;
+  };
 }
 
 export const translations: Record<Language, Translations> = {
@@ -113,6 +130,12 @@ export const translations: Record<Language, Translations> = {
       exportButton: {
         default: "Export card",
         exporting: "Exporting…",
+      },
+      syncStatus: {
+        idle: "",
+        saving: "Saving…",
+        saved: "Saved",
+        error: "Error saving",
       },
       imageControls: {
         zoom: "Zoom",
@@ -168,7 +191,7 @@ export const translations: Record<Language, Translations> = {
           "e.g. My startup MVP",
         ],
       },
-      techStack: "Tech stack (max 2)",
+      techStack: "Tech stack (max 4)",
     },
     community: {
       title: "Community cards",
@@ -210,6 +233,12 @@ export const translations: Record<Language, Translations> = {
       exportButton: {
         default: "Exportar tarjeta",
         exporting: "Exportando…",
+      },
+      syncStatus: {
+        idle: "",
+        saving: "Guardando…",
+        saved: "Guardado",
+        error: "Error al guardar",
       },
       imageControls: {
         zoom: "Zoom",
@@ -265,7 +294,7 @@ export const translations: Record<Language, Translations> = {
           "ej. El MVP de mi startup",
         ],
       },
-      techStack: "Stack tecnológico (máx. 2)",
+      techStack: "Tech stack (máx. 4)",
     },
     community: {
       title: "Tarjetas de la comunidad",

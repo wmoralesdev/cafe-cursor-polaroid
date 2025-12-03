@@ -1,0 +1,106 @@
+import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { createClient } from "jsr:@supabase/supabase-js@2";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+Deno.serve(async (req: Request) => {
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
+  }
+
+  try {
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: "Missing authorization header" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+    
+    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+      global: {
+        headers: { Authorization: authHeader },
+      },
+    });
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const body = await req.json();
+    const { profile, imageDataUrl, title, provider, is_published } = body;
+
+    if (!profile) {
+      return new Response(
+        JSON.stringify({ error: "Missing required field: profile" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    let imageUrl: string | null = null;
+    if (imageDataUrl) {
+      if (imageDataUrl.startsWith("http://") || imageDataUrl.startsWith("https://")) {
+        imageUrl = imageDataUrl;
+      } else {
+        const response = await fetch(imageDataUrl);
+        const blob = await response.blob();
+        const filename = `${user.id}/${Date.now()}-${Math.random().toString(36).substring(7)}.png`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from("polaroids")
+          .upload(filename, blob, {
+            contentType: "image/png",
+            upsert: false,
+          });
+
+        if (uploadError) {
+          throw new Error(`Failed to upload image: ${uploadError.message}`);
+        }
+
+        const { data: urlData } = supabase.storage
+          .from("polaroids")
+          .getPublicUrl(filename);
+        imageUrl = urlData.publicUrl;
+      }
+    }
+
+    const { data, error } = await supabase
+      .from("polaroids")
+      .insert({
+        user_id: user.id,
+        profile,
+        image_url: imageUrl,
+        title: title || null,
+        provider: provider || null,
+        is_published: is_published ?? false,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      throw new Error(`Failed to create polaroid: ${error.message}`);
+    }
+
+    return new Response(
+      JSON.stringify({ data }),
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  } catch (error) {
+    console.error("Error in create-polaroid function:", error);
+    return new Response(
+      JSON.stringify({ error: error instanceof Error ? error.message : "Internal server error" }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+});
+
