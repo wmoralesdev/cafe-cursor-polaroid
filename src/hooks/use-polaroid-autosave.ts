@@ -19,6 +19,8 @@ interface UsePolaroidAutosaveParams {
   debounceMs?: number;
   hasUserInteracted: boolean;
   initialPolaroidId?: string | null;
+  source?: string;
+  referred_by?: string | null;
 }
 
 export function usePolaroidAutosave({
@@ -28,6 +30,8 @@ export function usePolaroidAutosave({
   debounceMs = 1000,
   hasUserInteracted,
   initialPolaroidId,
+  source,
+  referred_by,
 }: UsePolaroidAutosaveParams): UsePolaroidAutosaveReturn {
   const [currentPolaroidId, setCurrentPolaroidId] = useState<string | null>(initialPolaroidId ?? null);
   const [syncStatus, setSyncStatus] = useState<SyncStatus>("idle");
@@ -98,6 +102,8 @@ export function usePolaroidAutosave({
         const newPolaroid = await createMutation.mutateAsync({
           profile: profileWithRotation,
           imageDataUrl: image,
+          source,
+          referred_by,
         });
         setCurrentPolaroidId(newPolaroid.id);
         hasCreatedInitialRef.current = true;
@@ -122,7 +128,7 @@ export function usePolaroidAutosave({
     } finally {
       isSavingRef.current = false;
     }
-  }, [user, currentPolaroidId, profile, profileString, image, hasUserInteracted, createMutation, updateMutation, generateStampRotation]);
+  }, [user, currentPolaroidId, profile, profileString, image, hasUserInteracted, source, referred_by, createMutation, updateMutation, generateStampRotation]);
 
   const forceSave = useCallback(async () => {
     if (debounceTimerRef.current) {

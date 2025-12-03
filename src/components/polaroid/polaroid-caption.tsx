@@ -7,6 +7,7 @@ import cursorLogo from "@/assets/cursor.svg";
 
 interface PolaroidCaptionProps {
   profile: CursorProfile;
+  source?: string | null;
 }
 
 interface EventStampProps {
@@ -47,7 +48,7 @@ function EventStamp({ rotation = -12, generatedAt, locale }: EventStampProps) {
   );
 }
 
-export function PolaroidCaption({ profile }: PolaroidCaptionProps) {
+export function PolaroidCaption({ profile, source }: PolaroidCaptionProps) {
   const { lang } = useLanguage();
   const locale = lang === "es" ? es : enUS;
   const stampRotation = profile.stampRotation ?? -12;
@@ -55,7 +56,7 @@ export function PolaroidCaption({ profile }: PolaroidCaptionProps) {
   return (
     <div className="pt-3 px-1 relative flex-1 flex flex-col min-h-0 overflow-hidden">
       <div className="flex-1 overflow-hidden pr-20">
-        <CursorProfileRow profile={profile} />
+        <CursorProfileRow profile={profile} source={source} />
       </div>
       
       <div className="absolute bottom-0 right-0">

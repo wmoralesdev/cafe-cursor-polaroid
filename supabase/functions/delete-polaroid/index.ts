@@ -38,7 +38,7 @@ Deno.serve(async (req: Request) => {
     }
 
     const body = await req.json();
-    const { id, profile, imageDataUrl, title, provider, is_published } = body;
+    const { id } = body;
 
     if (!id) {
       return new Response(
@@ -47,76 +47,68 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const updateData: Record<string, unknown> = {};
-    
-    if (profile !== undefined) {
-      updateData.profile = profile;
-    }
-    
-    if (title !== undefined) {
-      updateData.title = title || null;
-    }
-    
-    if (provider !== undefined) {
-      updateData.provider = provider || null;
-    }
-    
-    if (is_published !== undefined) {
-      updateData.is_published = is_published;
-    }
-
-    if (imageDataUrl) {
-      if (imageDataUrl.startsWith("http://") || imageDataUrl.startsWith("https://")) {
-        updateData.image_url = imageDataUrl;
-        updateData.source_image_url = imageDataUrl;
-      } else {
-        const response = await fetch(imageDataUrl);
-        const blob = await response.blob();
-        const filename = `${user.id}/${id}.png`;
-        
-        const { error: uploadError } = await supabase.storage
-          .from("polaroids")
-          .upload(filename, blob, {
-            contentType: "image/png",
-            upsert: true,
-          });
-
-        if (uploadError) {
-          throw new Error(`Failed to upload image: ${uploadError.message}`);
-        }
-
-        const { data: urlData } = supabase.storage
-          .from("polaroids")
-          .getPublicUrl(filename);
-        updateData.image_url = urlData.publicUrl;
-        updateData.source_image_url = urlData.publicUrl;
-      }
-    }
-
-    const { data, error } = await supabase
+    // First, get the polaroid to check ownership and get image URL
+    const { data: polaroid, error: fetchError } = await supabase
       .from("polaroids")
-      .update(updateData)
+      .select("user_id, image_url")
       .eq("id", id)
-      .eq("user_id", user.id)
-      .select()
       .single();
 
-    if (error) {
-      if (error.code === "PGRST116") {
+    if (fetchError) {
+      if (fetchError.code === "PGRST116") {
         return new Response(
           JSON.stringify({ error: "Polaroid not found" }),
           { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-      throw new Error(`Failed to update polaroid: ${error.message}`);
+      throw new Error(`Failed to fetch polaroid: ${fetchError.message}`);
+    }
+
+    // Verify ownership
+    if (polaroid.user_id !== user.id) {
+      return new Response(
+        JSON.stringify({ error: "Forbidden: You can only delete your own polaroids" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Delete image from storage if it exists
+    if (polaroid.image_url) {
+      try {
+        const urlParts = polaroid.image_url.split("/");
+        const filename = urlParts.slice(-2).join("/"); // Get user_id/filename
+        
+        const { error: deleteError } = await supabase.storage
+          .from("polaroids")
+          .remove([filename]);
+
+        if (deleteError) {
+          console.warn(`Failed to delete image from storage: ${deleteError.message}`);
+          // Continue with polaroid deletion even if image deletion fails
+        }
+      } catch (storageError) {
+        console.warn(`Error deleting image: ${storageError}`);
+        // Continue with polaroid deletion
+      }
+    }
+
+    // Delete the polaroid record
+    const { error: deleteError } = await supabase
+      .from("polaroids")
+      .delete()
+      .eq("id", id)
+      .eq("user_id", user.id);
+
+    if (deleteError) {
+      throw new Error(`Failed to delete polaroid: ${deleteError.message}`);
     }
 
     return new Response(
-      JSON.stringify({ data }),
+      JSON.stringify({ data: { success: true } }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
-    console.error("Error in update-polaroid function:", error);
+    console.error("Error in delete-polaroid function:", error);
     return new Response(
       JSON.stringify({ error: error instanceof Error ? error.message : "Internal server error" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }

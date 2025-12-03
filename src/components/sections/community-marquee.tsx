@@ -30,8 +30,9 @@ export function CommunityMarquee() {
   const locale = lang === "es" ? es : enUS;
   const userAvatarUrl = user?.user_metadata?.avatar_url || user?.user_metadata?.picture || null;
 
+  const duplicationFactor = polaroids.length > 0 && polaroids.length < 10 ? 10 : 5;
   const duplicatedPolaroids = polaroids.length > 0 
-    ? [...polaroids, ...polaroids, ...polaroids]
+    ? Array(duplicationFactor).fill(polaroids).flat()
     : [];
 
   return (
@@ -55,7 +56,7 @@ export function CommunityMarquee() {
           </div>
         ) : duplicatedPolaroids.length === 0 ? (
           <div className="flex justify-center items-center py-12">
-            <p className="text-fg-muted font-body text-sm">No community cards yet</p>
+            <p className="text-fg-muted font-body text-sm">{t.community.empty}</p>
           </div>
         ) : (
           <div 
@@ -105,6 +106,7 @@ export function CommunityMarquee() {
                         className="pointer-events-none"
                         zoom={1}
                         position={{ x: 0, y: 0 }}
+                        source={polaroid.source}
                       />
                     </div>
                   </div>

@@ -65,7 +65,6 @@ Deno.serve(async (req: Request) => {
       const { data, error } = await supabase
         .from("polaroids")
         .select("*")
-        .eq("is_published", true)
         .order("created_at", { ascending: false })
         .limit(limit * 2);
 

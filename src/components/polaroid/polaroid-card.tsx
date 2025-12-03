@@ -15,6 +15,7 @@ interface PolaroidCardProps {
   error?: string | null;
   zoom?: number;
   position?: { x: number; y: number };
+  source?: string | null;
 }
 
 function TapeStrip({ position, variant }: { position: "top-left" | "top-right"; variant: "preview" | "export" }) {
@@ -54,7 +55,8 @@ export const PolaroidCard = forwardRef<HTMLDivElement, PolaroidCardProps>(
     clearImage,
     error,
     zoom,
-    position
+    position,
+    source
   }, ref) => {
     return (
       <div className="relative">
@@ -95,7 +97,7 @@ export const PolaroidCard = forwardRef<HTMLDivElement, PolaroidCardProps>(
             zoom={zoom}
             position={position}
           />
-          <PolaroidCaption profile={profile} />
+          <PolaroidCaption profile={profile} source={source} />
         </div>
       </div>
     );

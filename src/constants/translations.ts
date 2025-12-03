@@ -39,8 +39,26 @@ export interface Translations {
         welcome: string;
         terms: string;
         connecting: string;
-        linkedin: string;
+        github: string;
         twitter: string;
+      };
+      cardStatus: {
+        editing: string;
+        creating: string;
+      };
+      exportChoice: {
+        title: string;
+        overwrite: string;
+        newCard: string;
+        cancel: string;
+      };
+      share: {
+        link: string;
+        copied: string;
+        onX: string;
+        onGitHub: string;
+        openingX: string;
+        openingGitHub: string;
       };
   };
   about: {
@@ -80,6 +98,11 @@ export interface Translations {
   community: {
     title: string;
     subtitle: string;
+    empty: string;
+  };
+  showcase: {
+    title: string;
+    subtitle: string;
   };
   userPolaroids: {
     title: string;
@@ -88,6 +111,10 @@ export interface Translations {
       title: string;
       subtitle: string;
     };
+    newCard: string;
+    delete: string;
+    deleteConfirm: string;
+    cancel: string;
   };
   imageUpload: {
     perfect: string;
@@ -138,8 +165,26 @@ export const translations: Record<Language, Translations> = {
         welcome: "Welcome",
         terms: "By continuing, you agree to our terms of service",
         connecting: "Connecting…",
-        linkedin: "Continue with LinkedIn",
+        github: "Continue with GitHub",
         twitter: "Continue with X",
+      },
+      cardStatus: {
+        editing: "Editing existing card",
+        creating: "Creating new card",
+      },
+      exportChoice: {
+        title: "What would you like to do?",
+        overwrite: "Overwrite",
+        newCard: "New card",
+        cancel: "Cancel",
+      },
+      share: {
+        link: "Share link",
+        copied: "Copied!",
+        onX: "Share on X",
+        onGitHub: "Share on GitHub",
+        openingX: "Opening X…",
+        openingGitHub: "Opening GitHub…",
       },
     },
     about: {
@@ -185,6 +230,11 @@ export const translations: Record<Language, Translations> = {
     community: {
       title: "Community cards",
       subtitle: "See what others are building",
+      empty: "No community cards yet",
+    },
+    showcase: {
+      title: "Cafe Cursor around the world",
+      subtitle: "A glimpse into our global community",
     },
     userPolaroids: {
       title: "Your cards",
@@ -193,6 +243,10 @@ export const translations: Record<Language, Translations> = {
         title: "No cards yet",
         subtitle: "Create your first card above",
       },
+      newCard: "New card",
+      delete: "Delete",
+      deleteConfirm: "Are you sure you want to delete this card? This action cannot be undone.",
+      cancel: "Cancel",
     },
     imageUpload: {
       perfect: "Perfect",
@@ -241,8 +295,26 @@ export const translations: Record<Language, Translations> = {
         welcome: "Bienvenido",
         terms: "Al continuar, aceptas nuestros términos de servicio",
         connecting: "Conectando…",
-        linkedin: "Continuar con LinkedIn",
+        github: "Continuar con GitHub",
         twitter: "Continuar con X",
+      },
+      cardStatus: {
+        editing: "Editando tarjeta existente",
+        creating: "Creando nueva tarjeta",
+      },
+      exportChoice: {
+        title: "¿Qué te gustaría hacer?",
+        overwrite: "Sobrescribir",
+        newCard: "Nueva tarjeta",
+        cancel: "Cancelar",
+      },
+      share: {
+        link: "Compartir enlace",
+        copied: "¡Copiado!",
+        onX: "Compartir en X",
+        onGitHub: "Compartir en GitHub",
+        openingX: "Abriendo X…",
+        openingGitHub: "Abriendo GitHub…",
       },
     },
     about: {
@@ -288,6 +360,11 @@ export const translations: Record<Language, Translations> = {
     community: {
       title: "Tarjetas de la comunidad",
       subtitle: "Ve lo que otros están construyendo",
+      empty: "Aún no hay tarjetas de la comunidad",
+    },
+    showcase: {
+      title: "Cafe Cursor alrededor del mundo",
+      subtitle: "Un vistazo a nuestra comunidad global",
     },
     userPolaroids: {
       title: "Tus tarjetas",
@@ -296,6 +373,10 @@ export const translations: Record<Language, Translations> = {
         title: "Aún no hay tarjetas",
         subtitle: "Crea tu primera tarjeta arriba",
       },
+      newCard: "Nueva tarjeta",
+      delete: "Eliminar",
+      deleteConfirm: "¿Estás seguro de que quieres eliminar esta tarjeta? Esta acción no se puede deshacer.",
+      cancel: "Cancelar",
     },
     imageUpload: {
       perfect: "Perfecto",

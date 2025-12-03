@@ -1,5 +1,5 @@
 import type React from "react";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useImagePicker } from "@/hooks/use-image-picker";
 import { usePolaroidForm } from "@/hooks/use-polaroid-form";
 import { useExportPolaroid } from "@/hooks/use-export-polaroid";
@@ -8,21 +8,27 @@ import { ProfileFields } from "@/components/form/profile-fields";
 import { PolaroidPreview } from "@/components/polaroid/polaroid-card";
 import { useLanguage } from "@/contexts/language-context";
 import { useAuth } from "@/hooks/use-auth";
+import { useTracking } from "@/contexts/tracking-context";
 import { AuthOverlay } from "@/components/auth/auth-overlay";
-import { Download, Maximize2, Move, Loader2, CheckCircle2, AlertCircle, Linkedin, Plus } from "lucide-react";
+import { Download, Maximize2, Move, Loader2, CheckCircle2, AlertCircle, Github, Plus, Share2 } from "lucide-react";
 import { useUpdatePolaroid, useCreatePolaroid } from "@/hooks/use-polaroids-query";
 import { XIcon } from "@/components/ui/x-icon";
 import type { PolaroidRecord } from "@/lib/polaroids";
+import type { CursorProfile } from "@/types/form";
 
 interface EditorSectionProps {
   initialPolaroid?: PolaroidRecord | null;
   onPolaroidChange?: (polaroid: PolaroidRecord | null) => void;
+  newCardRequested?: boolean;
+  onNewCardHandled?: () => void;
 }
 
-export function EditorSection({ initialPolaroid, onPolaroidChange }: EditorSectionProps) {
+export function EditorSection({ initialPolaroid, onPolaroidChange, newCardRequested, onNewCardHandled }: EditorSectionProps) {
   const { t } = useLanguage();
   const { user, provider } = useAuth();
+  const { source, referredBy } = useTracking();
   const [hasUserInteracted, setHasUserInteracted] = useState(false);
+  const [showNewCardChoice, setShowNewCardChoice] = useState(false);
   const isEditingExisting = !!initialPolaroid;
   
   const { 
@@ -35,7 +41,7 @@ export function EditorSection({ initialPolaroid, onPolaroidChange }: EditorSecti
     onDrop, 
     onFileChange, 
     clearImage 
-  } = useImagePicker({ initialImage: initialPolaroid?.image_url });
+  } = useImagePicker({ initialImage: initialPolaroid?.source_image_url || initialPolaroid?.image_url });
   
   const { control, register, watch, errors, handleFields, appendHandle, removeHandle } = usePolaroidForm({
     initialProfile: initialPolaroid?.profile,
@@ -65,12 +71,14 @@ export function EditorSection({ initialPolaroid, onPolaroidChange }: EditorSecti
     user: user || null,
     hasUserInteracted,
     initialPolaroidId: initialPolaroid?.id,
+    source,
+    referred_by: referredBy,
   });
 
   const updateMutation = useUpdatePolaroid();
   const createMutation = useCreatePolaroid();
   const [isSharing, setIsSharing] = useState(false);
-  const [showExportChoice, setShowExportChoice] = useState(false);
+  const [shareCopied, setShareCopied] = useState(false);
   
   const tiltRef = useRef<HTMLDivElement>(null);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
@@ -91,56 +99,103 @@ export function EditorSection({ initialPolaroid, onPolaroidChange }: EditorSecti
     setIsHovering(false);
   };
 
-  const handleExportClick = () => {
-    if (!user || !currentPolaroidId) return;
-    if (isEditingExisting) {
-      setShowExportChoice(true);
-    } else {
-      performExport("overwrite");
-    }
-  };
-
-  const performExport = async (mode: "overwrite" | "create-new") => {
-    if (!user || !currentPolaroidId) {
-      return;
-    }
-
-    setShowExportChoice(false);
+  const handleExportClick = async () => {
+    if (!user || !image) return;
+    
     await forceSave();
-    
-    const dataUrl = await exportImage();
-    
-    if (dataUrl) {
-      try {
-        if (mode === "overwrite") {
-          await updateMutation.mutateAsync({
-            id: currentPolaroidId,
-            params: {
-              imageDataUrl: dataUrl,
-            },
-          });
-        } else {
-          const newPolaroid = await createMutation.mutateAsync({
-            profile: {
-              ...profile,
-              stampRotation: profile.stampRotation ?? generateStampRotation(),
-            },
-            imageDataUrl: dataUrl,
-          });
-          onPolaroidChange?.(newPolaroid);
-        }
-      } catch (err) {
-        console.error("Failed to export polaroid", err);
-      }
-    }
+    await exportImage();
   };
 
-  // Generate a random stamp rotation between -12 and 12 degrees
   function generateStampRotation(): number {
     return Math.round((Math.random() * 24 - 12) * 10) / 10;
   }
 
-  const handleShare = async (socialProvider: "twitter" | "linkedin_oidc") => {
+  const handleNewCardOverwrite = async () => {
+    if (!user || !currentPolaroidId) return;
+    
+    setShowNewCardChoice(false);
+    
+    const defaultProfile: CursorProfile = {
+      handles: [{ handle: "", platform: "x" }],
+      primaryModel: "composer-1",
+      secondaryModel: "gpt-5.1",
+      favoriteFeature: "agent",
+      planTier: "pro",
+      projectType: "",
+      extras: [],
+      isMaxMode: false,
+      cursorSince: "2024",
+      stampRotation: generateStampRotation(),
+      generatedAt: new Date().toISOString().split("T")[0],
+    };
+    
+    try {
+      const updated = await updateMutation.mutateAsync({
+        id: currentPolaroidId,
+        params: {
+          profile: defaultProfile,
+          imageDataUrl: null,
+        },
+      });
+      clearImage();
+      onPolaroidChange?.(updated);
+    } catch (err) {
+      console.error("Failed to overwrite polaroid", err);
+    }
+  };
+
+  const handleNewCardCreate = async () => {
+    if (!user || !image) return;
+    
+    setShowNewCardChoice(false);
+    await forceSave();
+    
+    try {
+      const newPolaroid = await createMutation.mutateAsync({
+        profile: {
+          ...profile,
+          stampRotation: profile.stampRotation ?? generateStampRotation(),
+        },
+        imageDataUrl: image,
+        source,
+        referred_by: referredBy,
+      });
+      onPolaroidChange?.(newPolaroid);
+    } catch (err) {
+      console.error("Failed to create new polaroid", err);
+    }
+  };
+
+  useEffect(() => {
+    if (newCardRequested && isEditingExisting && currentPolaroidId) {
+      setShowNewCardChoice(true);
+      onNewCardHandled?.();
+    } else if (!newCardRequested) {
+      setShowNewCardChoice(false);
+    }
+  }, [newCardRequested, isEditingExisting, currentPolaroidId, onNewCardHandled]);
+
+  const handleCopyShareLink = async () => {
+    if (!user || !currentPolaroidId) {
+      return;
+    }
+
+    try {
+      await forceSave();
+      const baseUrl = window.location.origin + window.location.pathname;
+      const shareUrl = new URL(baseUrl);
+      shareUrl.searchParams.set("ref", user.id);
+      const shareUrlString = shareUrl.toString();
+      
+      await navigator.clipboard.writeText(shareUrlString);
+      setShareCopied(true);
+      setTimeout(() => setShareCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy share link", err);
+    }
+  };
+
+  const handleShare = async (socialProvider: "twitter" | "github") => {
     if (!user || !currentPolaroidId || !image) {
       return;
     }
@@ -158,7 +213,7 @@ export function EditorSection({ initialPolaroid, onPolaroidChange }: EditorSecti
             params: {
               imageDataUrl: dataUrl,
               is_published: true,
-              provider: socialProvider === "twitter" ? "twitter" : "linkedin",
+              provider: socialProvider === "twitter" ? "twitter" : "github",
             },
           });
         } catch (err) {
@@ -169,6 +224,7 @@ export function EditorSection({ initialPolaroid, onPolaroidChange }: EditorSecti
       const baseUrl = window.location.origin + window.location.pathname;
       const shareUrl = new URL(baseUrl);
       shareUrl.searchParams.set("p", currentPolaroidId);
+      shareUrl.searchParams.set("ref", user.id);
       const shareUrlString = shareUrl.toString();
       const shareText = `Check out my dev card: ${shareUrlString}`;
 
@@ -178,9 +234,10 @@ export function EditorSection({ initialPolaroid, onPolaroidChange }: EditorSecti
         twitterIntentUrl.searchParams.set("url", shareUrlString);
         window.open(twitterIntentUrl.toString(), "_blank", "noopener,noreferrer");
       } else {
-        const linkedInIntentUrl = new URL("https://www.linkedin.com/sharing/share-offsite");
-        linkedInIntentUrl.searchParams.set("url", shareUrlString);
-        window.open(linkedInIntentUrl.toString(), "_blank", "noopener,noreferrer");
+        // GitHub doesn't have a share intent URL, so we'll just copy to clipboard
+        await navigator.clipboard.writeText(shareUrlString);
+        setShareCopied(true);
+        setTimeout(() => setShareCopied(false), 2000);
       }
     } catch (err) {
       console.error("Failed to share polaroid", err);
@@ -278,6 +335,7 @@ export function EditorSection({ initialPolaroid, onPolaroidChange }: EditorSecti
                  error={imageError}
                  zoom={zoom}
                  position={position}
+                 source={source}
                />
              </div>
 
@@ -367,55 +425,67 @@ export function EditorSection({ initialPolaroid, onPolaroidChange }: EditorSecti
                  {user && (
                    <div className="text-xs text-fg-muted font-body text-center mb-2">
                      {isEditingExisting ? (
-                       <span>Editing existing card</span>
+                       <span>{t.editor.cardStatus.editing}</span>
                      ) : (
-                       <span>Creating new card</span>
+                       <span>{t.editor.cardStatus.creating}</span>
                      )}
                    </div>
                  )}
 
-                 {showExportChoice && (
+                 {showNewCardChoice && (
                    <div className="p-4 card-panel border border-border rounded-sm space-y-3 animate-[fadeIn_0.2s_ease-out]">
                      <p className="text-sm text-fg font-body text-center">
-                       What would you like to do?
+                       {t.editor.exportChoice.title}
                      </p>
                      <div className="flex gap-2">
                        <button
                          type="button"
-                         onClick={() => performExport("overwrite")}
+                         onClick={handleNewCardOverwrite}
                          className="flex-1 py-2 px-3 bg-accent text-white rounded-sm font-medium text-sm hover:bg-accent/90 transition-colors"
                        >
-                         Overwrite
+                         {t.editor.exportChoice.overwrite}
                        </button>
                        <button
                          type="button"
-                         onClick={() => performExport("create-new")}
+                         onClick={handleNewCardCreate}
                          className="flex-1 py-2 px-3 bg-card border border-border text-fg rounded-sm font-medium text-sm hover:bg-card-02 transition-colors"
                        >
                          <Plus className="w-3.5 h-3.5 inline mr-1" />
-                         New card
+                         {t.editor.exportChoice.newCard}
                        </button>
                      </div>
                      <button
                        type="button"
-                       onClick={() => setShowExportChoice(false)}
+                       onClick={() => setShowNewCardChoice(false)}
                        className="w-full text-xs text-fg-muted hover:text-fg transition-colors"
                      >
-                       Cancel
+                       {t.editor.exportChoice.cancel}
                      </button>
                    </div>
                  )}
 
-                 {!showExportChoice && (
-                   <button 
-                     type="button"
-                     onClick={handleExportClick}
-                     disabled={isExporting || !image || !user || !currentPolaroidId}
-                     className="w-full py-4 px-8 bg-accent text-white rounded-sm font-semibold tracking-wide shadow-md hover:bg-accent/90 hover:shadow-lg hover:-translate-y-0.5 hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-md disabled:hover:scale-100 font-body"
-                   >
-                     <Download className={`w-5 h-5 ${isExporting ? "animate-bounce" : ""}`} strokeWidth={1.5} />
-                     {isExporting ? t.editor.exportButton.exporting : t.editor.exportButton.default}
-                   </button>
+                 {!showNewCardChoice && (
+                   <>
+                     <button 
+                       type="button"
+                       onClick={handleExportClick}
+                       disabled={isExporting || !image || !user}
+                       className="w-full py-4 px-8 bg-accent text-white rounded-sm font-semibold tracking-wide shadow-md hover:bg-accent/90 hover:shadow-lg hover:-translate-y-0.5 hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-md disabled:hover:scale-100 font-body"
+                     >
+                       <Download className={`w-5 h-5 ${isExporting ? "animate-bounce" : ""}`} strokeWidth={1.5} />
+                       {isExporting ? t.editor.exportButton.exporting : t.editor.exportButton.default}
+                     </button>
+                     {user && currentPolaroidId && (
+                       <button
+                         type="button"
+                         onClick={handleCopyShareLink}
+                         className="w-full py-3 px-6 bg-card border border-border text-fg rounded-sm font-medium tracking-wide shadow-sm hover:bg-card-02 hover:shadow-md hover:-translate-y-0.5 hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-sm disabled:hover:scale-100 font-body"
+                       >
+                         <Share2 className="w-4 h-4" strokeWidth={1.5} />
+                         <span>{shareCopied ? t.editor.share.copied : t.editor.share.link}</span>
+                       </button>
+                     )}
+                   </>
                  )}
 
                  {provider && currentPolaroidId && (
@@ -428,18 +498,18 @@ export function EditorSection({ initialPolaroid, onPolaroidChange }: EditorSecti
                          className="w-full py-3 px-6 bg-card border border-border text-fg rounded-sm font-medium tracking-wide shadow-sm hover:bg-card-02 hover:shadow-md hover:-translate-y-0.5 hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-sm disabled:hover:scale-100 font-body"
                        >
                          <XIcon className="w-4 h-4" />
-                         <span>{isSharing ? "Opening X…" : "Share on X"}</span>
+                         <span>{isSharing ? t.editor.share.openingX : t.editor.share.onX}</span>
                        </button>
                      )}
-                     {provider === "linkedin_oidc" && (
+                     {provider === "github" && (
                        <button
                          type="button"
-                         onClick={() => handleShare("linkedin_oidc")}
+                         onClick={() => handleShare("github")}
                          disabled={isSharing || isExporting || !image || !user || !currentPolaroidId}
                          className="w-full py-3 px-6 bg-card border border-border text-fg rounded-sm font-medium tracking-wide shadow-sm hover:bg-card-02 hover:shadow-md hover:-translate-y-0.5 hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-sm disabled:hover:scale-100 font-body"
                        >
-                         <Linkedin className="w-4 h-4" strokeWidth={1.5} />
-                         <span>{isSharing ? "Opening LinkedIn…" : "Share on LinkedIn"}</span>
+                         <Github className="w-4 h-4" strokeWidth={1.5} />
+                         <span>{isSharing ? t.editor.share.openingGitHub : t.editor.share.onGitHub}</span>
                        </button>
                      )}
                    </>

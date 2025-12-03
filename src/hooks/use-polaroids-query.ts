@@ -122,3 +122,18 @@ export function usePolaroid(id: string | null) {
   });
 }
 
+export function useDeletePolaroid() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { deletePolaroid } = await import("@/lib/polaroids");
+      await deletePolaroid(id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["polaroids", "user"] });
+      queryClient.invalidateQueries({ queryKey: ["polaroids", "community"] });
+    },
+  });
+}
+

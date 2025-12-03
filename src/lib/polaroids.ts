@@ -1,14 +1,20 @@
 import { supabase } from "./supabase";
 import type { CursorProfile } from "@/types/form";
 
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "http://localhost:64321";
+
 export interface PolaroidRecord {
   id: string;
   user_id: string;
   image_url: string | null;
+  source_image_url: string | null;
   profile: CursorProfile;
   title: string | null;
   provider: string | null;
   is_published: boolean;
+  source: string | null;
+  referred_by: string | null;
+  slug: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -19,6 +25,8 @@ export interface CreatePolaroidParams {
   title?: string;
   provider?: string;
   is_published?: boolean;
+  source?: string;
+  referred_by?: string | null;
 }
 
 export interface UpdatePolaroidParams {
@@ -38,6 +46,8 @@ export async function createPolaroid(params: CreatePolaroidParams): Promise<Pola
       title: params.title,
       provider: params.provider,
       is_published: params.is_published,
+      source: params.source,
+      referred_by: params.referred_by,
     },
   });
 
@@ -114,6 +124,35 @@ export async function getPolaroid(id: string): Promise<PolaroidRecord | null> {
   return data;
 }
 
+/**
+ * Get a single polaroid by slug
+ */
+export async function getPolaroidBySlug(slug: string): Promise<PolaroidRecord | null> {
+  // Use fetch directly since supabase.functions.invoke doesn't support query params well
+  const functionsUrl = `${supabaseUrl}/functions/v1/get-polaroid-by-slug`;
+  const response = await fetch(
+    `${functionsUrl}?slug=${encodeURIComponent(slug)}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": import.meta.env.VITE_SUPABASE_ANON_KEY || "",
+      },
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    if (response.status === 404 || data?.error === "Polaroid not found") {
+      return null;
+    }
+    throw new Error(data?.error || `Failed to get polaroid by slug: ${response.statusText}`);
+  }
+
+  return data?.data || null;
+}
+
 export async function getRandomCommunityPolaroids(limit: number = 20): Promise<PolaroidRecord[]> {
   const { data, error } = await supabase.functions.invoke("get-polaroids", {
     body: { type: "community", limit },
@@ -134,20 +173,16 @@ export async function getRandomCommunityPolaroids(limit: number = 20): Promise<P
  * Delete a polaroid
  */
 export async function deletePolaroid(id: string): Promise<void> {
-  const { data: { user } } = await supabase.auth.getUser();
-  
-  if (!user) {
-    throw new Error("User must be authenticated to delete a polaroid");
-  }
-
-  const { error } = await supabase
-    .from("polaroids")
-    .delete()
-    .eq("id", id)
-    .eq("user_id", user.id);
+  const { data, error } = await supabase.functions.invoke("delete-polaroid", {
+    body: { id },
+  });
 
   if (error) {
     throw new Error(`Failed to delete polaroid: ${error.message}`);
+  }
+
+  if (data?.error) {
+    throw new Error(data.error);
   }
 }
 

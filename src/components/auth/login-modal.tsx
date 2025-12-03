@@ -61,16 +61,16 @@ export function LoginModal({ onClose }: LoginModalProps) {
 
         <div className="space-y-4">
           <button
-            onClick={handleLinkedInLogin}
+            onClick={handleGitHubLogin}
             disabled={isLoading !== null}
             className={clsx(
               "w-full py-4 px-6 rounded-sm font-semibold tracking-wide transition-all duration-200 flex items-center justify-center gap-3 font-body",
-              "bg-[#0077b5] text-white hover:bg-[#006399] hover:shadow-md hover:-translate-y-0.5 active:scale-[0.99]",
+              "bg-[#24292e] text-white hover:bg-[#1a1e22] hover:shadow-md hover:-translate-y-0.5 active:scale-[0.99]",
               "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none"
             )}
           >
-            <Linkedin className="w-5 h-5" strokeWidth={1.5} />
-            {isLoading === "linkedin" ? t.editor.auth.connecting : t.editor.auth.linkedin}
+            <Github className="w-5 h-5" strokeWidth={1.5} />
+            {isLoading === "github" ? t.editor.auth.connecting : t.editor.auth.github}
           </button>
 
           <button

@@ -2,9 +2,11 @@ import { Sparkles, SquareTerminal, Lightbulb, Award, Linkedin } from "lucide-rea
 import type { CursorProfile, CursorModel, CursorFeature, PlanTier, CursorTenure, SocialPlatform } from "@/types/form";
 import { CURSOR_MODELS, CURSOR_FEATURES, PLAN_TIERS, CURSOR_TENURES } from "@/constants/cursor-data";
 import { XIcon } from "@/components/ui/x-icon";
+import { SourceBadge } from "./source-badge";
 
 interface CursorProfileRowProps {
   profile: CursorProfile;
+  source?: string | null;
 }
 
 const getModelLabel = (id: CursorModel) => CURSOR_MODELS.find(m => m.id === id)?.label || id;
@@ -17,7 +19,7 @@ const PlatformIcon = ({ platform }: { platform: SocialPlatform }) => {
   return <XIcon className="w-3 h-3" />;
 };
 
-export function CursorProfileRow({ profile }: CursorProfileRowProps) {
+export function CursorProfileRow({ profile, source }: CursorProfileRowProps) {
   const handles = profile.handles || [];
   const hasHandles = handles.some(h => h.handle);
   
@@ -43,11 +45,16 @@ export function CursorProfileRow({ profile }: CursorProfileRowProps) {
             <span className="font-display text-lg font-semibold text-fg">@handle</span>
           )}
         </div>
-        {profile.isMaxMode && (
-          <div className="px-1.5 py-0.5 bg-accent text-white rounded-sm text-[8px] font-bold uppercase tracking-wider shrink-0">
-            MAX
-          </div>
-        )}
+        <div className="flex items-center gap-1 shrink-0">
+          {source && source !== "direct" && (
+            <SourceBadge source={source} />
+          )}
+          {profile.isMaxMode && (
+            <div className="px-1.5 py-0.5 bg-accent text-white rounded-sm text-[8px] font-bold uppercase tracking-wider">
+              MAX
+            </div>
+          )}
+        </div>
       </div>
 
       {profile.projectType && (
@@ -85,7 +92,7 @@ export function CursorProfileRow({ profile }: CursorProfileRowProps) {
           </span>
         )}
 
-        {profile.extras?.slice(0, 2).map((tech) => (
+        {profile.extras?.map((tech) => (
           <span
             key={tech}
             className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-medium bg-card-01 text-fg-muted border border-border/50 font-mono"

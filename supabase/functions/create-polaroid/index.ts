@@ -38,7 +38,7 @@ Deno.serve(async (req: Request) => {
     }
 
     const body = await req.json();
-    const { profile, imageDataUrl, title, provider, is_published } = body;
+    const { profile, imageDataUrl, title, provider, is_published, source, referred_by } = body;
 
     if (!profile) {
       return new Response(
@@ -74,15 +74,42 @@ Deno.serve(async (req: Request) => {
       }
     }
 
+    // Generate slug from first handle + random suffix
+    const firstHandle = profile?.handles?.[0]?.handle || "user";
+    const sanitizedHandle = firstHandle.toLowerCase().replace(/[^a-z0-9]/g, "");
+    const randomSuffix = Math.random().toString(36).substring(2, 6);
+    let slug = `${sanitizedHandle}-${randomSuffix}`;
+    
+    // Ensure slug is unique by checking and appending counter if needed
+    let slugExists = true;
+    let counter = 0;
+    while (slugExists && counter < 10) {
+      const { count } = await supabase
+        .from("polaroids")
+        .select("*", { count: "exact", head: true })
+        .eq("slug", slug);
+      
+      if (count === 0) {
+        slugExists = false;
+      } else {
+        slug = `${sanitizedHandle}-${randomSuffix}${counter}`;
+        counter++;
+      }
+    }
+
     const { data, error } = await supabase
       .from("polaroids")
       .insert({
         user_id: user.id,
         profile,
         image_url: imageUrl,
+        source_image_url: imageUrl,
         title: title || null,
         provider: provider || null,
         is_published: is_published ?? false,
+        source: source || "direct",
+        referred_by: referred_by || null,
+        slug,
       })
       .select()
       .single();

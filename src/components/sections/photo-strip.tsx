@@ -1,10 +1,21 @@
 import crowdImg from "@/assets/photos/crowd.png";
 import chalkboardImg from "@/assets/photos/chalkboard.png";
 import storefrontImg from "@/assets/photos/storefront.png";
+import { useLanguage } from "@/contexts/language-context";
 
 export function PhotoStrip() {
+  const { t } = useLanguage();
+  
   return (
     <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-12 overflow-hidden">
+      <div className="mb-8">
+        <h2 className="font-display text-2xl md:text-3xl font-semibold text-fg mb-2">
+          {t.showcase.title}
+        </h2>
+        <p className="text-fg-muted font-body text-sm md:text-base">
+          {t.showcase.subtitle}
+        </p>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-12 gap-4 h-[300px] md:h-[240px]">
         <div className="md:col-span-3 relative group overflow-hidden rounded-sm card-panel shadow-sm">
             <div className="absolute inset-0 bg-accent/10 mix-blend-multiply z-10 pointer-events-none" />

@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { LanguageProvider } from "@/contexts/language-context";
 import { AuthProvider } from "@/contexts/auth-context-provider";
+import { TrackingProvider } from "@/contexts/tracking-context";
 import { AppShell } from "@/components/layout/app-shell";
 import { EditorSection } from "@/components/sections/editor-section";
 import { AboutSection } from "@/components/sections/about-section";
@@ -99,6 +100,7 @@ function AppContent() {
 
   const [activePolaroid, setActivePolaroid] = useState<PolaroidRecord | null>(null);
   const [editorKey, setEditorKey] = useState(0);
+  const [newCardRequested, setNewCardRequested] = useState(false);
   const hasLoadedInitialRef = useRef(false);
   const { data: userPolaroids = [] } = useUserPolaroids();
 
@@ -111,24 +113,36 @@ function AppContent() {
 
   const handleSelectPolaroid = useCallback((polaroid: PolaroidRecord) => {
     setActivePolaroid(polaroid);
+    setNewCardRequested(false);
     document.getElementById("editor")?.scrollIntoView({ behavior: "smooth" });
   }, []);
 
   const handleAddNew = useCallback(() => {
-    setActivePolaroid(null);
-    setEditorKey((k) => k + 1);
-    document.getElementById("editor")?.scrollIntoView({ behavior: "smooth" });
+    if (activePolaroid) {
+      setNewCardRequested(true);
+    } else {
+      setActivePolaroid(null);
+      setEditorKey((k) => k + 1);
+      document.getElementById("editor")?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [activePolaroid]);
+
+  const handleNewCardHandled = useCallback(() => {
+    setNewCardRequested(false);
   }, []);
 
   return (
-    <LanguageProvider>
-      <AnimatedBackground />
-      <ThemeToggle theme={theme} onToggle={toggleTheme} />
-      <AppShell>
+    <TrackingProvider>
+      <LanguageProvider>
+        <AnimatedBackground />
+        <ThemeToggle theme={theme} onToggle={toggleTheme} />
+        <AppShell>
         <EditorSection 
           key={editorKey}
           initialPolaroid={activePolaroid}
           onPolaroidChange={setActivePolaroid}
+          newCardRequested={newCardRequested}
+          onNewCardHandled={handleNewCardHandled}
         />
         <UserPolaroids 
           onSelectPolaroid={handleSelectPolaroid}
@@ -142,7 +156,8 @@ function AppContent() {
       {sharedPolaroidId && (
         <PolaroidModal polaroidId={sharedPolaroidId} onClose={handleCloseModal} />
       )}
-    </LanguageProvider>
+      </LanguageProvider>
+    </TrackingProvider>
   );
 }
 
