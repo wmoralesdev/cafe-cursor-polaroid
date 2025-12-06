@@ -100,10 +100,10 @@ export interface Translations {
       label: string;
       themes: {
         classic: string;
-        vintage: string;
-        noir: string;
-        neon: string;
         minimal: string;
+        coffee: string;
+        zen: string;
+        tokyo: string;
       };
     };
   };
