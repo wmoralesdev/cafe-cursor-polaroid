@@ -7,3 +7,7 @@ UPDATE public.polaroids
   SET source_image_url = image_url 
   WHERE source_image_url IS NULL AND image_url IS NOT NULL;
 
+
+
+
+

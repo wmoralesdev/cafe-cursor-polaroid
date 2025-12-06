@@ -62,9 +62,11 @@ Deno.serve(async (req: Request) => {
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     } else if (type === "community") {
+      // Public polaroids: have image_url AND at least one non-empty handle
       const { data, error } = await supabase
         .from("polaroids")
         .select("*")
+        .not("image_url", "is", null)
         .order("created_at", { ascending: false })
         .limit(limit * 2);
 
@@ -72,7 +74,16 @@ Deno.serve(async (req: Request) => {
         throw new Error(`Failed to get community polaroids: ${error.message}`);
       }
 
-      const shuffled = (data || []).sort(() => Math.random() - 0.5);
+      // Filter to only include polaroids with at least one non-empty handle
+      const filtered = (data || []).filter(
+        (polaroid) =>
+          polaroid.profile?.handles &&
+          Array.isArray(polaroid.profile.handles) &&
+          polaroid.profile.handles.length > 0 &&
+          polaroid.profile.handles[0]?.handle?.trim()
+      );
+
+      const shuffled = filtered.sort(() => Math.random() - 0.5);
       const result = shuffled.slice(0, limit);
 
       return new Response(

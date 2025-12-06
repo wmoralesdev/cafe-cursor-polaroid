@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { LanguageProvider } from "@/contexts/language-context";
 import { AuthProvider } from "@/contexts/auth-context-provider";
@@ -13,6 +14,8 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { PolaroidModal } from "@/components/polaroid/polaroid-modal";
 import { AnimatedBackground } from "@/components/ui/animated-background";
 import { usePolaroid, useUserPolaroids } from "@/hooks/use-polaroids-query";
+import { useAuth } from "@/hooks/use-auth";
+import { TechPage } from "@/pages/tech";
 import type { PolaroidRecord } from "@/lib/polaroids";
 
 const queryClient = new QueryClient({
@@ -26,7 +29,8 @@ const queryClient = new QueryClient({
 
 type Theme = "light" | "dark";
 
-function AppContent() {
+// Theme hook to share between pages
+function useTheme() {
   const [theme, setTheme] = useState<Theme>(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("polaroid-theme") as Theme | null;
@@ -45,16 +49,6 @@ function AppContent() {
     return "dark";
   });
 
-  const [sharedPolaroidId, setSharedPolaroidId] = useState<string | null>(() => {
-    if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      return params.get("p");
-    }
-    return null;
-  });
-
-  const { data: sharedPolaroid } = usePolaroid(sharedPolaroidId);
-
   useEffect(() => {
     if (theme === "dark") {
       document.documentElement.setAttribute("data-theme", "dark");
@@ -65,6 +59,27 @@ function AppContent() {
       localStorage.setItem("polaroid-theme", theme);
     }
   }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === "light" ? "dark" : "light"));
+  };
+
+  return { theme, toggleTheme };
+}
+
+function HomePage() {
+  const { theme, toggleTheme } = useTheme();
+  const { user } = useAuth();
+
+  const [sharedPolaroidId, setSharedPolaroidId] = useState<string | null>(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      return params.get("p");
+    }
+    return null;
+  });
+
+  const { data: sharedPolaroid } = usePolaroid(sharedPolaroidId);
 
   useEffect(() => {
     const handle = sharedPolaroid?.profile?.handles?.[0]?.handle;
@@ -87,10 +102,6 @@ function AppContent() {
     return () => window.removeEventListener("popstate", handlePopState);
   }, []);
 
-  const toggleTheme = () => {
-    setTheme((prev) => (prev === "light" ? "dark" : "light"));
-  };
-
   const handleCloseModal = () => {
     setSharedPolaroidId(null);
     const url = new URL(window.location.href);
@@ -102,7 +113,7 @@ function AppContent() {
   const [editorKey, setEditorKey] = useState(0);
   const [newCardRequested, setNewCardRequested] = useState(false);
   const hasLoadedInitialRef = useRef(false);
-  const { data: userPolaroids = [] } = useUserPolaroids();
+  const { data: userPolaroids = [], isLoading: isLoadingPolaroids } = useUserPolaroids(!!user);
 
   useEffect(() => {
     if (!hasLoadedInitialRef.current && userPolaroids.length > 0 && activePolaroid === null) {
@@ -137,27 +148,40 @@ function AppContent() {
         <AnimatedBackground />
         <ThemeToggle theme={theme} onToggle={toggleTheme} />
         <AppShell>
-        <EditorSection 
-          key={editorKey}
-          initialPolaroid={activePolaroid}
-          onPolaroidChange={setActivePolaroid}
-          newCardRequested={newCardRequested}
-          onNewCardHandled={handleNewCardHandled}
-        />
-        <UserPolaroids 
-          onSelectPolaroid={handleSelectPolaroid}
-          onAddNew={handleAddNew}
-          activePolaroidId={activePolaroid?.id}
-        />
-        <CommunityMarquee />
-        <PhotoStrip />
-        <AboutSection />
-      </AppShell>
-      {sharedPolaroidId && (
-        <PolaroidModal polaroidId={sharedPolaroidId} onClose={handleCloseModal} />
-      )}
+          <EditorSection 
+            key={editorKey}
+            initialPolaroid={activePolaroid}
+            onPolaroidChange={setActivePolaroid}
+            newCardRequested={newCardRequested}
+            onNewCardHandled={handleNewCardHandled}
+            isLoadingInitial={isLoadingPolaroids && !hasLoadedInitialRef.current}
+          />
+          <UserPolaroids 
+            onSelectPolaroid={handleSelectPolaroid}
+            onAddNew={handleAddNew}
+            activePolaroidId={activePolaroid?.id}
+          />
+          <CommunityMarquee />
+          <PhotoStrip />
+          <AboutSection />
+        </AppShell>
+        {sharedPolaroidId && (
+          <PolaroidModal polaroidId={sharedPolaroidId} onClose={handleCloseModal} />
+        )}
       </LanguageProvider>
     </TrackingProvider>
+  );
+}
+
+function TechPageWrapper() {
+  const { theme, toggleTheme } = useTheme();
+
+  return (
+    <LanguageProvider>
+      <AnimatedBackground />
+      <ThemeToggle theme={theme} onToggle={toggleTheme} />
+      <TechPage />
+    </LanguageProvider>
   );
 }
 
@@ -165,7 +189,12 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <AppContent />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/tech" element={<TechPageWrapper />} />
+          </Routes>
+        </BrowserRouter>
       </AuthProvider>
     </QueryClientProvider>
   );

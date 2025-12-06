@@ -12,6 +12,7 @@ interface PolaroidImageProps {
   error?: string | null;
   zoom?: number;
   position?: { x: number; y: number };
+  imageFilter?: string;
 }
 
 export function PolaroidImage({
@@ -23,6 +24,7 @@ export function PolaroidImage({
   error,
   zoom = 1,
   position = { x: 0, y: 0 },
+  imageFilter,
 }: PolaroidImageProps) {
   const { t } = useLanguage();
   const [isDragOver, setIsDragOver] = useState(false);
@@ -65,9 +67,10 @@ export function PolaroidImage({
           <img
             src={image}
             alt="Polaroid shot"
-            className="w-full h-full object-cover filter contrast-[1.05] saturation-[1.05] transition-transform origin-center will-change-transform"
+            className="w-full h-full object-cover transition-transform origin-center will-change-transform"
             style={{
               transform: `scale(${zoom}) translate(${position.x}px, ${position.y}px)`,
+              filter: imageFilter || "contrast(1.05) saturate(1.05)",
             }}
           />
           

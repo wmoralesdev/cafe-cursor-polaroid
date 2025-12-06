@@ -30,7 +30,7 @@ function getUserDisplayInfo(polaroid: PolaroidRecord, userAvatarUrl?: string | n
 export function UserPolaroids({ onSelectPolaroid, onAddNew, activePolaroidId }: UserPolaroidsProps) {
   const { user } = useAuth();
   const { t, lang } = useLanguage();
-  const { data: polaroids = [], isLoading: loading, error } = useUserPolaroids();
+  const { data: polaroids = [], isLoading: loading, error } = useUserPolaroids(!!user);
   const deleteMutation = useDeletePolaroid();
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
@@ -190,7 +190,7 @@ export function UserPolaroids({ onSelectPolaroid, onAddNew, activePolaroidId }: 
 
                 <div className="relative pointer-events-none">
                   <PolaroidCard
-                    image={polaroid.image_url || null}
+                    image={polaroid.source_image_url || polaroid.image_url || null}
                     profile={polaroid.profile}
                     variant="preview"
                     className="pointer-events-none"

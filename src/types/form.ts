@@ -3,6 +3,7 @@ export type CursorFeature = "agent" | "tab" | "voice" | "browser" | "rules";
 export type PlanTier = "free" | "pro" | "pro-plus" | "ultra" | "student";
 export type CursorTenure = "day-1" | "2023" | "2024" | "2025" | "recently";
 export type SocialPlatform = "x" | "linkedin";
+export type PolaroidTheme = "classic" | "minimal" | "coffee" | "zen" | "tokyo";
 
 export interface HandleEntry {
   handle: string;
@@ -21,6 +22,7 @@ export interface CursorProfile {
   cursorSince: CursorTenure;
   stampRotation?: number;
   generatedAt?: string; // ISO date string (YYYY-MM-DD)
+  polaroidTheme?: PolaroidTheme;
 }
 
 export interface PolaroidFormValues {

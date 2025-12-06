@@ -38,7 +38,7 @@ Deno.serve(async (req: Request) => {
     }
 
     const body = await req.json();
-    const { id, profile, imageDataUrl, title, provider, is_published } = body;
+    const { id, profile, imageDataUrl, title, provider } = body;
 
     if (!id) {
       return new Response(
@@ -59,10 +59,6 @@ Deno.serve(async (req: Request) => {
     
     if (provider !== undefined) {
       updateData.provider = provider || null;
-    }
-    
-    if (is_published !== undefined) {
-      updateData.is_published = is_published;
     }
 
     if (imageDataUrl) {

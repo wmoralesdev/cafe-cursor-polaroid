@@ -21,9 +21,10 @@ interface EditorSectionProps {
   onPolaroidChange?: (polaroid: PolaroidRecord | null) => void;
   newCardRequested?: boolean;
   onNewCardHandled?: () => void;
+  isLoadingInitial?: boolean;
 }
 
-export function EditorSection({ initialPolaroid, onPolaroidChange, newCardRequested, onNewCardHandled }: EditorSectionProps) {
+export function EditorSection({ initialPolaroid, onPolaroidChange, newCardRequested, onNewCardHandled, isLoadingInitial }: EditorSectionProps) {
   const { t } = useLanguage();
   const { user, provider } = useAuth();
   const { source, referredBy } = useTracking();
@@ -212,7 +213,6 @@ export function EditorSection({ initialPolaroid, onPolaroidChange, newCardReques
             id: currentPolaroidId,
             params: {
               imageDataUrl: dataUrl,
-              is_published: true,
               provider: socialProvider === "twitter" ? "twitter" : "github",
             },
           });
@@ -303,6 +303,12 @@ export function EditorSection({ initialPolaroid, onPolaroidChange, newCardReques
         <div className="lg:col-span-6 flex flex-col items-center justify-center lg:h-full relative animate-[fadeInUp_0.6s_ease-out_0.2s_forwards] opacity-0">
 
           <div className={`relative w-full max-w-[340px] mx-auto ${!user ? "opacity-40" : ""}`}>
+            {isLoadingInitial ? (
+              <div className="w-full h-[510px] bg-card rounded-sm shadow-polaroid flex flex-col items-center justify-center gap-4 animate-pulse">
+                <Loader2 className="w-8 h-8 animate-spin text-accent" strokeWidth={1.5} />
+                <span className="text-sm text-fg-muted font-body">{t.editor.loading || "Loading your card..."}</span>
+              </div>
+            ) : (
             <div 
               ref={tiltRef}
               className="relative w-full cursor-default"
@@ -350,6 +356,7 @@ export function EditorSection({ initialPolaroid, onPolaroidChange, newCardReques
                />
              </div>
           </div>
+            )}
           </div>
             
             <div className="mt-8 w-full max-w-sm space-y-6">

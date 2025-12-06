@@ -38,7 +38,7 @@ Deno.serve(async (req: Request) => {
     }
 
     const body = await req.json();
-    const { profile, imageDataUrl, title, provider, is_published, source, referred_by } = body;
+    const { profile, imageDataUrl, title, provider, source, referred_by } = body;
 
     if (!profile) {
       return new Response(
@@ -106,7 +106,6 @@ Deno.serve(async (req: Request) => {
         source_image_url: imageUrl,
         title: title || null,
         provider: provider || null,
-        is_published: is_published ?? false,
         source: source || "direct",
         referred_by: referred_by || null,
         slug,

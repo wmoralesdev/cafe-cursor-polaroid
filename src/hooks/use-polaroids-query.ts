@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import type { PolaroidRecord, CreatePolaroidParams, UpdatePolaroidParams } from "@/lib/polaroids";
 
-export function useUserPolaroids() {
+export function useUserPolaroids(enabled: boolean = true) {
   return useQuery({
     queryKey: ["polaroids", "user"],
     queryFn: async () => {
@@ -20,7 +20,7 @@ export function useUserPolaroids() {
 
       return (data?.data || []) as PolaroidRecord[];
     },
-    enabled: true,
+    enabled,
   });
 }
 
@@ -56,7 +56,6 @@ export function useCreatePolaroid() {
           imageDataUrl: params.imageDataUrl,
           title: params.title,
           provider: params.provider,
-          is_published: params.is_published,
         },
       });
 
@@ -89,7 +88,6 @@ export function useUpdatePolaroid() {
           imageDataUrl: params.imageDataUrl,
           title: params.title,
           provider: params.provider,
-          is_published: params.is_published,
         },
       });
 

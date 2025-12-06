@@ -139,6 +139,12 @@
   }
 }
 
+@keyframes dash {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+
 @layer base {
   body {
     @apply bg-bg text-fg antialiased;

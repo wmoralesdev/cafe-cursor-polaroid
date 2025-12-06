@@ -1,9 +1,12 @@
 import { clsx } from "clsx";
+import type { PolaroidTheme } from "@/types/form";
+import { polaroidThemes } from "@/constants/polaroid-themes";
 
 export type SourceType = "event" | "x" | "github" | "shared" | "direct";
 
 interface SourceBadgeProps {
   source: SourceType | string | null;
+  theme?: PolaroidTheme;
   className?: string;
 }
 
@@ -15,35 +18,41 @@ const sourceLabels: Record<string, string> = {
   direct: "Direct",
 };
 
-export function SourceBadge({ source, className }: SourceBadgeProps) {
+export function SourceBadge({ source, theme = "classic", className }: SourceBadgeProps) {
   if (!source || source === "direct") {
     return null;
   }
 
   const sourceKey = source.toLowerCase();
   const label = sourceLabels[sourceKey] || source;
+  const config = polaroidThemes[theme] ?? polaroidThemes.classic;
 
-  // Inverted colors: white background with colored text (opposite of MAX button)
-  const invertedColors: Record<string, string> = {
-    event: "bg-white text-blue-500 border-blue-500",
-    x: "bg-white text-black border-black",
-    github: "bg-white text-[#24292e] border-[#24292e]",
-    shared: "bg-white text-purple-500 border-purple-500",
-    direct: "bg-white text-gray-500 border-gray-500",
+  // Source-specific accent colors
+  const sourceAccents: Record<string, string> = {
+    event: "#3b82f6",
+    x: "#000000",
+    github: "#24292e",
+    shared: "#8b5cf6",
+    direct: "#6b7280",
   };
 
-  const colorClass = invertedColors[sourceKey] || invertedColors.direct;
+  const accentColor = sourceAccents[sourceKey] || config.accent;
 
   return (
     <div
       className={clsx(
-        "px-1.5 py-0.5 rounded-sm text-[8px] font-bold uppercase tracking-wider border",
-        colorClass,
+        "px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider",
+        config.featureBadgeStyle === "square" ? "rounded-none" : "rounded-sm",
         className
       )}
+      style={{
+        backgroundColor: "white",
+        color: accentColor,
+        border: `1px solid ${accentColor}`,
+        fontFamily: config.bodyFont,
+      }}
     >
       {label}
     </div>
   );
 }
-

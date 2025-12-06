@@ -74,7 +74,7 @@ export function PolaroidModal({ polaroidId, onClose }: PolaroidModalProps) {
           {polaroid && !isLoading && !error && (
             <div className="w-full flex flex-col items-center gap-6">
               <PolaroidPreview
-                image={polaroid.image_url}
+                image={polaroid.source_image_url || polaroid.image_url}
                 profile={polaroid.profile}
                 variant="preview"
               />

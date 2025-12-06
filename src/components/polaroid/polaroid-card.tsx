@@ -1,8 +1,11 @@
 import { forwardRef } from "react";
 import { clsx } from "clsx";
 import type { CursorProfile } from "@/types/form";
+import { polaroidThemes } from "@/constants/polaroid-themes";
 import { PolaroidImage } from "./polaroid-image";
 import { PolaroidCaption } from "./polaroid-caption";
+import { ThemePattern } from "./theme-pattern";
+import { TapeStrip } from "./tape-strip";
 
 interface PolaroidCardProps {
   image: string | null;
@@ -18,77 +21,59 @@ interface PolaroidCardProps {
   source?: string | null;
 }
 
-function TapeStrip({ position, variant }: { position: "top-left" | "top-right"; variant: "preview" | "export" }) {
-  const isExport = variant === "export";
-  const size = isExport ? "w-8 h-3" : "w-12 h-4";
-  const rotation = position === "top-left" ? "-rotate-12" : "rotate-12";
-  const placement = position === "top-left" 
-    ? (isExport ? "-left-2 -top-1" : "-left-3 -top-1.5")
-    : (isExport ? "-right-2 -top-1" : "-right-3 -top-1.5");
-  
-  return (
-    <div 
-      className={clsx(
-        "absolute z-10",
-        size,
-        rotation,
-        placement,
-        "bg-gradient-to-b from-amber-100/90 to-amber-50/80",
-        "border border-amber-200/50",
-        "shadow-sm",
-        "backdrop-blur-[1px]",
-        "before:absolute before:inset-0 before:bg-[linear-gradient(90deg,transparent_0%,rgba(255,255,255,0.3)_50%,transparent_100%)]",
-        "after:absolute after:inset-0 after:opacity-30 after:bg-[repeating-linear-gradient(90deg,transparent,transparent_2px,rgba(0,0,0,0.03)_2px,rgba(0,0,0,0.03)_4px)]"
-      )}
-    />
-  );
-}
-
 export const PolaroidCard = forwardRef<HTMLDivElement, PolaroidCardProps>(
-  ({ 
-    image, 
-    profile, 
-    className, 
-    variant = "preview",
-    onDrop,
-    onFileChange,
-    clearImage,
-    error,
-    zoom,
-    position,
-    source
-  }, ref) => {
+  (
+    {
+      image,
+      profile,
+      className,
+      variant = "preview",
+      onDrop,
+      onFileChange,
+      clearImage,
+      error,
+      zoom,
+      position,
+      source,
+    },
+    ref
+  ) => {
+    const rawTheme = profile.polaroidTheme ?? "classic";
+    // Fallback to classic if theme was removed (e.g. "vintage")
+    const theme = polaroidThemes[rawTheme] ? rawTheme : "classic";
+    const config = polaroidThemes[theme];
+
     return (
       <div className="relative">
         {variant === "preview" && (
           <>
-            <TapeStrip position="top-left" variant={variant} />
-            <TapeStrip position="top-right" variant={variant} />
+            <TapeStrip position="top-left" variant={variant} theme={theme} />
+            <TapeStrip position="top-right" variant={variant} theme={theme} />
           </>
         )}
-        
+
         <div
           ref={ref}
           className={clsx(
             "bg-white transition-all duration-500 ease-out transform origin-center paper-texture relative polaroid-card-light",
-          variant === "preview" && [
-            "hover:scale-[1.01] hover:rotate-1",
-            "w-full max-w-[340px] h-[510px]",
-            "p-3",
-            "shadow-polaroid",
-            "flex flex-col"
-          ],
+            variant === "preview" && [
+              "hover:scale-[1.01] hover:rotate-1",
+              "w-full max-w-[340px] h-[510px]",
+              "p-3",
+              "shadow-polaroid",
+              "flex flex-col",
+            ],
             variant === "export" && [
-               "w-[340px] h-[510px]",
-               "p-3",
-               "shadow-polaroid",
-               "flex flex-col",
+              "w-[340px] h-[510px]",
+              "p-3",
+              "shadow-polaroid",
+              "flex flex-col",
             ],
             className
           )}
         >
-          <PolaroidImage 
-            image={image} 
+          <PolaroidImage
+            image={image}
             editable={variant === "preview"}
             onDrop={onDrop}
             onFileChange={onFileChange}
@@ -96,8 +81,10 @@ export const PolaroidCard = forwardRef<HTMLDivElement, PolaroidCardProps>(
             error={error}
             zoom={zoom}
             position={position}
+            imageFilter={config.imageFilter}
           />
           <PolaroidCaption profile={profile} source={source} />
+          <ThemePattern theme={theme} />
         </div>
       </div>
     );

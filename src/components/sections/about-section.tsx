@@ -41,9 +41,26 @@ export function AboutSection() {
             </div>
         </div>
         
-        <p className="text-sm text-fg-muted mb-10 font-body">
-          {t.about.madeBy} <a href="https://x.com/wmoralesdev" target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">@wmoralesdev</a>
-        </p>
+        <div className="flex items-center justify-center gap-3 mb-10 p-4 bg-card-02/50 rounded-sm border border-border/30">
+          <img 
+            src="/me.png" 
+            alt="Walter" 
+            className="w-10 h-10 rounded-full object-cover ring-2 ring-accent/20"
+          />
+          <div className="text-left">
+            <p className="text-sm font-medium text-fg font-body">
+              {t.about.madeBy}
+            </p>
+            <a 
+              href="https://x.com/wmoralesdev" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="text-xs text-accent hover:underline font-mono"
+            >
+              @wmoralesdev
+            </a>
+          </div>
+        </div>
         
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <a

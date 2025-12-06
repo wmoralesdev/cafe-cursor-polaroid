@@ -100,7 +100,7 @@ export function CommunityMarquee() {
 
                     <div className="relative">
                       <PolaroidCard
-                        image={polaroid.image_url || null}
+                        image={polaroid.source_image_url || polaroid.image_url || null}
                         profile={polaroid.profile}
                         variant="preview"
                         className="pointer-events-none"

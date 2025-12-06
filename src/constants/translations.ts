@@ -12,6 +12,7 @@ export interface Translations {
   editor: {
     title: string;
     subtitle: string;
+    loading: string;
     eventBadge: {
       location: string;
       locationLabel: string;
@@ -94,6 +95,16 @@ export interface Translations {
       placeholders: string[];
     };
     techStack: string;
+    polaroidTheme: {
+      label: string;
+      themes: {
+        classic: string;
+        vintage: string;
+        noir: string;
+        neon: string;
+        minimal: string;
+      };
+    };
   };
   community: {
     title: string;
@@ -133,11 +144,12 @@ export const translations: Record<Language, Translations> = {
         devCard: "Dev card",
         about: "About",
       },
-      get footer() { return `© ${new Date().getFullYear()} Cafe Cursor · Built for meetups worldwide`; },
+      get footer() { return `Made with love by Walter — Cursor Ambassador for El Salvador`; },
     },
     editor: {
       title: "Join the session",
       subtitle: "Create your dev card — share your setup, meet others, enjoy good coffee.",
+      loading: "Loading your card...",
       eventBadge: {
         location: "San Salvador, 3rd ed.",
         locationLabel: "Secret location",
@@ -196,7 +208,7 @@ export const translations: Record<Language, Translations> = {
         attendees: "Attendees",
         vibes: "Vibes",
       },
-      madeBy: "Made with care by",
+      madeBy: "Made with love by Walter — Cursor Ambassador for El Salvador",
     },
     form: {
       header: "Your profile",
@@ -226,6 +238,16 @@ export const translations: Record<Language, Translations> = {
         ],
       },
       techStack: "Tech stack (max 4)",
+      polaroidTheme: {
+        label: "Card style",
+        themes: {
+          classic: "Classic",
+          minimal: "Minimal",
+          coffee: "Coffee",
+          zen: "Zen",
+          tokyo: "Tokyo",
+        },
+      },
     },
     community: {
       title: "Community cards",
@@ -263,11 +285,12 @@ export const translations: Record<Language, Translations> = {
         devCard: "Tarjeta dev",
         about: "Acerca de",
       },
-      get footer() { return `© ${new Date().getFullYear()} Cafe Cursor · Construido para meetups en todo el mundo`; },
+      get footer() { return `Hecho con amor por Walter — Cursor Ambassador para El Salvador`; },
     },
     editor: {
       title: "Únete a la sesión",
       subtitle: "Crea tu tarjeta dev — comparte tu configuración, conoce gente, disfruta buen café.",
+      loading: "Cargando tu tarjeta...",
       eventBadge: {
         location: "San Salvador, 3.ª ed.",
         locationLabel: "Ubicación secreta",
@@ -326,7 +349,7 @@ export const translations: Record<Language, Translations> = {
         attendees: "Asistentes",
         vibes: "Vibes",
       },
-      madeBy: "Hecho con cuidado por",
+      madeBy: "Hecho con amor por Walter — Cursor Ambassador para El Salvador",
     },
     form: {
       header: "Tu perfil",
@@ -356,6 +379,16 @@ export const translations: Record<Language, Translations> = {
         ],
       },
       techStack: "Tech stack (máx. 4)",
+      polaroidTheme: {
+        label: "Estilo de tarjeta",
+        themes: {
+          classic: "Clásico",
+          minimal: "Minimal",
+          coffee: "Café",
+          zen: "Zen",
+          tokyo: "Tokio",
+        },
+      },
     },
     community: {
       title: "Tarjetas de la comunidad",

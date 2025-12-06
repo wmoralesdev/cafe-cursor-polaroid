@@ -1,10 +1,12 @@
 import type { Control, UseFormRegister, FieldErrors, UseFieldArrayReturn } from "react-hook-form";
+import { useController } from "react-hook-form";
 import { Plus, Trash2, AtSign } from "lucide-react";
-import type { PolaroidFormValues } from "@/types/form";
+import type { PolaroidFormValues, PolaroidTheme } from "@/types/form";
 import { useLanguage } from "@/contexts/language-context";
 import { CodingModelSelector, ThinkingModelSelector, FeatureSelector, PlanSelector, MaxModeToggle, TenureSelector, HandlePlatformSelector } from "./cursor-selectors";
 import { ProjectInput } from "./project-input";
 import { TechExtras } from "./tech-extras";
+import { clsx } from "clsx";
 
 interface ProfileFieldsProps {
   control: Control<PolaroidFormValues>;
@@ -14,6 +16,109 @@ interface ProfileFieldsProps {
   appendHandle: () => void;
   removeHandle: (index: number) => void;
   onInteraction?: () => void;
+}
+
+// Theme visual previews - mini stamp representations
+const themePreviewColors: Record<PolaroidTheme, { 
+  accent: string; 
+  tape: string; 
+  stampShape: "circle" | "square" | "rect";
+  imageFilter?: string;
+}> = {
+  classic: { accent: "#f54e00", tape: "bg-amber-100", stampShape: "circle" },
+  minimal: { accent: "#9ca3af", tape: "bg-gray-100", stampShape: "square" },
+  coffee: { accent: "#6F4E37", tape: "bg-[#d2b48c]", stampShape: "circle", imageFilter: "sepia(5%)" },
+  zen: { accent: "#5B7553", tape: "bg-[#d8dfd0]", stampShape: "circle" },
+  tokyo: { accent: "#FF2D95", tape: "bg-gradient-to-r from-pink-200/50 to-cyan-200/50", stampShape: "circle" },
+};
+
+function ThemeSelector({ 
+  control, 
+  onInteraction 
+}: { 
+  control: Control<PolaroidFormValues>; 
+  onInteraction?: () => void;
+}) {
+  const { t } = useLanguage();
+  const { field } = useController({
+    name: "profile.polaroidTheme",
+    control,
+    defaultValue: "classic",
+  });
+
+  const themes: PolaroidTheme[] = ["classic", "minimal", "coffee", "zen", "tokyo"];
+
+  return (
+    <div className="space-y-2">
+      <div className="block text-xs font-medium text-fg-muted uppercase tracking-[0.08em] font-display">
+        {t.form.polaroidTheme.label}
+      </div>
+      <div className="grid grid-cols-5 gap-2">
+        {themes.map((theme) => {
+          const preview = themePreviewColors[theme] ?? themePreviewColors.classic;
+          const isSelected = field.value === theme;
+          const themeLabel = t.form.polaroidTheme.themes[theme];
+          
+          return (
+            <button
+              key={theme}
+              type="button"
+              onClick={() => {
+                field.onChange(theme);
+                onInteraction?.();
+              }}
+              className={clsx(
+                "relative flex flex-col items-center gap-1.5 p-2 rounded-sm border transition-all duration-200",
+                isSelected
+                  ? "border-accent bg-accent/5 ring-1 ring-accent"
+                  : "border-border hover:border-border-strong hover:bg-card-02"
+              )}
+            >
+              {/* Mini polaroid preview */}
+              <div className="relative w-8 h-10 bg-white rounded-[1px] shadow-sm overflow-hidden">
+                {/* Mini tape */}
+                <div 
+                  className={clsx(
+                    "absolute -top-0.5 left-1/2 -translate-x-1/2 w-4 h-1 rounded-[0.5px] z-10",
+                    preview.tape
+                  )} 
+                />
+                {/* Mini image area with filter */}
+                <div 
+                  className="absolute top-1 left-0.5 right-0.5 h-5 bg-gray-300 rounded-[0.5px]"
+                  style={{ filter: preview.imageFilter }}
+                />
+                {/* Mini stamp */}
+                <div 
+                  className={clsx(
+                    "absolute bottom-0.5 right-0.5 border opacity-60",
+                    preview.stampShape === "square" && "w-3 h-3 rounded-none",
+                    preview.stampShape === "circle" && "w-3 h-3 rounded-full",
+                    preview.stampShape === "rect" && "w-2.5 h-3.5 rounded-none"
+                  )}
+                  style={{ borderColor: preview.accent }}
+                >
+                  <div 
+                    className={clsx(
+                      "absolute inset-0.5",
+                      preview.stampShape === "circle" && "rounded-full"
+                    )}
+                    style={{ backgroundColor: `${preview.accent}20` }}
+                  />
+                </div>
+              </div>
+              <span className={clsx(
+                "text-[9px] font-medium uppercase tracking-wide",
+                isSelected ? "text-accent" : "text-fg-muted"
+              )}>
+                {themeLabel}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
 }
 
 export function ProfileFields({
@@ -128,6 +233,8 @@ export function ProfileFields({
         />
         
         <TechExtras control={control} onInteraction={handleInputInteraction} />
+        
+        <ThemeSelector control={control} onInteraction={handleInputInteraction} />
       </div>
     </div>
   );
