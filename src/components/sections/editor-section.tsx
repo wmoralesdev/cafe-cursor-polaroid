@@ -1,7 +1,7 @@
 import type React from "react";
 import { useState, useEffect } from "react";
 import { useImagePicker } from "@/hooks/use-image-picker";
-import { usePolaroidForm } from "@/hooks/use-polaroid-form";
+import { usePolaroidForm, getDefaultProfile } from "@/hooks/use-polaroid-form";
 import { useExportPolaroid } from "@/hooks/use-export-polaroid";
 import { usePolaroidAutosave } from "@/hooks/use-polaroid-autosave";
 import { ProfileFields } from "@/components/form/profile-fields";
@@ -11,7 +11,7 @@ import { useLanguage } from "@/contexts/language-context";
 import { useAuth } from "@/hooks/use-auth";
 import { useTracking } from "@/contexts/tracking-context";
 import { AuthOverlay } from "@/components/auth/auth-overlay";
-import { Loader2, CheckCircle2, AlertCircle } from "lucide-react";
+import { Loader2, CheckCircle2, AlertCircle, Plus } from "lucide-react";
 import { useUpdatePolaroid, useCreatePolaroid } from "@/hooks/use-polaroids-query";
 import { useEditorUIStore } from "@/stores/editor-ui-store";
 import { useUIStore } from "@/stores/ui-store";
@@ -59,7 +59,7 @@ export function EditorSection({ initialPolaroid, onPolaroidChange }: EditorSecti
     clearImage 
   } = useImagePicker({ initialImage: initialPolaroid?.source_image_url || initialPolaroid?.image_url });
   
-  const { control, register, watch, errors, handleFields, appendHandle, removeHandle } = usePolaroidForm({
+  const { control, register, watch, errors, handleFields, appendHandle, removeHandle, reset } = usePolaroidForm({
     initialProfile: initialPolaroid?.profile,
   });
   
@@ -103,6 +103,29 @@ export function EditorSection({ initialPolaroid, onPolaroidChange }: EditorSecti
     
     await forceSave();
     await exportImage();
+  };
+
+  const handleNewCard = async () => {
+    if (!user) return;
+    
+    // Save current polaroid if it exists
+    if (currentPolaroidId) {
+      await forceSave();
+    }
+    
+    // Reset form to default values
+    reset({ profile: getDefaultProfile() });
+    
+    // Clear image
+    clearImage();
+    
+    // Reset store state
+    usePolaroidStore.getState().setActivePolaroid(null);
+    usePolaroidStore.getState().incrementEditorKey();
+    setHasUserInteracted(false);
+    
+    // Notify parent if needed
+    onPolaroidChange?.(null);
   };
 
   function generateStampRotation(): number {
@@ -252,37 +275,13 @@ export function EditorSection({ initialPolaroid, onPolaroidChange }: EditorSecti
     <section id="editor" className="py-8 lg:min-h-[700px] flex flex-col justify-center mb-16 relative overflow-hidden">
       
       <div className="max-w-7xl mx-auto w-full mb-12 relative z-10 animate-[fadeInUp_0.6s_ease-out_forwards]">
-        <div className="max-w-2xl flex items-start justify-between gap-4">
-          <div>
-            <h1 className="font-display text-4xl md:text-5xl font-semibold text-fg tracking-tight leading-tight">
-              {t.editor.title}
-            </h1>
-            <p className="text-fg-muted font-body text-lg mt-3 max-w-xl leading-relaxed">
-              {t.editor.subtitle}
-            </p>
-          </div>
-          {user && syncStatus !== "idle" && (
-            <div className="flex items-center gap-2 text-xs font-medium text-fg-muted mt-2">
-              {syncStatus === "saving" && (
-                <>
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" strokeWidth={1.5} />
-                  <span>{t.editor.syncStatus.saving}</span>
-                </>
-              )}
-              {syncStatus === "saved" && (
-                <>
-                  <CheckCircle2 className="w-3.5 h-3.5 text-accent" strokeWidth={1.5} />
-                  <span className="text-accent">{t.editor.syncStatus.saved}</span>
-                </>
-              )}
-              {syncStatus === "error" && (
-                <>
-                  <AlertCircle className="w-3.5 h-3.5 text-accent" strokeWidth={1.5} />
-                  <span className="text-accent">{t.editor.syncStatus.error}</span>
-                </>
-              )}
-            </div>
-          )}
+        <div className="max-w-2xl">
+          <h1 className="font-display text-4xl md:text-5xl font-semibold text-fg tracking-tight leading-tight">
+            {t.editor.title}
+          </h1>
+          <p className="text-fg-muted font-body text-lg mt-3 max-w-xl leading-relaxed">
+            {t.editor.subtitle}
+          </p>
         </div>
       </div>
 
@@ -310,6 +309,39 @@ export function EditorSection({ initialPolaroid, onPolaroidChange }: EditorSecti
             </div>
           ) : (
             <>
+              {user && (
+                <div className="w-full max-w-[340px] mb-8 flex flex-col gap-2">
+                  {/* Sync status indicator */}
+                  <div className={`flex items-center justify-center gap-2 text-xs font-medium h-5 transition-opacity duration-200 ${syncStatus !== "idle" ? "opacity-100" : "opacity-0"}`}>
+                    {syncStatus === "saving" && (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin text-fg-muted" strokeWidth={1.5} />
+                        <span className="text-fg-muted">{t.editor.syncStatus.saving}</span>
+                      </>
+                    )}
+                    {syncStatus === "saved" && (
+                      <>
+                        <CheckCircle2 className="w-3.5 h-3.5 text-green-500" strokeWidth={1.5} />
+                        <span className="text-green-600">{t.editor.syncStatus.saved}</span>
+                      </>
+                    )}
+                    {syncStatus === "error" && (
+                      <>
+                        <AlertCircle className="w-3.5 h-3.5 text-red-500" strokeWidth={1.5} />
+                        <span className="text-red-500">{t.editor.syncStatus.error}</span>
+                      </>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleNewCard}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-accent text-white rounded-sm font-medium text-sm hover:bg-accent/90 active:scale-[0.98] transition-all duration-150 w-full justify-center shadow-sm hover:shadow-md"
+                  >
+                    <Plus className="w-4 h-4" strokeWidth={2.5} />
+                    <span>{t.userPolaroids.newCard}</span>
+                  </button>
+                </div>
+              )}
               <EditorPreview
                 image={image}
                 profile={profile}

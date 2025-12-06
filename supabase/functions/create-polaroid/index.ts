@@ -54,12 +54,15 @@ Deno.serve(async (req: Request) => {
       } else {
         const response = await fetch(imageDataUrl);
         const blob = await response.blob();
-        const filename = `${user.id}/${Date.now()}-${Math.random().toString(36).substring(7)}.png`;
+        const isJpeg = imageDataUrl.startsWith("data:image/jpeg");
+        const ext = isJpeg ? "jpg" : "png";
+        const contentType = isJpeg ? "image/jpeg" : "image/png";
+        const filename = `${user.id}/${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
         
         const { error: uploadError } = await supabase.storage
           .from("polaroids")
           .upload(filename, blob, {
-            contentType: "image/png",
+            contentType,
             upsert: false,
           });
 

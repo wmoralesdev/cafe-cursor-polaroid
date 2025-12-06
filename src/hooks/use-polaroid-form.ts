@@ -11,7 +11,7 @@ function getTodayDateString(): string {
   return new Date().toISOString().split("T")[0];
 }
 
-function getDefaultProfile(): CursorProfile {
+export function getDefaultProfile(): CursorProfile {
   return {
     handles: [{ ...DEFAULT_HANDLE }],
     primaryModel: "composer-1",

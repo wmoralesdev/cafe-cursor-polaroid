@@ -7,7 +7,7 @@ import { useUserPolaroids, useDeletePolaroid } from "@/hooks/use-polaroids-query
 import { useUIStore } from "@/stores/ui-store";
 import { usePolaroidStore } from "@/stores/polaroid-store";
 import type { PolaroidRecord } from "@/lib/polaroids";
-import { Loader2, Plus, Trash2 } from "lucide-react";
+import { Loader2, Trash2 } from "lucide-react";
 
 function getUserDisplayInfo(polaroid: PolaroidRecord, userAvatarUrl?: string | null) {
   const firstHandle = polaroid.profile.handles[0];
@@ -33,7 +33,6 @@ export function UserPolaroids() {
   const setConfirmDeleteId = useUIStore((state) => state.setConfirmDeleteId);
   const activePolaroidId = usePolaroidStore((state) => state.activePolaroid?.id || null);
   const handleSelectPolaroid = usePolaroidStore((state) => state.handleSelectPolaroid);
-  const handleAddNew = usePolaroidStore((state) => state.handleAddNew);
   
   const locale = lang === "es" ? es : enUS;
   const userAvatarUrl = user?.user_metadata?.avatar_url || user?.user_metadata?.picture || null;
@@ -81,18 +80,6 @@ export function UserPolaroids() {
         </p>
       </div>
 
-      {user && (
-        <div className="mb-6">
-          <button
-            type="button"
-            onClick={handleAddNew}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-accent text-white rounded-sm font-medium text-sm hover:bg-accent/90 transition-colors duration-150"
-          >
-            <Plus className="w-4 h-4" strokeWidth={2} />
-            <span>{t.userPolaroids.newCard}</span>
-          </button>
-        </div>
-      )}
 
       {loading ? (
         <div className="card-panel p-12 rounded-sm text-center">

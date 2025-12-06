@@ -1,6 +1,6 @@
 import { clsx } from "clsx";
 import { Image as ImageIcon, Upload, X } from "lucide-react";
-import React, { useState } from "react";
+import React, { useState, useRef, useCallback, useMemo } from "react";
 import { useLanguage } from "@/contexts/language-context";
 
 interface PolaroidImageProps {
@@ -28,6 +28,8 @@ export function PolaroidImage({
 }: PolaroidImageProps) {
   const { t } = useLanguage();
   const [isDragOver, setIsDragOver] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [imageDimensions, setImageDimensions] = useState<{ width: number; height: number } | null>(null);
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     if (!editable) return;
@@ -51,8 +53,64 @@ export function PolaroidImage({
     onDrop?.(e);
   };
 
+  const handleImageLoad = useCallback((e: React.SyntheticEvent<HTMLImageElement>) => {
+    const img = e.currentTarget;
+    setImageDimensions({ width: img.naturalWidth, height: img.naturalHeight });
+  }, []);
+
+  // Calculate the image styles for proper zoom and pan behavior
+  const imageStyles = useMemo(() => {
+    if (!imageDimensions) {
+      // Fallback before image loads - use object-fit cover
+      return {
+        width: "100%",
+        height: "100%",
+        objectFit: "cover" as const,
+        transform: "none",
+      };
+    }
+
+    const imgAspect = imageDimensions.width / imageDimensions.height;
+    
+    // For cover behavior:
+    // - Landscape (aspect > 1): height fills container, width overflows
+    // - Portrait (aspect < 1): width fills container, height overflows
+    // - Square (aspect = 1): both fill exactly
+    
+    // Base scale to achieve cover (before user zoom)
+    // This ensures the smaller dimension fills the container
+    const baseScale = imgAspect >= 1 ? imgAspect : 1 / imgAspect;
+    
+    // Final scale includes user zoom
+    const finalScale = baseScale * zoom;
+    
+    // Calculate how much the image overflows the container after scaling
+    // For a landscape image: width overflows by (aspect * zoom - 1) of container
+    // For a portrait image: height overflows by ((1/aspect) * zoom - 1) of container
+    const scaledWidth = imgAspect >= 1 ? imgAspect * zoom : zoom;
+    const scaledHeight = imgAspect >= 1 ? zoom : (1 / imgAspect) * zoom;
+    
+    // Maximum pan is half the overflow (so image edge reaches container edge)
+    const maxPanX = Math.max(0, (scaledWidth - 1) / 2);
+    const maxPanY = Math.max(0, (scaledHeight - 1) / 2);
+    
+    // Convert slider position [-150, 150] to actual pan offset
+    // Position is in percentage of container size
+    const panX = (position.x / 150) * maxPanX * 100;
+    const panY = (position.y / 150) * maxPanY * 100;
+
+    return {
+      // Set the constraining dimension to 100%, other to auto
+      width: imgAspect >= 1 ? "auto" : "100%",
+      height: imgAspect >= 1 ? "100%" : "auto",
+      objectFit: "contain" as const,
+      transform: `translate(calc(-50% + ${panX}%), calc(-50% + ${panY}%)) scale(${zoom})`,
+    };
+  }, [imageDimensions, zoom, position]);
+
   return (
     <div
+      ref={containerRef}
       className={clsx(
         "aspect-square w-full bg-card-01 rounded-sm overflow-hidden relative shadow-[inset_0_2px_4px_rgba(0,0,0,0.1)] border border-border/20 transition-colors shrink-0",
         editable && "group cursor-pointer",
@@ -67,9 +125,13 @@ export function PolaroidImage({
           <img
             src={image}
             alt="Polaroid shot"
-            className="w-full h-full object-cover transition-transform origin-center will-change-transform"
+            onLoad={handleImageLoad}
+            className="absolute top-1/2 left-1/2 transition-transform origin-center will-change-transform"
             style={{
-              transform: `scale(${zoom}) translate(${position.x}px, ${position.y}px)`,
+              width: imageStyles.width,
+              height: imageStyles.height,
+              objectFit: imageStyles.objectFit,
+              transform: imageStyles.transform,
               filter: imageFilter || "contrast(1.05) saturate(1.05)",
             }}
           />
