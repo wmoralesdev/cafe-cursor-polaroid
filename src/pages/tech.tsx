@@ -1,52 +1,186 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Database, Server, Palette, Camera, Share2, Printer, Zap, Globe, Code2, Layers } from "lucide-react";
+import { ArrowLeft, Database, Server, Palette, Camera, Share2, Printer, Zap, Globe, Code2, Layers, Heart, KeyRound, Save, Terminal } from "lucide-react";
 import { useLanguage } from "@/contexts/language-context";
 import { CursorIcon } from "@/components/ui/cursor-icon";
+import { LanguageToggle } from "@/components/ui/language-toggle";
+import { clsx } from "clsx";
 
-// Stack badges with their colors
+// Stack badges with their colors - complete list
 const techStack = [
   { name: "React 19", color: "#61DAFB", icon: "⚛️" },
   { name: "TypeScript", color: "#3178C6", icon: "📘" },
   { name: "Tailwind CSS 4", color: "#06B6D4", icon: "🎨" },
   { name: "Supabase", color: "#3ECF8E", icon: "⚡" },
-  { name: "Vite", color: "#646CFF", icon: "⚡" },
+  { name: "Vite 7", color: "#646CFF", icon: "⚡" },
   { name: "React Query", color: "#FF4154", icon: "🔄" },
+  { name: "React Hook Form", color: "#EC5990", icon: "📝" },
+  { name: "React Router", color: "#CA4245", icon: "🛤️" },
+  { name: "Lucide Icons", color: "#F56565", icon: "✨" },
+  { name: "date-fns", color: "#770C56", icon: "📅" },
+  { name: "Vercel Analytics", color: "#000000", icon: "📊" },
 ];
 
-const features = [
-  {
-    icon: Camera,
-    title: "Image Capture",
-    description: "Drop or upload your photo, adjust zoom and pan for the perfect crop within the polaroid frame.",
-  },
-  {
-    icon: Palette,
-    title: "Theme System",
-    description: "5 unique polaroid themes (Classic, Vintage, Noir, Neon, Minimal) with themed stamps and tape strips.",
-  },
-  {
-    icon: Database,
-    title: "Real-time Sync",
-    description: "Auto-save to Supabase with optimistic updates. Your cards sync across devices instantly.",
-  },
-  {
-    icon: Printer,
-    title: "Print-Ready Export",
-    description: "White background preserved for physical printing. Export at high resolution for perfect prints.",
-  },
-  {
-    icon: Share2,
-    title: "Social Sharing",
-    description: "Share your card on X or copy a direct link. Each card gets a unique shareable URL.",
-  },
-  {
-    icon: Globe,
-    title: "i18n Ready",
-    description: "Full English and Spanish support with easy extensibility for more languages.",
-  },
+// All 8 edge functions
+const edgeFunctions = [
+  { name: "create-polaroid", key: "createPolaroid" as const },
+  { name: "get-polaroids", key: "getPolaroids" as const },
+  { name: "get-polaroid-by-slug", key: "getPolaroidBySlug" as const },
+  { name: "update-polaroid", key: "updatePolaroid" as const },
+  { name: "delete-polaroid", key: "deletePolaroid" as const },
+  { name: "post-polaroid", key: "postPolaroid" as const },
+  { name: "toggle-polaroid-like", key: "toggleLike" as const },
+  { name: "get-like-notifications", key: "getNotifications" as const },
 ];
 
-function ArchitectureDiagram() {
+// Code snippets for each edge function
+const codeSnippets: Record<string, { lines: Array<{ text: string; color: string }> }> = {
+  "create-polaroid": {
+    lines: [
+      { text: 'const { profile, theme, settings } = await req.json();', color: "#d4d4d4" },
+      { text: '', color: "" },
+      { text: 'const { data } = await supabase', color: "#d4d4d4" },
+      { text: '  .from("polaroids")', color: "#d4d4d4" },
+      { text: '  .insert({ user_id, profile, theme, settings })', color: "#d4d4d4" },
+      { text: '  .select().single();', color: "#d4d4d4" },
+    ],
+  },
+  "get-polaroids": {
+    lines: [
+      { text: 'const { sort, maxOnly, limit } = params;', color: "#d4d4d4" },
+      { text: '', color: "" },
+      { text: 'let query = supabase.from("polaroids")', color: "#d4d4d4" },
+      { text: '  .select("*, likes:polaroid_likes(count)")', color: "#d4d4d4" },
+      { text: '  .order(sort === "likes" ? "like_count" : "created_at")', color: "#d4d4d4" },
+      { text: '  .limit(limit);', color: "#d4d4d4" },
+    ],
+  },
+  "get-polaroid-by-slug": {
+    lines: [
+      { text: 'const { slug } = await req.json();', color: "#d4d4d4" },
+      { text: '', color: "" },
+      { text: 'const { data } = await supabase', color: "#d4d4d4" },
+      { text: '  .from("polaroids")', color: "#d4d4d4" },
+      { text: '  .select("*, likes:polaroid_likes(count)")', color: "#d4d4d4" },
+      { text: '  .eq("slug", slug).single();', color: "#d4d4d4" },
+    ],
+  },
+  "update-polaroid": {
+    lines: [
+      { text: 'const { id, profile, theme, settings } = await req.json();', color: "#d4d4d4" },
+      { text: '', color: "" },
+      { text: 'const { data } = await supabase', color: "#d4d4d4" },
+      { text: '  .from("polaroids")', color: "#d4d4d4" },
+      { text: '  .update({ profile, theme, settings, updated_at: new Date() })', color: "#d4d4d4" },
+      { text: '  .eq("id", id).eq("user_id", user.id);', color: "#d4d4d4" },
+    ],
+  },
+  "delete-polaroid": {
+    lines: [
+      { text: 'const { id } = await req.json();', color: "#d4d4d4" },
+      { text: '', color: "" },
+      { text: '// Delete image from storage first', color: "#6a9955" },
+      { text: 'await supabase.storage.from("polaroids").remove([path]);', color: "#d4d4d4" },
+      { text: '// Then delete the record', color: "#6a9955" },
+      { text: 'await supabase.from("polaroids").delete().eq("id", id);', color: "#d4d4d4" },
+    ],
+  },
+  "post-polaroid": {
+    lines: [
+      { text: 'const formData = await req.formData();', color: "#d4d4d4" },
+      { text: 'const file = formData.get("image") as File;', color: "#d4d4d4" },
+      { text: '', color: "" },
+      { text: 'const { data } = await supabase.storage', color: "#d4d4d4" },
+      { text: '  .from("polaroids")', color: "#d4d4d4" },
+      { text: '  .upload(`${user.id}/${filename}`, file);', color: "#d4d4d4" },
+    ],
+  },
+  "toggle-polaroid-like": {
+    lines: [
+      { text: 'const { polaroid_id } = await req.json();', color: "#d4d4d4" },
+      { text: '', color: "" },
+      { text: '// Check if already liked', color: "#6a9955" },
+      { text: 'const { data: existing } = await supabase', color: "#d4d4d4" },
+      { text: '  .from("polaroid_likes")', color: "#d4d4d4" },
+      { text: '  .select().match({ polaroid_id, user_id }).single();', color: "#d4d4d4" },
+    ],
+  },
+  "get-like-notifications": {
+    lines: [
+      { text: 'const { data } = await supabase', color: "#d4d4d4" },
+      { text: '  .from("like_notifications")', color: "#d4d4d4" },
+      { text: '  .select("*, actor:profiles(name, avatar_url)")', color: "#d4d4d4" },
+      { text: '  .eq("owner_id", user.id)', color: "#d4d4d4" },
+      { text: '  .order("created_at", { ascending: false })', color: "#d4d4d4" },
+      { text: '  .limit(20);', color: "#d4d4d4" },
+    ],
+  },
+};
+
+function CodeViewer() {
+  const [activeFunction, setActiveFunction] = useState("create-polaroid");
+  const snippet = codeSnippets[activeFunction];
+
+  return (
+    <div className="border-t border-border/50 pt-6">
+      {/* Function tabs */}
+      <div className="flex flex-wrap gap-2 mb-4">
+        {edgeFunctions.map((fn) => (
+          <button
+            key={fn.name}
+            type="button"
+            onClick={() => setActiveFunction(fn.name)}
+            className={clsx(
+              "px-3 py-1.5 text-xs font-mono rounded-sm transition-all",
+              activeFunction === fn.name
+                ? "bg-accent text-white"
+                : "bg-card-02 text-fg-muted hover:text-fg hover:bg-card-02/80"
+            )}
+          >
+            {fn.name}
+          </button>
+        ))}
+      </div>
+
+      {/* Code display */}
+      <div className="flex items-center gap-2 mb-3">
+        <Code2 className="w-4 h-4 text-accent" strokeWidth={1.5} />
+        <span className="text-xs font-mono text-fg-muted">{activeFunction}/index.ts</span>
+      </div>
+      <div className="bg-[#1a1a1a] rounded-sm p-4 overflow-x-auto text-[13px] leading-relaxed">
+        <pre className="font-mono">
+          <code>
+            <span className="text-[#c586c0]">import</span>
+            <span className="text-[#d4d4d4]">{" { createClient } "}</span>
+            <span className="text-[#c586c0]">from</span>
+            <span className="text-[#ce9178]"> "@supabase/supabase-js"</span>
+            <span className="text-[#d4d4d4]">;</span>
+            {"\n\n"}
+            <span className="text-[#569cd6]">Deno</span>
+            <span className="text-[#d4d4d4]">.serve(</span>
+            <span className="text-[#c586c0]">async</span>
+            <span className="text-[#d4d4d4]"> (</span>
+            <span className="text-[#9cdcfe]">req</span>
+            <span className="text-[#d4d4d4]">) </span>
+            <span className="text-[#c586c0]">{"=>"}</span>
+            <span className="text-[#d4d4d4]"> {"{"}</span>
+            {"\n"}
+            {snippet.lines.map((line, i) => (
+              <span key={i}>
+                <span className="text-[#d4d4d4]">{"  "}</span>
+                <span style={{ color: line.color }}>{line.text}</span>
+                {"\n"}
+              </span>
+            ))}
+            <span className="text-[#d4d4d4]">{"})"}</span>
+          </code>
+        </pre>
+      </div>
+    </div>
+  );
+}
+
+function ArchitectureDiagram({ t }: { t: ReturnType<typeof useLanguage>["t"] }) {
   return (
     <div className="relative w-full max-w-4xl mx-auto py-8">
       {/* Connection lines - SVG */}
@@ -87,54 +221,59 @@ function ArchitectureDiagram() {
 
       <div className="relative z-10 grid grid-cols-3 gap-6">
         {/* Top row - Client */}
-        <div className="col-span-3 flex justify-center gap-8">
+        <div className="col-span-3 flex justify-center gap-8 flex-wrap">
           <div className="card-panel p-4 text-center min-w-[140px]">
             <Code2 className="w-8 h-8 mx-auto mb-2 text-accent" strokeWidth={1.5} />
-            <div className="text-sm font-semibold text-fg">React App</div>
-            <div className="text-xs text-fg-muted">TypeScript + Vite</div>
+            <div className="text-sm font-semibold text-fg">{t.tech.arch.reactApp}</div>
+            <div className="text-xs text-fg-muted">{t.tech.arch.reactAppDesc}</div>
           </div>
           <div className="card-panel p-4 text-center min-w-[140px]">
             <Palette className="w-8 h-8 mx-auto mb-2 text-accent" strokeWidth={1.5} />
-            <div className="text-sm font-semibold text-fg">Tailwind 4</div>
-            <div className="text-xs text-fg-muted">CSS Variables</div>
+            <div className="text-sm font-semibold text-fg">{t.tech.arch.tailwind}</div>
+            <div className="text-xs text-fg-muted">{t.tech.arch.tailwindDesc}</div>
           </div>
           <div className="card-panel p-4 text-center min-w-[140px]">
             <Layers className="w-8 h-8 mx-auto mb-2 text-accent" strokeWidth={1.5} />
-            <div className="text-sm font-semibold text-fg">React Query</div>
-            <div className="text-xs text-fg-muted">Server State</div>
+            <div className="text-sm font-semibold text-fg">{t.tech.arch.reactQuery}</div>
+            <div className="text-xs text-fg-muted">{t.tech.arch.reactQueryDesc}</div>
           </div>
         </div>
 
         {/* Middle - Edge Functions */}
         <div className="col-span-3 flex justify-center my-8">
-          <div className="card-panel p-6 text-center border-accent/30 border-2 min-w-[200px]">
+          <div className="card-panel p-6 text-center border-accent/30 border-2 min-w-[200px] max-w-[400px]">
             <Server className="w-10 h-10 mx-auto mb-3 text-accent" strokeWidth={1.5} />
-            <div className="text-base font-semibold text-fg">Edge Functions</div>
-            <div className="text-xs text-fg-muted mt-1">Deno Runtime · Global Edge</div>
+            <div className="text-base font-semibold text-fg">{t.tech.arch.edgeFunctions}</div>
+            <div className="text-xs text-fg-muted mt-1">{t.tech.arch.edgeFunctionsDesc}</div>
             <div className="flex gap-2 justify-center mt-3 flex-wrap">
-              <span className="text-[10px] px-2 py-0.5 bg-accent/10 text-accent rounded-full">create-polaroid</span>
-              <span className="text-[10px] px-2 py-0.5 bg-accent/10 text-accent rounded-full">get-polaroids</span>
-              <span className="text-[10px] px-2 py-0.5 bg-accent/10 text-accent rounded-full">update-polaroid</span>
+              {edgeFunctions.slice(0, 4).map((fn) => (
+                <span key={fn.name} className="text-[10px] px-2 py-0.5 bg-accent/10 text-accent rounded-full">{fn.name}</span>
+              ))}
+            </div>
+            <div className="flex gap-2 justify-center mt-2 flex-wrap">
+              {edgeFunctions.slice(4).map((fn) => (
+                <span key={fn.name} className="text-[10px] px-2 py-0.5 bg-accent/10 text-accent rounded-full">{fn.name}</span>
+              ))}
             </div>
           </div>
         </div>
 
         {/* Bottom row - Database & Storage */}
-        <div className="col-span-3 flex justify-center gap-8">
+        <div className="col-span-3 flex justify-center gap-8 flex-wrap">
           <div className="card-panel p-4 text-center min-w-[140px]">
             <Database className="w-8 h-8 mx-auto mb-2 text-[#3ECF8E]" strokeWidth={1.5} />
-            <div className="text-sm font-semibold text-fg">PostgreSQL</div>
-            <div className="text-xs text-fg-muted">Row Level Security</div>
+            <div className="text-sm font-semibold text-fg">{t.tech.arch.postgres}</div>
+            <div className="text-xs text-fg-muted">{t.tech.arch.postgresDesc}</div>
           </div>
           <div className="card-panel p-4 text-center min-w-[140px]">
             <Zap className="w-8 h-8 mx-auto mb-2 text-[#3ECF8E]" strokeWidth={1.5} />
-            <div className="text-sm font-semibold text-fg">Realtime</div>
-            <div className="text-xs text-fg-muted">Live Updates</div>
+            <div className="text-sm font-semibold text-fg">{t.tech.arch.realtime}</div>
+            <div className="text-xs text-fg-muted">{t.tech.arch.realtimeDesc}</div>
           </div>
           <div className="card-panel p-4 text-center min-w-[140px]">
             <Camera className="w-8 h-8 mx-auto mb-2 text-[#3ECF8E]" strokeWidth={1.5} />
-            <div className="text-sm font-semibold text-fg">Storage</div>
-            <div className="text-xs text-fg-muted">CDN-backed</div>
+            <div className="text-sm font-semibold text-fg">{t.tech.arch.storage}</div>
+            <div className="text-xs text-fg-muted">{t.tech.arch.storageDesc}</div>
           </div>
         </div>
       </div>
@@ -142,12 +281,12 @@ function ArchitectureDiagram() {
   );
 }
 
-function FlowDiagram() {
+function FlowDiagram({ t }: { t: ReturnType<typeof useLanguage>["t"] }) {
   const steps = [
-    { num: 1, title: "Create", desc: "Fill your profile, pick a theme, upload a photo" },
-    { num: 2, title: "Preview", desc: "See live preview with 3D tilt effect" },
-    { num: 3, title: "Export", desc: "Download high-res PNG for printing" },
-    { num: 4, title: "Share", desc: "Post to X or share via unique link" },
+    { num: 1, ...t.tech.flow.create },
+    { num: 2, ...t.tech.flow.preview },
+    { num: 3, ...t.tech.flow.export },
+    { num: 4, ...t.tech.flow.share },
   ];
 
   return (
@@ -171,7 +310,20 @@ function FlowDiagram() {
 }
 
 export function TechPage() {
-  const { lang } = useLanguage();
+  const { t } = useLanguage();
+
+  // Features with translations - now including likes, oauth, autosave
+  const features = [
+    { icon: Camera, ...t.tech.features.imageCapture },
+    { icon: Palette, ...t.tech.features.themeSystem },
+    { icon: Database, ...t.tech.features.realtimeSync },
+    { icon: Printer, ...t.tech.features.printExport },
+    { icon: Share2, ...t.tech.features.socialSharing },
+    { icon: Globe, ...t.tech.features.i18n },
+    { icon: Heart, ...t.tech.features.likes },
+    { icon: KeyRound, ...t.tech.features.oauth },
+    { icon: Save, ...t.tech.features.autosave },
+  ];
 
   return (
     <div className="min-h-screen bg-bg">
@@ -183,11 +335,14 @@ export function TechPage() {
             className="flex items-center gap-2 text-fg-muted hover:text-fg transition-colors"
           >
             <ArrowLeft className="w-4 h-4" strokeWidth={1.5} />
-            <span className="text-sm font-medium">{lang === "es" ? "Volver" : "Back"}</span>
+            <span className="text-sm font-medium">{t.tech.back}</span>
           </Link>
-          <div className="flex items-center gap-2">
-            <CursorIcon className="w-5 h-5" />
-            <span className="font-display font-semibold text-fg">Cafe Cursor</span>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <CursorIcon className="w-5 h-5" />
+              <span className="font-display font-semibold text-fg">Cafe Cursor</span>
+            </div>
+            <LanguageToggle />
           </div>
         </div>
       </header>
@@ -196,20 +351,17 @@ export function TechPage() {
         {/* Hero */}
         <section className="text-center mb-16">
           <h1 className="font-display text-4xl md:text-5xl font-semibold text-fg mb-4 tracking-tight">
-            {lang === "es" ? "Bajo el capó" : "Under the Hood"}
+            {t.tech.title}
           </h1>
           <p className="text-lg text-fg-muted max-w-2xl mx-auto font-body">
-            {lang === "es" 
-              ? "Una mirada técnica a cómo construimos la experiencia de tarjetas de Cafe Cursor."
-              : "A technical look at how we built the Cafe Cursor card experience."
-            }
+            {t.tech.subtitle}
           </p>
         </section>
 
         {/* Tech Stack */}
         <section className="mb-20">
           <h2 className="font-display text-2xl font-semibold text-fg mb-6 text-center">
-            {lang === "es" ? "Stack Tecnológico" : "Tech Stack"}
+            {t.tech.sections.techStack}
           </h2>
           <div className="flex flex-wrap justify-center gap-3">
             {techStack.map((tech) => (
@@ -228,34 +380,56 @@ export function TechPage() {
         {/* User Flow */}
         <section className="mb-20">
           <h2 className="font-display text-2xl font-semibold text-fg mb-6 text-center">
-            {lang === "es" ? "Flujo del Usuario" : "User Flow"}
+            {t.tech.sections.userFlow}
           </h2>
           <div className="card-panel p-6">
-            <FlowDiagram />
+            <FlowDiagram t={t} />
           </div>
         </section>
 
         {/* Architecture */}
         <section className="mb-20">
           <h2 className="font-display text-2xl font-semibold text-fg mb-6 text-center">
-            {lang === "es" ? "Arquitectura" : "Architecture"}
+            {t.tech.sections.architecture}
           </h2>
           <div className="card-panel p-6 overflow-x-auto">
-            <ArchitectureDiagram />
+            <ArchitectureDiagram t={t} />
+          </div>
+        </section>
+
+        {/* Edge Functions */}
+        <section className="mb-20">
+          <h2 className="font-display text-2xl font-semibold text-fg mb-6 text-center">
+            {t.tech.sections.edgeFunctions}
+          </h2>
+          <div className="card-panel p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              {edgeFunctions.map((fn) => (
+                <div key={fn.name} className="flex items-start gap-3 p-3 rounded-sm bg-card-02/50">
+                  <Terminal className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" strokeWidth={1.5} />
+                  <div>
+                    <code className="text-sm font-mono text-fg font-medium">{fn.name}</code>
+                    <p className="text-xs text-fg-muted mt-1">{t.tech.edgeFns[fn.key]}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            <CodeViewer />
           </div>
         </section>
 
         {/* Features Grid */}
         <section className="mb-20">
           <h2 className="font-display text-2xl font-semibold text-fg mb-8 text-center">
-            {lang === "es" ? "Características Técnicas" : "Technical Features"}
+            {t.tech.sections.features}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {features.map((feature) => (
               <div key={feature.title} className="card-panel p-6 hover:shadow-lg transition-shadow">
                 <feature.icon className="w-8 h-8 text-accent mb-4" strokeWidth={1.5} />
                 <h3 className="font-display text-lg font-semibold text-fg mb-2">{feature.title}</h3>
-                <p className="text-sm text-fg-muted font-body leading-relaxed">{feature.description}</p>
+                <p className="text-sm text-fg-muted font-body leading-relaxed">{feature.desc}</p>
               </div>
             ))}
           </div>
@@ -264,7 +438,7 @@ export function TechPage() {
         {/* Print Pipeline */}
         <section className="mb-20">
           <h2 className="font-display text-2xl font-semibold text-fg mb-6 text-center">
-            {lang === "es" ? "Pipeline de Impresión" : "Print Pipeline"}
+            {t.tech.sections.printPipeline}
           </h2>
           <div className="card-panel p-8">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
@@ -272,29 +446,29 @@ export function TechPage() {
                 <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-card-02 flex items-center justify-center">
                   <Code2 className="w-7 h-7 text-fg-muted" strokeWidth={1.5} />
                 </div>
-                <div className="text-sm font-semibold text-fg">DOM Render</div>
-                <div className="text-xs text-fg-muted mt-1">React component with white bg</div>
+                <div className="text-sm font-semibold text-fg">{t.tech.print.domRender.title}</div>
+                <div className="text-xs text-fg-muted mt-1">{t.tech.print.domRender.desc}</div>
               </div>
               <div>
                 <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-card-02 flex items-center justify-center">
                   <Camera className="w-7 h-7 text-fg-muted" strokeWidth={1.5} />
                 </div>
-                <div className="text-sm font-semibold text-fg">Screenshot</div>
-                <div className="text-xs text-fg-muted mt-1">html-to-image capture</div>
+                <div className="text-sm font-semibold text-fg">{t.tech.print.screenshot.title}</div>
+                <div className="text-xs text-fg-muted mt-1">{t.tech.print.screenshot.desc}</div>
               </div>
               <div>
                 <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-card-02 flex items-center justify-center">
                   <Database className="w-7 h-7 text-fg-muted" strokeWidth={1.5} />
                 </div>
-                <div className="text-sm font-semibold text-fg">Storage</div>
-                <div className="text-xs text-fg-muted mt-1">Supabase CDN upload</div>
+                <div className="text-sm font-semibold text-fg">{t.tech.print.storage.title}</div>
+                <div className="text-xs text-fg-muted mt-1">{t.tech.print.storage.desc}</div>
               </div>
               <div>
                 <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-accent/10 flex items-center justify-center">
                   <Printer className="w-7 h-7 text-accent" strokeWidth={1.5} />
                 </div>
-                <div className="text-sm font-semibold text-fg">Print Ready</div>
-                <div className="text-xs text-fg-muted mt-1">340×510px @ 2x DPI</div>
+                <div className="text-sm font-semibold text-fg">{t.tech.print.printReady.title}</div>
+                <div className="text-xs text-fg-muted mt-1">{t.tech.print.printReady.desc}</div>
               </div>
             </div>
           </div>
@@ -305,19 +479,16 @@ export function TechPage() {
           <div className="card-panel p-8 max-w-lg mx-auto">
             <CursorIcon className="w-10 h-10 mx-auto mb-4" />
             <h2 className="font-display text-xl font-semibold text-fg mb-3">
-              {lang === "es" ? "¿Listo para crear tu tarjeta?" : "Ready to create your card?"}
+              {t.tech.cta.title}
             </h2>
             <p className="text-sm text-fg-muted mb-6 font-body">
-              {lang === "es" 
-                ? "Únete a la comunidad de Cafe Cursor y comparte tu setup."
-                : "Join the Cafe Cursor community and share your setup."
-              }
+              {t.tech.cta.subtitle}
             </p>
             <Link
               to="/"
               className="inline-flex items-center gap-2 px-6 py-3 bg-accent text-white rounded-sm font-medium hover:bg-accent/90 transition-colors"
             >
-              {lang === "es" ? "Crear mi tarjeta" : "Create my card"}
+              {t.tech.cta.button}
             </Link>
           </div>
         </section>
@@ -325,10 +496,8 @@ export function TechPage() {
 
       {/* Footer */}
       <footer className="border-t border-border mt-16 py-8 text-center text-sm text-fg-muted">
-        <p>Made with love by Walter — Cursor Ambassador for El Salvador</p>
+        <p>{t.tech.footer}</p>
       </footer>
     </div>
   );
 }
-
-

@@ -6,10 +6,62 @@ interface GetPolaroidsRequest {
   limit?: number;
 }
 
+interface LikeRecord {
+  polaroid_id: string;
+  user_id: string;
+  liker_name: string | null;
+  liker_avatar_url: string | null;
+  created_at: string;
+}
+
+interface RecentLiker {
+  actor_name: string;
+  actor_avatar_url: string | null;
+}
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+
+// Helper function to enrich polaroids with like data
+function enrichPolaroidsWithLikes(
+  polaroids: Record<string, unknown>[],
+  likes: LikeRecord[],
+  viewerId: string | null
+) {
+  // Group likes by polaroid_id
+  const likesByPolaroid = new Map<string, LikeRecord[]>();
+  for (const like of likes) {
+    const existing = likesByPolaroid.get(like.polaroid_id) || [];
+    existing.push(like);
+    likesByPolaroid.set(like.polaroid_id, existing);
+  }
+
+  return polaroids.map((polaroid) => {
+    const polaroidId = polaroid.id as string;
+    const polaroidLikes = likesByPolaroid.get(polaroidId) || [];
+    
+    // Sort likes by created_at descending to get recent likers
+    const sortedLikes = [...polaroidLikes].sort(
+      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
+
+    const recentLikers: RecentLiker[] = sortedLikes
+      .slice(0, 3)
+      .map((like) => ({
+        actor_name: like.liker_name || "User",
+        actor_avatar_url: like.liker_avatar_url,
+      }));
+
+    return {
+      ...polaroid,
+      like_count: polaroidLikes.length,
+      viewer_has_liked: viewerId ? polaroidLikes.some((l) => l.user_id === viewerId) : false,
+      recent_likers: recentLikers,
+    };
+  });
+}
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
@@ -25,24 +77,24 @@ Deno.serve(async (req: Request) => {
 
     const { type, limit = 20 }: GetPolaroidsRequest = await req.json();
 
-    if (type === "user") {
-      if (!authHeader) {
-        return new Response(
-          JSON.stringify({ error: "Missing authorization header" }),
-          { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-
+    // Try to get viewer ID if auth header is present
+    let viewerId: string | null = null;
+    if (authHeader) {
       const userSupabase = createClient(supabaseUrl, supabaseServiceKey, {
         global: {
           headers: { Authorization: authHeader },
         },
       });
-
       const { data: { user } } = await userSupabase.auth.getUser();
-      if (!user) {
+      if (user) {
+        viewerId = user.id;
+      }
+    }
+
+    if (type === "user") {
+      if (!authHeader || !viewerId) {
         return new Response(
-          JSON.stringify({ error: "Unauthorized" }),
+          JSON.stringify({ error: "Missing authorization header" }),
           { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
@@ -50,15 +102,32 @@ Deno.serve(async (req: Request) => {
       const { data, error } = await supabase
         .from("polaroids")
         .select("*")
-        .eq("user_id", user.id)
+        .eq("user_id", viewerId)
         .order("created_at", { ascending: false });
 
       if (error) {
         throw new Error(`Failed to get user polaroids: ${error.message}`);
       }
 
+      const polaroids = data || [];
+
+      // Enrich with like data
+      if (polaroids.length > 0) {
+        const polaroidIds = polaroids.map((p) => p.id);
+        const { data: likes } = await supabase
+          .from("polaroid_likes")
+          .select("polaroid_id, user_id, liker_name, liker_avatar_url, created_at")
+          .in("polaroid_id", polaroidIds);
+
+        const enrichedPolaroids = enrichPolaroidsWithLikes(polaroids, likes || [], viewerId);
+        return new Response(
+          JSON.stringify({ data: enrichedPolaroids }),
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
       return new Response(
-        JSON.stringify({ data: data || [] }),
+        JSON.stringify({ data: [] }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     } else if (type === "community") {
@@ -86,6 +155,21 @@ Deno.serve(async (req: Request) => {
       const shuffled = filtered.sort(() => Math.random() - 0.5);
       const result = shuffled.slice(0, limit);
 
+      // Enrich with like data
+      if (result.length > 0) {
+        const polaroidIds = result.map((p) => p.id);
+        const { data: likes } = await supabase
+          .from("polaroid_likes")
+          .select("polaroid_id, user_id, liker_name, liker_avatar_url, created_at")
+          .in("polaroid_id", polaroidIds);
+
+        const enrichedPolaroids = enrichPolaroidsWithLikes(result, likes || [], viewerId);
+        return new Response(
+          JSON.stringify({ data: enrichedPolaroids }),
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
       return new Response(
         JSON.stringify({ data: result }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -104,4 +188,3 @@ Deno.serve(async (req: Request) => {
     );
   }
 });
-

@@ -1,4 +1,4 @@
-import { Github, Users } from "lucide-react";
+import { Github, Users, Linkedin } from "lucide-react";
 import { XIcon } from "@/components/ui/x-icon";
 import { CursorIcon } from "@/components/ui/cursor-icon";
 import { useLanguage } from "@/contexts/language-context";
@@ -62,12 +62,12 @@ export function AboutSection() {
           </div>
         </div>
         
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           <a
             href="https://x.com/wmoralesdev"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2.5 px-6 py-3 bg-fg text-card rounded-sm font-medium text-sm hover:bg-fg/90 transition-all duration-200 w-full sm:w-auto justify-center shadow-sm hover:shadow-md font-body"
+            className="flex items-center gap-2.5 px-5 py-2.5 bg-fg text-card rounded-sm font-medium text-sm hover:bg-fg/90 transition-all duration-200 w-full sm:w-auto justify-center shadow-sm hover:shadow-md font-body"
           >
             <XIcon className="w-4 h-4" />
             <span>@wmoralesdev</span>
@@ -76,10 +76,19 @@ export function AboutSection() {
             href="https://github.com/wmoralesdev"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2.5 px-6 py-3 bg-transparent text-fg border border-border rounded-sm font-medium text-sm hover:border-border-strong hover:bg-card-02 transition-all duration-200 w-full sm:w-auto justify-center font-body"
+            className="flex items-center gap-2.5 px-5 py-2.5 bg-transparent text-fg border border-border rounded-sm font-medium text-sm hover:border-border-strong hover:bg-card-02 transition-all duration-200 w-full sm:w-auto justify-center font-body"
           >
             <Github className="w-4 h-4" strokeWidth={1.5} />
             <span>GitHub</span>
+          </a>
+          <a
+            href="https://linkedin.com/in/wmoralesdev"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2.5 px-5 py-2.5 bg-transparent text-fg border border-border rounded-sm font-medium text-sm hover:border-border-strong hover:bg-card-02 transition-all duration-200 w-full sm:w-auto justify-center font-body"
+          >
+            <Linkedin className="w-4 h-4" strokeWidth={1.5} />
+            <span>LinkedIn</span>
           </a>
         </div>
       </div>

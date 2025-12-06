@@ -6,6 +6,7 @@ export interface Translations {
     nav: {
       devCard: string;
       about: string;
+      tech: string;
     };
     footer: string;
   };
@@ -110,6 +111,20 @@ export interface Translations {
     title: string;
     subtitle: string;
     empty: string;
+    likes: {
+      like: string;
+      likedBy: string;
+      andOthers: string;
+      loginToLike: string;
+    };
+    sort: {
+      label: string;
+      recent: string;
+      mostLiked: string;
+    };
+    filter: {
+      maxOnly: string;
+    };
   };
   showcase: {
     title: string;
@@ -127,12 +142,86 @@ export interface Translations {
     deleteConfirm: string;
     cancel: string;
   };
+  notifications: {
+    title: string;
+    empty: string;
+    likedYourCard: string;
+    markAllRead: string;
+  };
   imageUpload: {
     perfect: string;
     showBestSide: string;
     dropHere: string;
     noImage: string;
     removeImage: string;
+  };
+  tech: {
+    back: string;
+    title: string;
+    subtitle: string;
+    sections: {
+      techStack: string;
+      userFlow: string;
+      architecture: string;
+      features: string;
+      edgeFunctions: string;
+      printPipeline: string;
+    };
+    flow: {
+      create: { title: string; desc: string };
+      preview: { title: string; desc: string };
+      export: { title: string; desc: string };
+      share: { title: string; desc: string };
+    };
+    arch: {
+      reactApp: string;
+      reactAppDesc: string;
+      tailwind: string;
+      tailwindDesc: string;
+      reactQuery: string;
+      reactQueryDesc: string;
+      edgeFunctions: string;
+      edgeFunctionsDesc: string;
+      postgres: string;
+      postgresDesc: string;
+      realtime: string;
+      realtimeDesc: string;
+      storage: string;
+      storageDesc: string;
+    };
+    features: {
+      imageCapture: { title: string; desc: string };
+      themeSystem: { title: string; desc: string };
+      realtimeSync: { title: string; desc: string };
+      printExport: { title: string; desc: string };
+      socialSharing: { title: string; desc: string };
+      i18n: { title: string; desc: string };
+      likes: { title: string; desc: string };
+      oauth: { title: string; desc: string };
+      autosave: { title: string; desc: string };
+    };
+    edgeFns: {
+      createPolaroid: string;
+      getPolaroids: string;
+      getPolaroidBySlug: string;
+      updatePolaroid: string;
+      deletePolaroid: string;
+      postPolaroid: string;
+      toggleLike: string;
+      getNotifications: string;
+    };
+    print: {
+      domRender: { title: string; desc: string };
+      screenshot: { title: string; desc: string };
+      storage: { title: string; desc: string };
+      printReady: { title: string; desc: string };
+    };
+    cta: {
+      title: string;
+      subtitle: string;
+      button: string;
+    };
+    footer: string;
   };
 }
 
@@ -143,6 +232,7 @@ export const translations: Record<Language, Translations> = {
       nav: {
         devCard: "Dev card",
         about: "About",
+        tech: "Tech",
       },
       get footer() { return `Made with love by Walter — Cursor Ambassador for El Salvador`; },
     },
@@ -253,6 +343,20 @@ export const translations: Record<Language, Translations> = {
       title: "Community cards",
       subtitle: "See what others are building",
       empty: "No community cards yet",
+      likes: {
+        like: "Like",
+        likedBy: "Liked by",
+        andOthers: "and {count} others",
+        loginToLike: "Sign in to like",
+      },
+      sort: {
+        label: "Sort",
+        recent: "Most recent",
+        mostLiked: "Most liked",
+      },
+      filter: {
+        maxOnly: "MAX only",
+      },
     },
     showcase: {
       title: "Cafe Cursor around the world",
@@ -270,12 +374,86 @@ export const translations: Record<Language, Translations> = {
       deleteConfirm: "Are you sure you want to delete this card? This action cannot be undone.",
       cancel: "Cancel",
     },
+    notifications: {
+      title: "Notifications",
+      empty: "No notifications yet",
+      likedYourCard: "liked your card",
+      markAllRead: "Mark all as read",
+    },
     imageUpload: {
       perfect: "Perfect",
       showBestSide: "Show your best side",
       dropHere: "Drop your photo here",
       noImage: "No image",
       removeImage: "Remove image",
+    },
+    tech: {
+      back: "Back",
+      title: "Under the Hood",
+      subtitle: "A technical look at how we built the Cafe Cursor card experience.",
+      sections: {
+        techStack: "Tech Stack",
+        userFlow: "User Flow",
+        architecture: "Architecture",
+        features: "Technical Features",
+        edgeFunctions: "Edge Functions",
+        printPipeline: "Print Pipeline",
+      },
+      flow: {
+        create: { title: "Create", desc: "Fill your profile, pick a theme, upload a photo" },
+        preview: { title: "Preview", desc: "See live preview with 3D tilt effect" },
+        export: { title: "Export", desc: "Download high-res PNG for printing" },
+        share: { title: "Share", desc: "Post to X or share via unique link" },
+      },
+      arch: {
+        reactApp: "React 19",
+        reactAppDesc: "TypeScript + Vite",
+        tailwind: "Tailwind 4",
+        tailwindDesc: "CSS Variables",
+        reactQuery: "React Query",
+        reactQueryDesc: "Server State",
+        edgeFunctions: "Edge Functions",
+        edgeFunctionsDesc: "Deno Runtime · Global Edge",
+        postgres: "PostgreSQL",
+        postgresDesc: "Row Level Security",
+        realtime: "Realtime",
+        realtimeDesc: "Live Updates",
+        storage: "Storage",
+        storageDesc: "CDN-backed",
+      },
+      features: {
+        imageCapture: { title: "Image Capture", desc: "Drop or upload your photo, adjust zoom and pan for the perfect crop within the polaroid frame." },
+        themeSystem: { title: "Theme System", desc: "5 unique card themes (Classic, Minimal, Coffee, Zen, Tokyo) with themed stamps and tape strips." },
+        realtimeSync: { title: "Real-time Sync", desc: "Auto-save to Supabase with optimistic updates. Your cards sync across devices instantly." },
+        printExport: { title: "Print-Ready Export", desc: "White background preserved for physical printing. Export at high resolution for perfect prints." },
+        socialSharing: { title: "Social Sharing", desc: "Share your card on X or copy a direct link. Each card gets a unique shareable URL." },
+        i18n: { title: "i18n Ready", desc: "Full English and Spanish support with easy extensibility for more languages." },
+        likes: { title: "Likes & Notifications", desc: "Like community cards and get notified when others like yours. Real-time notification updates." },
+        oauth: { title: "OAuth Integration", desc: "Sign in with GitHub or X (Twitter) via Supabase Auth. Secure, seamless authentication flow." },
+        autosave: { title: "Autosave", desc: "Form state is debounced and saved automatically. Never lose your progress." },
+      },
+      edgeFns: {
+        createPolaroid: "Create polaroid record with profile data",
+        getPolaroids: "Fetch community cards with pagination & filters",
+        getPolaroidBySlug: "Get single card by slug for sharing",
+        updatePolaroid: "Update existing card metadata",
+        deletePolaroid: "Remove card and associated storage",
+        postPolaroid: "Upload exported card image to storage",
+        toggleLike: "Like/unlike a community card",
+        getNotifications: "Fetch like notifications for user",
+      },
+      print: {
+        domRender: { title: "DOM Render", desc: "React component with white bg" },
+        screenshot: { title: "Screenshot", desc: "html-to-image capture" },
+        storage: { title: "Storage", desc: "Supabase CDN upload" },
+        printReady: { title: "Print Ready", desc: "340×510px @ 2x DPI" },
+      },
+      cta: {
+        title: "Ready to create your card?",
+        subtitle: "Join the Cafe Cursor community and share your setup.",
+        button: "Create my card",
+      },
+      footer: "Made with love by Walter — Cursor Ambassador for El Salvador",
     },
   },
   es: {
@@ -284,6 +462,7 @@ export const translations: Record<Language, Translations> = {
       nav: {
         devCard: "Tarjeta dev",
         about: "Acerca de",
+        tech: "Tech",
       },
       get footer() { return `Hecho con amor por Walter — Cursor Ambassador para El Salvador`; },
     },
@@ -394,6 +573,20 @@ export const translations: Record<Language, Translations> = {
       title: "Tarjetas de la comunidad",
       subtitle: "Ve lo que otros están construyendo",
       empty: "Aún no hay tarjetas de la comunidad",
+      likes: {
+        like: "Me gusta",
+        likedBy: "Le gustó a",
+        andOthers: "y {count} más",
+        loginToLike: "Inicia sesión para dar like",
+      },
+      sort: {
+        label: "Ordenar",
+        recent: "Más recientes",
+        mostLiked: "Más gustados",
+      },
+      filter: {
+        maxOnly: "Solo MAX",
+      },
     },
     showcase: {
       title: "Cafe Cursor alrededor del mundo",
@@ -411,12 +604,86 @@ export const translations: Record<Language, Translations> = {
       deleteConfirm: "¿Estás seguro de que quieres eliminar esta tarjeta? Esta acción no se puede deshacer.",
       cancel: "Cancelar",
     },
+    notifications: {
+      title: "Notificaciones",
+      empty: "Aún no hay notificaciones",
+      likedYourCard: "le gustó tu tarjeta",
+      markAllRead: "Marcar todo como leído",
+    },
     imageUpload: {
       perfect: "Perfecto",
       showBestSide: "Muestra tu mejor lado",
       dropHere: "Suelta tu foto aquí",
       noImage: "Sin imagen",
       removeImage: "Eliminar imagen",
+    },
+    tech: {
+      back: "Volver",
+      title: "Bajo el capó",
+      subtitle: "Una mirada técnica a cómo construimos la experiencia de tarjetas de Cafe Cursor.",
+      sections: {
+        techStack: "Stack Tecnológico",
+        userFlow: "Flujo del Usuario",
+        architecture: "Arquitectura",
+        features: "Características Técnicas",
+        edgeFunctions: "Edge Functions",
+        printPipeline: "Pipeline de Impresión",
+      },
+      flow: {
+        create: { title: "Crear", desc: "Completa tu perfil, elige un tema, sube una foto" },
+        preview: { title: "Vista previa", desc: "Ve la vista previa en vivo con efecto 3D" },
+        export: { title: "Exportar", desc: "Descarga PNG en alta resolución para imprimir" },
+        share: { title: "Compartir", desc: "Publica en X o comparte con un enlace único" },
+      },
+      arch: {
+        reactApp: "React 19",
+        reactAppDesc: "TypeScript + Vite",
+        tailwind: "Tailwind 4",
+        tailwindDesc: "Variables CSS",
+        reactQuery: "React Query",
+        reactQueryDesc: "Estado del Servidor",
+        edgeFunctions: "Edge Functions",
+        edgeFunctionsDesc: "Deno Runtime · Edge Global",
+        postgres: "PostgreSQL",
+        postgresDesc: "Row Level Security",
+        realtime: "Realtime",
+        realtimeDesc: "Actualizaciones en vivo",
+        storage: "Storage",
+        storageDesc: "Respaldado por CDN",
+      },
+      features: {
+        imageCapture: { title: "Captura de Imagen", desc: "Arrastra o sube tu foto, ajusta zoom y posición para el recorte perfecto en el marco." },
+        themeSystem: { title: "Sistema de Temas", desc: "5 temas únicos (Clásico, Minimal, Café, Zen, Tokio) con sellos y cintas temáticas." },
+        realtimeSync: { title: "Sincronización en Tiempo Real", desc: "Autoguardado en Supabase con actualizaciones optimistas. Tus tarjetas se sincronizan al instante." },
+        printExport: { title: "Exportación para Impresión", desc: "Fondo blanco preservado para impresión física. Exporta en alta resolución." },
+        socialSharing: { title: "Compartir en Redes", desc: "Comparte tu tarjeta en X o copia un enlace directo. Cada tarjeta tiene una URL única." },
+        i18n: { title: "Internacionalización", desc: "Soporte completo en inglés y español con fácil extensibilidad para más idiomas." },
+        likes: { title: "Likes y Notificaciones", desc: "Da like a tarjetas de la comunidad y recibe notificaciones cuando otros den like a las tuyas." },
+        oauth: { title: "Integración OAuth", desc: "Inicia sesión con GitHub o X (Twitter) vía Supabase Auth. Autenticación segura y fluida." },
+        autosave: { title: "Autoguardado", desc: "El estado del formulario se guarda automáticamente con debounce. Nunca pierdas tu progreso." },
+      },
+      edgeFns: {
+        createPolaroid: "Crear registro de polaroid con datos de perfil",
+        getPolaroids: "Obtener tarjetas de la comunidad con paginación y filtros",
+        getPolaroidBySlug: "Obtener tarjeta por slug para compartir",
+        updatePolaroid: "Actualizar metadatos de tarjeta existente",
+        deletePolaroid: "Eliminar tarjeta y almacenamiento asociado",
+        postPolaroid: "Subir imagen de tarjeta exportada al storage",
+        toggleLike: "Dar/quitar like a una tarjeta de la comunidad",
+        getNotifications: "Obtener notificaciones de likes del usuario",
+      },
+      print: {
+        domRender: { title: "Render DOM", desc: "Componente React con fondo blanco" },
+        screenshot: { title: "Captura", desc: "html-to-image capture" },
+        storage: { title: "Storage", desc: "Subida a CDN de Supabase" },
+        printReady: { title: "Listo para Imprimir", desc: "340×510px @ 2x DPI" },
+      },
+      cta: {
+        title: "¿Listo para crear tu tarjeta?",
+        subtitle: "Únete a la comunidad de Cafe Cursor y comparte tu setup.",
+        button: "Crear mi tarjeta",
+      },
+      footer: "Hecho con amor por Walter — Cursor Ambassador para El Salvador",
     },
   },
 };

@@ -3,6 +3,11 @@ import type { CursorProfile } from "@/types/form";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "http://localhost:64321";
 
+export interface RecentLiker {
+  actor_name: string;
+  actor_avatar_url: string | null;
+}
+
 export interface PolaroidRecord {
   id: string;
   user_id: string;
@@ -16,6 +21,10 @@ export interface PolaroidRecord {
   slug: string | null;
   created_at: string;
   updated_at: string;
+  // Like metadata (computed by API, not stored in table)
+  like_count?: number;
+  viewer_has_liked?: boolean;
+  recent_likers?: RecentLiker[];
 }
 
 export interface CreatePolaroidParams {
@@ -179,5 +188,29 @@ export async function deletePolaroid(id: string): Promise<void> {
   if (data?.error) {
     throw new Error(data.error);
   }
+}
+
+export interface ToggleLikeResult {
+  liked: boolean;
+  likeCount: number;
+}
+
+/**
+ * Toggle like on a polaroid
+ */
+export async function togglePolaroidLike(polaroidId: string): Promise<ToggleLikeResult> {
+  const { data, error } = await supabase.functions.invoke("toggle-polaroid-like", {
+    body: { polaroidId },
+  });
+
+  if (error) {
+    throw new Error(`Failed to toggle like: ${error.message}`);
+  }
+
+  if (data?.error) {
+    throw new Error(data.error);
+  }
+
+  return data?.data;
 }
 
