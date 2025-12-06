@@ -43,7 +43,7 @@ export function AboutSection() {
         
         <div className="flex items-center justify-center gap-3 mb-10 p-4 bg-card-02/50 rounded-sm border border-border/30">
           <img 
-            src="/me.png" 
+            src="/avatar.webp" 
             alt="Walter" 
             className="w-10 h-10 rounded-full object-cover ring-2 ring-accent/20"
           />
