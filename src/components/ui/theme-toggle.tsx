@@ -1,16 +1,14 @@
 import { clsx } from "clsx";
 import { Sun, Moon } from "lucide-react";
+import { useThemeStore } from "@/stores/theme-store";
 
-interface ThemeToggleProps {
-  theme: "light" | "dark";
-  onToggle: () => void;
-}
-
-export function ThemeToggle({ theme, onToggle }: ThemeToggleProps) {
+export function ThemeToggle() {
+  const theme = useThemeStore((state) => state.theme);
+  const toggleTheme = useThemeStore((state) => state.toggleTheme);
   return (
     <div className="fixed right-4 top-1/2 -translate-y-1/2 z-50">
       <button
-        onClick={onToggle}
+        onClick={toggleTheme}
         className={clsx(
           "group relative flex flex-col items-center gap-2 p-3 rounded-sm border transition-all duration-300",
           "hover:scale-105 active:scale-95",

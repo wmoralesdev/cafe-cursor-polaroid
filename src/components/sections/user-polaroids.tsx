@@ -1,18 +1,13 @@
 import { formatDistanceToNow } from "date-fns";
 import { es, enUS } from "date-fns/locale";
-import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { PolaroidCard } from "@/components/polaroid/polaroid-card";
 import { useLanguage } from "@/contexts/language-context";
 import { useUserPolaroids, useDeletePolaroid } from "@/hooks/use-polaroids-query";
+import { useUIStore } from "@/stores/ui-store";
+import { usePolaroidStore } from "@/stores/polaroid-store";
 import type { PolaroidRecord } from "@/lib/polaroids";
 import { Loader2, Plus, Trash2 } from "lucide-react";
-
-interface UserPolaroidsProps {
-  onSelectPolaroid?: (polaroid: PolaroidRecord | null) => void;
-  onAddNew?: () => void;
-  activePolaroidId?: string | null;
-}
 
 function getUserDisplayInfo(polaroid: PolaroidRecord, userAvatarUrl?: string | null) {
   const firstHandle = polaroid.profile.handles[0];
@@ -27,13 +22,18 @@ function getUserDisplayInfo(polaroid: PolaroidRecord, userAvatarUrl?: string | n
   return { name, handle, avatar };
 }
 
-export function UserPolaroids({ onSelectPolaroid, onAddNew, activePolaroidId }: UserPolaroidsProps) {
+export function UserPolaroids() {
   const { user } = useAuth();
   const { t, lang } = useLanguage();
   const { data: polaroids = [], isLoading: loading, error } = useUserPolaroids(!!user);
   const deleteMutation = useDeletePolaroid();
-  const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const deletingId = useUIStore((state) => state.deletingId);
+  const setDeletingId = useUIStore((state) => state.setDeletingId);
+  const confirmDeleteId = useUIStore((state) => state.confirmDeleteId);
+  const setConfirmDeleteId = useUIStore((state) => state.setConfirmDeleteId);
+  const activePolaroidId = usePolaroidStore((state) => state.activePolaroid?.id || null);
+  const handleSelectPolaroid = usePolaroidStore((state) => state.handleSelectPolaroid);
+  const handleAddNew = usePolaroidStore((state) => state.handleAddNew);
   
   const locale = lang === "es" ? es : enUS;
   const userAvatarUrl = user?.user_metadata?.avatar_url || user?.user_metadata?.picture || null;
@@ -50,7 +50,7 @@ export function UserPolaroids({ onSelectPolaroid, onAddNew, activePolaroidId }: 
     try {
       await deleteMutation.mutateAsync(polaroidId);
       if (activePolaroidId === polaroidId) {
-        onSelectPolaroid?.(polaroids.find(p => p.id !== polaroidId) || null);
+        handleSelectPolaroid(polaroids.find(p => p.id !== polaroidId) || null);
       }
     } catch (error) {
       console.error("Failed to delete polaroid:", error);
@@ -81,11 +81,11 @@ export function UserPolaroids({ onSelectPolaroid, onAddNew, activePolaroidId }: 
         </p>
       </div>
 
-      {user && onAddNew && (
+      {user && (
         <div className="mb-6">
           <button
             type="button"
-            onClick={onAddNew}
+            onClick={handleAddNew}
             className="inline-flex items-center gap-2 px-4 py-2 bg-accent text-white rounded-sm font-medium text-sm hover:bg-accent/90 transition-colors duration-150"
           >
             <Plus className="w-4 h-4" strokeWidth={2} />
@@ -121,7 +121,7 @@ export function UserPolaroids({ onSelectPolaroid, onAddNew, activePolaroidId }: 
             return (
               <div
                 key={polaroid.id}
-                onClick={() => onSelectPolaroid?.(polaroid)}
+                onClick={() => handleSelectPolaroid(polaroid)}
                 className={`card-panel p-4 rounded-sm shadow-sm transition-all duration-200 cursor-pointer relative ${
                   isActive 
                     ? "ring-2 ring-accent shadow-md" 

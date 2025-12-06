@@ -1,36 +1,51 @@
 import type React from "react";
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useImagePicker } from "@/hooks/use-image-picker";
 import { usePolaroidForm } from "@/hooks/use-polaroid-form";
 import { useExportPolaroid } from "@/hooks/use-export-polaroid";
 import { usePolaroidAutosave } from "@/hooks/use-polaroid-autosave";
 import { ProfileFields } from "@/components/form/profile-fields";
-import { PolaroidPreview } from "@/components/polaroid/polaroid-card";
+import { EditorPreview } from "./editor-preview";
+import { EditorActions } from "./editor-actions";
 import { useLanguage } from "@/contexts/language-context";
 import { useAuth } from "@/hooks/use-auth";
 import { useTracking } from "@/contexts/tracking-context";
 import { AuthOverlay } from "@/components/auth/auth-overlay";
-import { Download, Maximize2, Move, Loader2, CheckCircle2, AlertCircle, Github, Plus, Share2 } from "lucide-react";
+import { Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import { useUpdatePolaroid, useCreatePolaroid } from "@/hooks/use-polaroids-query";
-import { XIcon } from "@/components/ui/x-icon";
+import { useEditorUIStore } from "@/stores/editor-ui-store";
+import { useUIStore } from "@/stores/ui-store";
+import { usePolaroidStore } from "@/stores/polaroid-store";
 import type { PolaroidRecord } from "@/lib/polaroids";
 import type { CursorProfile } from "@/types/form";
 
 interface EditorSectionProps {
   initialPolaroid?: PolaroidRecord | null;
   onPolaroidChange?: (polaroid: PolaroidRecord | null) => void;
-  newCardRequested?: boolean;
-  onNewCardHandled?: () => void;
-  isLoadingInitial?: boolean;
 }
 
-export function EditorSection({ initialPolaroid, onPolaroidChange, newCardRequested, onNewCardHandled, isLoadingInitial }: EditorSectionProps) {
+export function EditorSection({ initialPolaroid, onPolaroidChange }: EditorSectionProps) {
+  // Get values from store
+  const newCardRequested = usePolaroidStore((state) => state.newCardRequested);
+  const isLoadingInitial = usePolaroidStore((state) => state.isLoadingInitial);
+  const handleNewCardHandled = usePolaroidStore((state) => state.handleNewCardHandled);
+  
   const { t } = useLanguage();
   const { user, provider } = useAuth();
   const { source, referredBy } = useTracking();
   const [hasUserInteracted, setHasUserInteracted] = useState(false);
-  const [showNewCardChoice, setShowNewCardChoice] = useState(false);
   const isEditingExisting = !!initialPolaroid;
+  
+  // Sync store with prop changes
+  useEffect(() => {
+    if (initialPolaroid && onPolaroidChange) {
+      // Store is source of truth, but sync if prop changes externally
+      const storePolaroid = usePolaroidStore.getState().activePolaroid;
+      if (storePolaroid?.id !== initialPolaroid?.id) {
+        usePolaroidStore.getState().setActivePolaroid(initialPolaroid);
+      }
+    }
+  }, [initialPolaroid, onPolaroidChange]);
   
   const { 
     image, 
@@ -63,7 +78,6 @@ export function EditorSection({ initialPolaroid, onPolaroidChange, newCardReques
     handleInteraction();
     onFileChange(e);
   };
-  const { ref: polaroidRef, exportImage, isExporting } = useExportPolaroid();
   const profile = watch("profile");
   
   const { currentPolaroidId, syncStatus, forceSave } = usePolaroidAutosave({
@@ -78,27 +92,11 @@ export function EditorSection({ initialPolaroid, onPolaroidChange, newCardReques
 
   const updateMutation = useUpdatePolaroid();
   const createMutation = useCreatePolaroid();
-  const [isSharing, setIsSharing] = useState(false);
-  const [shareCopied, setShareCopied] = useState(false);
+  const setIsSharing = useEditorUIStore((state) => state.setIsSharing);
+  const setShareCopied = useEditorUIStore((state) => state.setShareCopied);
   
-  const tiltRef = useRef<HTMLDivElement>(null);
-  const [tilt, setTilt] = useState({ x: 0, y: 0 });
-  const [isHovering, setIsHovering] = useState(false);
+  const { ref: polaroidRef, exportImage, isExporting } = useExportPolaroid();
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!tiltRef.current) return;
-    const rect = tiltRef.current.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-    const rotateX = ((e.clientY - centerY) / (rect.height / 2)) * -8;
-    const rotateY = ((e.clientX - centerX) / (rect.width / 2)) * 8;
-    setTilt({ x: rotateX, y: rotateY });
-  };
-
-  const handleMouseLeave = () => {
-    setTilt({ x: 0, y: 0 });
-    setIsHovering(false);
-  };
 
   const handleExportClick = async () => {
     if (!user || !image) return;
@@ -139,6 +137,7 @@ export function EditorSection({ initialPolaroid, onPolaroidChange, newCardReques
         },
       });
       clearImage();
+      usePolaroidStore.getState().setActivePolaroid(updated);
       onPolaroidChange?.(updated);
     } catch (err) {
       console.error("Failed to overwrite polaroid", err);
@@ -161,20 +160,23 @@ export function EditorSection({ initialPolaroid, onPolaroidChange, newCardReques
         source,
         referred_by: referredBy,
       });
+      usePolaroidStore.getState().setActivePolaroid(newPolaroid);
       onPolaroidChange?.(newPolaroid);
     } catch (err) {
       console.error("Failed to create new polaroid", err);
     }
   };
 
+  const setShowNewCardChoice = useUIStore((state) => state.setShowNewCardChoice);
+  
   useEffect(() => {
     if (newCardRequested && isEditingExisting && currentPolaroidId) {
       setShowNewCardChoice(true);
-      onNewCardHandled?.();
+      handleNewCardHandled();
     } else if (!newCardRequested) {
       setShowNewCardChoice(false);
     }
-  }, [newCardRequested, isEditingExisting, currentPolaroidId, onNewCardHandled]);
+  }, [newCardRequested, isEditingExisting, currentPolaroidId, handleNewCardHandled, setShowNewCardChoice]);
 
   const handleCopyShareLink = async () => {
     if (!user || !currentPolaroidId) {
@@ -301,228 +303,45 @@ export function EditorSection({ initialPolaroid, onPolaroidChange, newCardReques
         </div>
 
         <div className="lg:col-span-6 flex flex-col items-center justify-center lg:h-full relative animate-[fadeInUp_0.6s_ease-out_0.2s_forwards] opacity-0">
-
-          <div className={`relative w-full max-w-[340px] mx-auto ${!user ? "opacity-40" : ""}`}>
-            {isLoadingInitial ? (
-              <div className="w-full h-[510px] bg-card rounded-sm shadow-polaroid flex flex-col items-center justify-center gap-4 animate-pulse">
-                <Loader2 className="w-8 h-8 animate-spin text-accent" strokeWidth={1.5} />
-                <span className="text-sm text-fg-muted font-body">{t.editor.loading || "Loading your card..."}</span>
-              </div>
-            ) : (
-            <div 
-              ref={tiltRef}
-              className="relative w-full cursor-default"
-              style={{ perspective: "1000px" }}
-              onMouseMove={handleMouseMove}
-              onMouseEnter={() => setIsHovering(true)}
-              onMouseLeave={handleMouseLeave}
-              onKeyDown={() => {}}
-              role="img"
-              aria-label="Polaroid card preview with 3D tilt effect"
-              tabIndex={-1}
-            >
-
-             <div 
-               className="w-full transition-transform duration-200 ease-out"
-               style={{
-                 transform: isHovering 
-                   ? `rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) scale(1.02)` 
-                   : "rotateX(0) rotateY(0) scale(1)",
-                 transformStyle: "preserve-3d",
-               }}
-             >
-               <PolaroidPreview
-                 image={image}
-                 profile={profile}
-                 variant="preview"
-                 onDrop={handleImageDrop}
-                 onFileChange={handleImageFileChange}
-                 clearImage={clearImage}
-                 error={imageError}
-                 zoom={zoom}
-                 position={position}
-                 source={source}
-               />
-             </div>
-
-             <div className="absolute top-0 left-0 opacity-0 pointer-events-none -z-10" aria-hidden="true">
-               <PolaroidPreview
-                 ref={polaroidRef}
-                 image={image}
-                 profile={profile}
-                 variant="export"
-                 zoom={zoom}
-                 position={position}
-               />
-             </div>
-          </div>
-            )}
-          </div>
-            
-            <div className="mt-8 w-full max-w-sm space-y-6">
-               {image && (
-                  <div className="p-5 card-panel space-y-4">
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between text-xs font-medium uppercase tracking-wide text-fg-muted">
-                          <span className="flex items-center gap-1.5 font-body">
-                            <Maximize2 className="w-3.5 h-3.5" strokeWidth={1.5} />
-                            {t.editor.imageControls.zoom}
-                          </span>
-                          <span className="font-mono text-fg-muted">{Math.round(zoom * 100)}%</span>
-                        </div>
-                        <input 
-                          type="range" 
-                          min="1" 
-                          max="3" 
-                          step="0.1" 
-                          value={zoom} 
-                          onChange={(e) => setZoom(parseFloat(e.target.value))} 
-                          className="w-full h-1.5 bg-card-02 rounded-full appearance-none cursor-pointer accent-accent" 
-                        />
-                      </div>
-                      
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-3">
-                          <div className="flex items-center justify-between text-xs font-medium uppercase tracking-wide text-fg-muted">
-                            <span className="flex items-center gap-1.5 font-body">
-                              <Move className="w-3.5 h-3.5" strokeWidth={1.5} />
-                              {t.editor.imageControls.panX}
-                            </span>
-                          </div>
-                          <input 
-                            type="range" 
-                            min="-150" 
-                            max="150" 
-                            value={position.x} 
-                            onChange={(e) => setPosition({...position, x: parseInt(e.target.value)})} 
-                            className="w-full h-1.5 bg-card-02 rounded-full appearance-none cursor-pointer accent-accent" 
-                          />
-                        </div>
-                         <div className="space-y-3">
-                          <div className="flex items-center justify-between text-xs font-medium uppercase tracking-wide text-fg-muted">
-                            <span className="flex items-center gap-1.5 font-body">
-                              <Move className="w-3.5 h-3.5 rotate-90" strokeWidth={1.5} />
-                              {t.editor.imageControls.panY}
-                            </span>
-                          </div>
-                          <input 
-                            type="range" 
-                            min="-150" 
-                            max="150" 
-                            value={position.y} 
-                            onChange={(e) => setPosition({...position, y: parseInt(e.target.value)})} 
-                            className="w-full h-1.5 bg-card-02 rounded-full appearance-none cursor-pointer accent-accent" 
-                          />
-                        </div>
-                      </div>
-                      
-                      <div className="pt-2 flex justify-center">
-                        <button 
-                          type="button"
-                          onClick={() => { setZoom(1); setPosition({x:0, y:0}); }}
-                          className="text-xs font-medium text-fg-muted hover:text-accent transition-colors duration-150 underline underline-offset-2 decoration-1"
-                        >
-                          {t.editor.imageControls.reset}
-                        </button>
-                      </div>
-                  </div>
-               )}
-
-               <div className="space-y-3">
-                 {user && (
-                   <div className="text-xs text-fg-muted font-body text-center mb-2">
-                     {isEditingExisting ? (
-                       <span>{t.editor.cardStatus.editing}</span>
-                     ) : (
-                       <span>{t.editor.cardStatus.creating}</span>
-                     )}
-                   </div>
-                 )}
-
-                 {showNewCardChoice && (
-                   <div className="p-4 card-panel border border-border rounded-sm space-y-3 animate-[fadeIn_0.2s_ease-out]">
-                     <p className="text-sm text-fg font-body text-center">
-                       {t.editor.exportChoice.title}
-                     </p>
-                     <div className="flex gap-2">
-                       <button
-                         type="button"
-                         onClick={handleNewCardOverwrite}
-                         className="flex-1 py-2 px-3 bg-accent text-white rounded-sm font-medium text-sm hover:bg-accent/90 transition-colors"
-                       >
-                         {t.editor.exportChoice.overwrite}
-                       </button>
-                       <button
-                         type="button"
-                         onClick={handleNewCardCreate}
-                         className="flex-1 py-2 px-3 bg-card border border-border text-fg rounded-sm font-medium text-sm hover:bg-card-02 transition-colors"
-                       >
-                         <Plus className="w-3.5 h-3.5 inline mr-1" />
-                         {t.editor.exportChoice.newCard}
-                       </button>
-                     </div>
-                     <button
-                       type="button"
-                       onClick={() => setShowNewCardChoice(false)}
-                       className="w-full text-xs text-fg-muted hover:text-fg transition-colors"
-                     >
-                       {t.editor.exportChoice.cancel}
-                     </button>
-                   </div>
-                 )}
-
-                 {!showNewCardChoice && (
-                   <>
-                     <button 
-                       type="button"
-                       onClick={handleExportClick}
-                       disabled={isExporting || !image || !user}
-                       className="w-full py-4 px-8 bg-accent text-white rounded-sm font-semibold tracking-wide shadow-md hover:bg-accent/90 hover:shadow-lg hover:-translate-y-0.5 hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-md disabled:hover:scale-100 font-body"
-                     >
-                       <Download className={`w-5 h-5 ${isExporting ? "animate-bounce" : ""}`} strokeWidth={1.5} />
-                       {isExporting ? t.editor.exportButton.exporting : t.editor.exportButton.default}
-                     </button>
-                     {user && currentPolaroidId && (
-                       <button
-                         type="button"
-                         onClick={handleCopyShareLink}
-                         className="w-full py-3 px-6 bg-card border border-border text-fg rounded-sm font-medium tracking-wide shadow-sm hover:bg-card-02 hover:shadow-md hover:-translate-y-0.5 hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-sm disabled:hover:scale-100 font-body"
-                       >
-                         <Share2 className="w-4 h-4" strokeWidth={1.5} />
-                         <span>{shareCopied ? t.editor.share.copied : t.editor.share.link}</span>
-                       </button>
-                     )}
-                   </>
-                 )}
-
-                 {provider && currentPolaroidId && (
-                   <>
-                     {provider === "twitter" && (
-                       <button
-                         type="button"
-                         onClick={() => handleShare("twitter")}
-                         disabled={isSharing || isExporting || !image || !user || !currentPolaroidId}
-                         className="w-full py-3 px-6 bg-card border border-border text-fg rounded-sm font-medium tracking-wide shadow-sm hover:bg-card-02 hover:shadow-md hover:-translate-y-0.5 hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-sm disabled:hover:scale-100 font-body"
-                       >
-                         <XIcon className="w-4 h-4" />
-                         <span>{isSharing ? t.editor.share.openingX : t.editor.share.onX}</span>
-                       </button>
-                     )}
-                     {provider === "github" && (
-                       <button
-                         type="button"
-                         onClick={() => handleShare("github")}
-                         disabled={isSharing || isExporting || !image || !user || !currentPolaroidId}
-                         className="w-full py-3 px-6 bg-card border border-border text-fg rounded-sm font-medium tracking-wide shadow-sm hover:bg-card-02 hover:shadow-md hover:-translate-y-0.5 hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-sm disabled:hover:scale-100 font-body"
-                       >
-                         <Github className="w-4 h-4" strokeWidth={1.5} />
-                         <span>{isSharing ? t.editor.share.openingGitHub : t.editor.share.onGitHub}</span>
-                       </button>
-                     )}
-                   </>
-                 )}
-               </div>
+          {isLoadingInitial ? (
+            <div className="w-full h-[510px] bg-card rounded-sm shadow-polaroid flex flex-col items-center justify-center gap-4 animate-pulse">
+              <Loader2 className="w-8 h-8 animate-spin text-accent" strokeWidth={1.5} />
+              <span className="text-sm text-fg-muted font-body">{t.editor.loading || "Loading your card..."}</span>
             </div>
+          ) : (
+            <>
+              <EditorPreview
+                image={image}
+                profile={profile}
+                zoom={zoom}
+                position={position}
+                imageError={imageError}
+                onDrop={handleImageDrop}
+                onFileChange={handleImageFileChange}
+                clearImage={clearImage}
+                source={source}
+                polaroidRef={polaroidRef}
+                user={!!user}
+              />
+              <EditorActions
+                image={image}
+                zoom={zoom}
+                position={position}
+                setZoom={setZoom}
+                setPosition={setPosition}
+                isExporting={isExporting}
+                user={!!user}
+                isEditingExisting={isEditingExisting}
+                currentPolaroidId={currentPolaroidId}
+                provider={provider || null}
+                onExport={handleExportClick}
+                onCopyShareLink={handleCopyShareLink}
+                onShare={handleShare}
+                onNewCardOverwrite={handleNewCardOverwrite}
+                onNewCardCreate={handleNewCardCreate}
+              />
+            </>
+          )}
         </div>
       </div>
     </section>

@@ -1,6 +1,6 @@
 import { formatDistanceToNow } from "date-fns";
 import { es, enUS } from "date-fns/locale";
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import { PolaroidCard } from "@/components/polaroid/polaroid-card";
 import { useLanguage } from "@/contexts/language-context";
 import { useCommunityPolaroids, useTogglePolaroidLike } from "@/hooks/use-polaroids-query";
@@ -10,6 +10,8 @@ import { Loader2, Heart, ChevronDown, Check } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { LoginModal } from "@/components/auth/login-modal";
 import { clsx } from "clsx";
+import { useCommunityStore } from "@/stores/community-store";
+import { useUIStore } from "@/stores/ui-store";
 
 function getUserDisplayInfo(polaroid: PolaroidRecord, userAvatarUrl?: string | null) {
   const firstHandle = polaroid.profile.handles[0];
@@ -41,8 +43,6 @@ function formatLikerText(
   return `${t.likedBy} ${names.join(", ")}`;
 }
 
-type SortOption = "recent" | "mostLiked";
-
 export function CommunityMarquee() {
   const { t, lang } = useLanguage();
   const { user } = useAuth();
@@ -53,11 +53,15 @@ export function CommunityMarquee() {
   const locale = lang === "es" ? es : enUS;
   const userAvatarUrl = user?.user_metadata?.avatar_url || user?.user_metadata?.picture || null;
 
-  // Sorting and filtering state
-  const [sortBy, setSortBy] = useState<SortOption>("recent");
-  const [maxOnly, setMaxOnly] = useState(false);
-  const [showSortMenu, setShowSortMenu] = useState(false);
-  const [showLoginModal, setShowLoginModal] = useState(false);
+  // Sorting and filtering state from stores
+  const sortBy = useCommunityStore((state) => state.sortBy);
+  const maxOnly = useCommunityStore((state) => state.maxOnly);
+  const setSortBy = useCommunityStore((state) => state.setSortBy);
+  const toggleMaxOnly = useCommunityStore((state) => state.toggleMaxOnly);
+  const showSortMenu = useUIStore((state) => state.showSortMenu);
+  const setShowSortMenu = useUIStore((state) => state.setShowSortMenu);
+  const showLoginModal = useUIStore((state) => state.showLoginModal);
+  const setShowLoginModal = useUIStore((state) => state.setShowLoginModal);
 
   // Apply sorting and filtering
   const processedPolaroids = useMemo(() => {
@@ -157,7 +161,7 @@ export function CommunityMarquee() {
             {/* MAX filter */}
             <button
               type="button"
-              onClick={() => setMaxOnly(!maxOnly)}
+              onClick={toggleMaxOnly}
               className={clsx(
                 "px-3 py-1.5 text-sm font-body rounded-sm transition-colors border",
                 maxOnly
