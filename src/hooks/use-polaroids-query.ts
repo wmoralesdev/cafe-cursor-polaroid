@@ -54,8 +54,11 @@ export function useCreatePolaroid() {
         body: {
           profile: params.profile,
           imageDataUrl: params.imageDataUrl,
+          ogImageDataUrl: params.ogImageDataUrl,
           title: params.title,
           provider: params.provider,
+          source: params.source,
+          referred_by: params.referred_by,
         },
       });
 
@@ -86,6 +89,7 @@ export function useUpdatePolaroid() {
           id,
           profile: params.profile,
           imageDataUrl: params.imageDataUrl,
+          ogImageDataUrl: params.ogImageDataUrl,
           title: params.title,
           provider: params.provider,
         },

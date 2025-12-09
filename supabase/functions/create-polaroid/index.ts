@@ -38,7 +38,7 @@ Deno.serve(async (req: Request) => {
     }
 
     const body = await req.json();
-    const { profile, imageDataUrl, title, provider, source, referred_by } = body;
+    const { profile, imageDataUrl, ogImageDataUrl, title, provider, source, referred_by } = body;
 
     if (!profile) {
       return new Response(
@@ -77,6 +77,31 @@ Deno.serve(async (req: Request) => {
       }
     }
 
+    // Upload OG image if provided
+    let ogImageUrl: string | null = null;
+    if (ogImageDataUrl && !ogImageDataUrl.startsWith("http")) {
+      const ogResponse = await fetch(ogImageDataUrl);
+      const ogBlob = await ogResponse.blob();
+      const ogFilename = `${user.id}/og-${Date.now()}-${Math.random().toString(36).substring(7)}.png`;
+      
+      const { error: ogUploadError } = await supabase.storage
+        .from("polaroids")
+        .upload(ogFilename, ogBlob, {
+          contentType: "image/png",
+          upsert: false,
+        });
+
+      if (ogUploadError) {
+        console.error("Failed to upload OG image:", ogUploadError.message);
+        // Don't throw - OG image is optional, continue without it
+      } else {
+        const { data: ogUrlData } = supabase.storage
+          .from("polaroids")
+          .getPublicUrl(ogFilename);
+        ogImageUrl = ogUrlData.publicUrl;
+      }
+    }
+
     // Generate slug from first handle + random suffix
     const firstHandle = profile?.handles?.[0]?.handle || "user";
     const sanitizedHandle = firstHandle.toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -107,6 +132,7 @@ Deno.serve(async (req: Request) => {
         profile,
         image_url: imageUrl,
         source_image_url: imageUrl,
+        og_image_url: ogImageUrl,
         title: title || null,
         provider: provider || null,
         source: source || "direct",

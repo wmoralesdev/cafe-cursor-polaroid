@@ -38,7 +38,7 @@ Deno.serve(async (req: Request) => {
     }
 
     const body = await req.json();
-    const { id, profile, imageDataUrl, title, provider } = body;
+    const { id, profile, imageDataUrl, ogImageDataUrl, title, provider } = body;
 
     if (!id) {
       return new Response(
@@ -89,6 +89,45 @@ Deno.serve(async (req: Request) => {
           .getPublicUrl(filename);
         updateData.image_url = urlData.publicUrl;
         updateData.source_image_url = urlData.publicUrl;
+      }
+    }
+
+    // Upload OG image if provided
+    if (ogImageDataUrl && !ogImageDataUrl.startsWith("http")) {
+      // First, get the current polaroid to check for existing OG image
+      const { data: currentPolaroid } = await supabase
+        .from("polaroids")
+        .select("og_image_url")
+        .eq("id", id)
+        .eq("user_id", user.id)
+        .single();
+
+      // Delete old OG image if exists
+      if (currentPolaroid?.og_image_url) {
+        const oldPath = currentPolaroid.og_image_url.split("/polaroids/")[1];
+        if (oldPath) {
+          await supabase.storage.from("polaroids").remove([oldPath]);
+        }
+      }
+
+      const ogResponse = await fetch(ogImageDataUrl);
+      const ogBlob = await ogResponse.blob();
+      const ogFilename = `${user.id}/og-${id}.png`;
+      
+      const { error: ogUploadError } = await supabase.storage
+        .from("polaroids")
+        .upload(ogFilename, ogBlob, {
+          contentType: "image/png",
+          upsert: true,
+        });
+
+      if (ogUploadError) {
+        console.error("Failed to upload OG image:", ogUploadError.message);
+      } else {
+        const { data: ogUrlData } = supabase.storage
+          .from("polaroids")
+          .getPublicUrl(ogFilename);
+        updateData.og_image_url = ogUrlData.publicUrl;
       }
     }
 

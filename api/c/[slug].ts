@@ -98,7 +98,8 @@ export default async function handler(request: Request) {
     const description = [primaryModel, plan, isMax ? 'MAX' : ''].filter(Boolean).join(' · ') || 'Cafe Cursor dev card';
     
     const host = request.headers.get('host') || 'cafe.cursor-sv.com';
-    const ogImageUrl = `https://${host}/api/og/${slug}`;
+    // Use pre-generated OG image if available, otherwise fall back to source image
+    const ogImageUrl = polaroid.og_image_url || polaroid.source_image_url || polaroid.image_url || '';
     const pageUrl = `https://${host}/c/${slug}`;
 
     const html = `<!DOCTYPE html>

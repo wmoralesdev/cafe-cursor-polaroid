@@ -13,6 +13,7 @@ export interface PolaroidRecord {
   user_id: string;
   image_url: string | null;
   source_image_url: string | null;
+  og_image_url: string | null;
   profile: CursorProfile;
   title: string | null;
   provider: string | null;
@@ -30,6 +31,7 @@ export interface PolaroidRecord {
 export interface CreatePolaroidParams {
   profile: CursorProfile;
   imageDataUrl?: string | null;
+  ogImageDataUrl?: string | null;
   title?: string;
   provider?: string;
   source?: string;
@@ -39,6 +41,7 @@ export interface CreatePolaroidParams {
 export interface UpdatePolaroidParams {
   profile?: CursorProfile;
   imageDataUrl?: string | null;
+  ogImageDataUrl?: string | null;
   title?: string;
   provider?: string;
 }
@@ -49,6 +52,7 @@ export async function createPolaroid(params: CreatePolaroidParams): Promise<Pola
     body: {
       profile: params.profile,
       imageDataUrl: params.imageDataUrl,
+      ogImageDataUrl: params.ogImageDataUrl,
       title: params.title,
       provider: params.provider,
       source: params.source,
@@ -76,6 +80,7 @@ export async function updatePolaroid(
       id,
       profile: params.profile,
       imageDataUrl: params.imageDataUrl,
+      ogImageDataUrl: params.ogImageDataUrl,
       title: params.title,
       provider: params.provider,
     },

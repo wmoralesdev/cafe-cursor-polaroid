@@ -3,10 +3,12 @@ import { useState, useEffect } from "react";
 import { useImagePicker } from "@/hooks/use-image-picker";
 import { usePolaroidForm, getDefaultProfile } from "@/hooks/use-polaroid-form";
 import { useExportPolaroid } from "@/hooks/use-export-polaroid";
+import { useOGImageGenerator } from "@/hooks/use-og-image-generator";
 import { usePolaroidAutosave } from "@/hooks/use-polaroid-autosave";
 import { ProfileFields } from "@/components/form/profile-fields";
 import { EditorPreview } from "./editor-preview";
 import { EditorActions } from "./editor-actions";
+import { OGCard } from "@/components/polaroid/og-card";
 import { useLanguage } from "@/contexts/language-context";
 import { useAuth } from "@/hooks/use-auth";
 import { useTracking } from "@/contexts/tracking-context";
@@ -30,7 +32,7 @@ export function EditorSection({ initialPolaroid, onPolaroidChange }: EditorSecti
   const isLoadingInitial = usePolaroidStore((state) => state.isLoadingInitial);
   const handleNewCardHandled = usePolaroidStore((state) => state.handleNewCardHandled);
   
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const { user, provider } = useAuth();
   const { source, referredBy } = useTracking();
   const [hasUserInteracted, setHasUserInteracted] = useState(false);
@@ -96,6 +98,7 @@ export function EditorSection({ initialPolaroid, onPolaroidChange }: EditorSecti
   const setShareCopied = useEditorUIStore((state) => state.setShareCopied);
   
   const { ref: polaroidRef, exportImage, isExporting } = useExportPolaroid();
+  const { ogCardRef, generateOGImage } = useOGImageGenerator();
 
 
   const handleExportClick = async () => {
@@ -230,14 +233,20 @@ export function EditorSection({ initialPolaroid, onPolaroidChange }: EditorSecti
 
     try {
       await forceSave();
-      const dataUrl = await exportImage();
       
-      if (dataUrl && currentPolaroidId) {
+      // Generate both the polaroid export and OG image
+      const [dataUrl, ogImageDataUrl] = await Promise.all([
+        exportImage(),
+        generateOGImage(),
+      ]);
+      
+      if (currentPolaroidId) {
         try {
           await updateMutation.mutateAsync({
             id: currentPolaroidId,
             params: {
-              imageDataUrl: dataUrl,
+              imageDataUrl: dataUrl || undefined,
+              ogImageDataUrl: ogImageDataUrl || undefined,
               provider: socialProvider === "twitter" ? "twitter" : "github",
             },
           });
@@ -246,12 +255,16 @@ export function EditorSection({ initialPolaroid, onPolaroidChange }: EditorSecti
         }
       }
 
-      const baseUrl = window.location.origin + window.location.pathname;
-      const shareUrl = new URL(baseUrl);
-      shareUrl.searchParams.set("p", currentPolaroidId);
-      shareUrl.searchParams.set("ref", user.id);
-      const shareUrlString = shareUrl.toString();
-      const shareText = `Check out my dev card: ${shareUrlString}`;
+      // Get the slug from the active polaroid for a cleaner share URL
+      const activePolaroid = usePolaroidStore.getState().activePolaroid;
+      const slug = activePolaroid?.slug;
+      
+      // Use slug-based URL if available, otherwise fall back to ID
+      const shareUrlString = slug 
+        ? `${window.location.origin}/c/${slug}`
+        : `${window.location.origin}/?p=${currentPolaroidId}&ref=${user.id}`;
+      
+      const shareText = `Check out my @cursor_ai dev card!`;
 
       if (socialProvider === "twitter") {
         const twitterIntentUrl = new URL("https://twitter.com/intent/tweet");
@@ -273,6 +286,15 @@ export function EditorSection({ initialPolaroid, onPolaroidChange }: EditorSecti
 
   return (
     <section id="editor" className="py-8 lg:min-h-[700px] flex flex-col justify-center mb-16 relative overflow-hidden">
+      {/* Hidden OG Card for capture */}
+      <div style={{ position: "absolute", left: "-9999px", top: "-9999px", pointerEvents: "none" }}>
+        <OGCard
+          ref={ogCardRef}
+          profile={profile}
+          imageUrl={image}
+          lang={lang}
+        />
+      </div>
       
       <div className="max-w-7xl mx-auto w-full mb-12 relative z-10 animate-[fadeInUp_0.6s_ease-out_forwards]">
         <div className="max-w-2xl">
