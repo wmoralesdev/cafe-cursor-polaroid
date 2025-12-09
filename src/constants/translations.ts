@@ -101,9 +101,11 @@ export interface Translations {
       themes: {
         classic: string;
         minimal: string;
-        coffee: string;
-        zen: string;
+        web: string;
+        sakura: string;
         tokyo: string;
+        cyberpunk: string;
+        matrix: string;
       };
     };
   };
@@ -334,9 +336,11 @@ export const translations: Record<Language, Translations> = {
         themes: {
           classic: "Classic",
           minimal: "Minimal",
-          coffee: "Coffee",
-          zen: "Zen",
+          web: "Web",
+          sakura: "Sakura",
           tokyo: "Tokyo",
+          cyberpunk: "Cyber",
+          matrix: "Matrix",
         },
       },
     },
@@ -565,9 +569,11 @@ export const translations: Record<Language, Translations> = {
         themes: {
           classic: "Clásico",
           minimal: "Minimal",
-          coffee: "Café",
-          zen: "Zen",
+          web: "Web",
+          sakura: "Sakura",
           tokyo: "Tokio",
+          cyberpunk: "Cyber",
+          matrix: "Matrix",
         },
       },
     },

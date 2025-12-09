@@ -3,7 +3,7 @@ export type CursorFeature = "agent" | "tab" | "voice" | "browser" | "rules";
 export type PlanTier = "free" | "pro" | "pro-plus" | "ultra" | "student";
 export type CursorTenure = "day-1" | "2023" | "2024" | "2025" | "recently";
 export type SocialPlatform = "x" | "linkedin";
-export type PolaroidTheme = "classic" | "minimal" | "coffee" | "zen" | "tokyo";
+export type PolaroidTheme = "classic" | "minimal" | "web" | "sakura" | "tokyo" | "cyberpunk" | "matrix";
 
 export interface HandleEntry {
   handle: string;

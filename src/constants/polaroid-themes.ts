@@ -86,59 +86,57 @@ export const polaroidThemes: Record<PolaroidTheme, PolaroidThemeConfig> = {
   },
   
   // ═══════════════════════════════════════════════════════════════
-  // COFFEE - Artisan craft coffee shop, kraft paper, hand-drawn
+  // WEB - Internet/browser aesthetic, blue links, tech vibes
   // ═══════════════════════════════════════════════════════════════
-  coffee: {
-    accent: "#6F4E37", // Coffee brown
-    accentLight: "rgba(111, 78, 55, 0.12)",
-    textPrimary: "#3E2723", // Dark espresso
-    textMuted: "#8D6E63", // Latte
-    badgeBg: "rgba(111, 78, 55, 0.08)",
-    badgeBorder: "rgba(111, 78, 55, 0.25)",
+  web: {
+    accent: "#0066CC", // Classic hyperlink blue
+    accentLight: "rgba(0, 102, 204, 0.1)",
+    textPrimary: "#1a1a1a",
+    textMuted: "#555555",
+    badgeBg: "rgba(0, 102, 204, 0.08)",
+    badgeBorder: "rgba(0, 102, 204, 0.25)",
     
-    displayFont: "'Caveat', 'Patrick Hand', cursive, system-ui",
-    bodyFont: "'DM Sans', system-ui, sans-serif",
-    monoFont: "'Source Code Pro', monospace",
+    displayFont: "'Inter', system-ui, sans-serif",
+    bodyFont: "'Inter', sans-serif",
+    monoFont: "'Fira Code', 'JetBrains Mono', monospace",
     
-    stampBorder: "rgba(111, 78, 55, 0.7)",
-    stampInnerBorder: "rgba(111, 78, 55, 0.4)",
-    stampText: "#6F4E37",
+    stampBorder: "rgba(0, 102, 204, 0.7)",
+    stampInnerBorder: "rgba(0, 102, 204, 0.4)",
+    stampText: "#0066CC",
     
-    tapeGradient: "linear-gradient(to bottom, rgba(210, 180, 140, 0.85), rgba(188, 158, 118, 0.75))",
-    tapeBorder: "rgba(139, 119, 91, 0.4)",
+    tapeGradient: "linear-gradient(to bottom, rgba(0, 102, 204, 0.2), rgba(100, 180, 255, 0.15))",
+    tapeBorder: "rgba(0, 102, 204, 0.3)",
     
-    featureBadgeStyle: "handwritten",
-    techBadgeStyle: "underline",
-    
-    imageFilter: "contrast(1.02) saturate(0.95) sepia(5%)",
+    featureBadgeStyle: "outline",
+    techBadgeStyle: "pill",
   },
   
   // ═══════════════════════════════════════════════════════════════
-  // ZEN - Traditional Japanese garden, moss green, wabi-sabi
+  // SAKURA - Cherry blossom, soft pink, Japanese spring
   // ═══════════════════════════════════════════════════════════════
-  zen: {
-    accent: "#5B7553", // Moss green (苔色 koke-iro)
-    accentLight: "rgba(91, 117, 83, 0.12)",
-    textPrimary: "#2D3A2D", // Deep forest
-    textMuted: "#6B7B6B", // Stone moss
-    badgeBg: "rgba(91, 117, 83, 0.1)",
-    badgeBorder: "rgba(91, 117, 83, 0.25)",
+  sakura: {
+    accent: "#E91E8C", // Sakura pink
+    accentLight: "rgba(233, 30, 140, 0.1)",
+    textPrimary: "#2D2D2D",
+    textMuted: "#7A6B6B",
+    badgeBg: "rgba(233, 30, 140, 0.08)",
+    badgeBorder: "rgba(233, 30, 140, 0.25)",
     
-    displayFont: "'Zen Antique', 'Noto Serif JP', 'Georgia', serif",
-    bodyFont: "'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif",
+    displayFont: "'Noto Serif JP', 'Georgia', serif",
+    bodyFont: "'Noto Sans JP', 'DM Sans', sans-serif",
     monoFont: "'Noto Sans Mono', monospace",
     
-    stampBorder: "rgba(91, 117, 83, 0.7)",
-    stampInnerBorder: "rgba(91, 117, 83, 0.4)",
-    stampText: "#5B7553",
+    stampBorder: "rgba(233, 30, 140, 0.6)",
+    stampInnerBorder: "rgba(233, 30, 140, 0.35)",
+    stampText: "#E91E8C",
     
-    tapeGradient: "linear-gradient(to bottom, rgba(216, 223, 208, 0.9), rgba(200, 210, 190, 0.8))",
-    tapeBorder: "rgba(160, 175, 150, 0.4)",
+    tapeGradient: "linear-gradient(to bottom, rgba(255, 183, 197, 0.7), rgba(255, 218, 225, 0.6))",
+    tapeBorder: "rgba(233, 30, 140, 0.25)",
     
-    featureBadgeStyle: "outline",
-    techBadgeStyle: "minimal",
+    featureBadgeStyle: "pill",
+    techBadgeStyle: "pill",
     
-    imageFilter: "contrast(1.02) saturate(0.92) sepia(3%)",
+    imageFilter: "contrast(1.02) saturate(1.05)",
   },
   
   // ═══════════════════════════════════════════════════════════════
@@ -146,11 +144,11 @@ export const polaroidThemes: Record<PolaroidTheme, PolaroidThemeConfig> = {
   // ═══════════════════════════════════════════════════════════════
   tokyo: {
     accent: "#FF2D95", // Hot pink neon
-    accentLight: "rgba(255, 45, 149, 0.15)",
+    accentLight: "rgba(255, 45, 149, 0.2)",
     textPrimary: "#1A1A2E", // Dark night
-    textMuted: "#8B8BA3", // Neon-tinted gray
-    badgeBg: "rgba(255, 45, 149, 0.12)",
-    badgeBorder: "rgba(255, 45, 149, 0.35)",
+    textMuted: "#4A4A5E", // Darker neon-tinted gray for contrast
+    badgeBg: "rgba(255, 45, 149, 0.18)",
+    badgeBorder: "rgba(255, 45, 149, 0.5)",
     
     displayFont: "'Space Grotesk', 'Inter', sans-serif",
     bodyFont: "'Space Grotesk', sans-serif",
@@ -165,6 +163,62 @@ export const polaroidThemes: Record<PolaroidTheme, PolaroidThemeConfig> = {
     
     featureBadgeStyle: "tag",
     techBadgeStyle: "square",
+  },
+  
+  // ═══════════════════════════════════════════════════════════════
+  // CYBERPUNK - Blade Runner / CP2077, yellow neon, cyan accents
+  // ═══════════════════════════════════════════════════════════════
+  cyberpunk: {
+    accent: "#FCE300", // Cyberpunk yellow
+    accentLight: "rgba(252, 227, 0, 0.15)",
+    textPrimary: "#0D0D0D", // Near black
+    textMuted: "#5A5A3D", // Dark yellow-gray
+    badgeBg: "rgba(252, 227, 0, 0.12)",
+    badgeBorder: "rgba(252, 227, 0, 0.4)",
+    
+    displayFont: "'Rajdhani', 'Share Tech', sans-serif",
+    bodyFont: "'Rajdhani', sans-serif",
+    monoFont: "'Share Tech Mono', monospace",
+    
+    stampBorder: "rgba(252, 227, 0, 0.8)",
+    stampInnerBorder: "rgba(0, 217, 255, 0.5)", // Cyan accent
+    stampText: "#FCE300",
+    
+    tapeGradient: "linear-gradient(to right, rgba(252, 227, 0, 0.3), rgba(0, 217, 255, 0.2))",
+    tapeBorder: "rgba(252, 227, 0, 0.3)",
+    
+    featureBadgeStyle: "tag",
+    techBadgeStyle: "square",
+    
+    imageFilter: "contrast(1.1) saturate(1.1)",
+  },
+  
+  // ═══════════════════════════════════════════════════════════════
+  // MATRIX - Digital rain, green on black, hacker movie aesthetic
+  // ═══════════════════════════════════════════════════════════════
+  matrix: {
+    accent: "#00FF00", // Pure matrix green
+    accentLight: "rgba(0, 255, 0, 0.12)",
+    textPrimary: "#0A0A0A",
+    textMuted: "#2D4A2D",
+    badgeBg: "rgba(0, 255, 0, 0.1)",
+    badgeBorder: "rgba(0, 255, 0, 0.35)",
+    
+    displayFont: "'Courier New', 'Consolas', monospace",
+    bodyFont: "'Courier New', monospace",
+    monoFont: "'Courier New', monospace",
+    
+    stampBorder: "rgba(0, 255, 0, 0.7)",
+    stampInnerBorder: "rgba(0, 255, 0, 0.4)",
+    stampText: "#00FF00",
+    
+    tapeGradient: "linear-gradient(to bottom, rgba(0, 255, 0, 0.2), rgba(0, 180, 0, 0.1))",
+    tapeBorder: "rgba(0, 255, 0, 0.25)",
+    
+    featureBadgeStyle: "square",
+    techBadgeStyle: "square",
+    
+    imageFilter: "contrast(1.15) saturate(0.8) brightness(0.95)",
   },
 };
 

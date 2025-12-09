@@ -67,12 +67,16 @@ interface OGStampProps {
 function OGStamp({ rotation, generatedAt, locale, theme, config }: OGStampProps) {
   const getStampContent = () => {
     switch (theme) {
-      case "zen":
-        return { top: "庭園", bottom: generatedAt ? formatShortDate(generatedAt, locale) : "二〇二五" };
-      case "coffee":
-        return { top: "☕ Cafe Cursor", bottom: generatedAt ? formatShortDate(generatedAt, locale) : "est. 2025" };
+      case "web":
+        return { top: "</>", bottom: generatedAt ? formatShortDate(generatedAt, locale) : "2025" };
+      case "sakura":
+        return { top: "桜", bottom: generatedAt ? formatShortDate(generatedAt, locale) : "春 2025" };
       case "tokyo":
         return { top: "東京", bottom: generatedAt ? formatShortDate(generatedAt, locale) : "2025" };
+      case "cyberpunk":
+        return { top: "NIGHT CITY", bottom: generatedAt ? formatShortDate(generatedAt, locale) : "2077" };
+      case "matrix":
+        return { top: "WAKE UP", bottom: generatedAt ? formatShortDate(generatedAt, locale) : "1999" };
       case "minimal":
         return { top: "", bottom: "2025" };
       default:
@@ -81,7 +85,6 @@ function OGStamp({ rotation, generatedAt, locale, theme, config }: OGStampProps)
   };
 
   const content = getStampContent();
-  const isDashed = theme === "coffee";
   const isSquare = theme === "minimal";
 
   if (isSquare) {
@@ -122,7 +125,7 @@ function OGStamp({ rotation, generatedAt, locale, theme, config }: OGStampProps)
         className="relative w-14 h-14 rounded-full flex items-center justify-center bg-white"
         style={{ 
           transform: `rotate(${rotation}deg)`,
-          border: `2px ${isDashed ? 'dashed' : 'solid'} ${config.stampBorder}`,
+          border: `2px solid ${config.stampBorder}`,
           boxShadow: theme === "tokyo" 
             ? `0 0 8px ${config.accent}60, inset 0 0 8px ${config.accent}20`
             : "0 2px 8px rgba(0,0,0,0.1)",
@@ -136,24 +139,6 @@ function OGStamp({ rotation, generatedAt, locale, theme, config }: OGStampProps)
             boxShadow: theme === "tokyo" ? `0 0 4px ${config.stampInnerBorder}` : undefined,
           }}
         />
-        
-        {/* Coffee ring stain effect */}
-        {theme === "coffee" && (
-          <div 
-            className="absolute -inset-0.5 rounded-full opacity-20"
-            style={{ 
-              background: `radial-gradient(circle, transparent 60%, ${config.accent}30 70%, transparent 75%)`,
-            }}
-          />
-        )}
-
-        {/* Zen decorative marks */}
-        {theme === "zen" && (
-          <>
-            <div className="absolute top-0.5 left-1/2 -translate-x-1/2 text-[8px]" style={{ color: config.stampText }}>⸙</div>
-            <div className="absolute bottom-0.5 left-1/2 -translate-x-1/2 text-[8px] rotate-180" style={{ color: config.stampText }}>⸙</div>
-          </>
-        )}
 
         {/* Tokyo neon dots */}
         {theme === "tokyo" && (
@@ -167,7 +152,6 @@ function OGStamp({ rotation, generatedAt, locale, theme, config }: OGStampProps)
           {content.top && (
             <span 
               className="text-[6px] font-bold uppercase tracking-wide"
-              style={{ fontFamily: theme === 'coffee' || theme === 'zen' ? config.displayFont : undefined }}
             >
               {content.top}
             </span>
@@ -177,13 +161,9 @@ function OGStamp({ rotation, generatedAt, locale, theme, config }: OGStampProps)
             alt="Cursor" 
             className="w-3.5 h-3.5"
             style={{ 
-              filter: theme === 'coffee' 
-                ? 'sepia(30%)' 
-                : theme === 'zen'
-                  ? 'hue-rotate(80deg) saturate(0.6)'
-                  : theme === 'tokyo'
-                    ? 'hue-rotate(310deg) saturate(1.5) brightness(1.1)'
-                    : 'brightness(0)',
+              filter: theme === 'tokyo'
+                ? 'hue-rotate(310deg) saturate(1.5) brightness(1.1)'
+                : 'brightness(0)',
             }}
           />
           <span 

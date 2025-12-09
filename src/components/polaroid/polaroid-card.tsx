@@ -2,6 +2,7 @@ import { forwardRef } from "react";
 import { clsx } from "clsx";
 import type { CursorProfile } from "@/types/form";
 import { polaroidThemes } from "@/constants/polaroid-themes";
+import { POLAROID_WIDTH_PX, POLAROID_HEIGHT_PX } from "@/constants/print-dimensions";
 import { PolaroidImage } from "./polaroid-image";
 import { PolaroidCaption } from "./polaroid-caption";
 import { ThemePattern } from "./theme-pattern";
@@ -58,19 +59,19 @@ export const PolaroidCard = forwardRef<HTMLDivElement, PolaroidCardProps>(
             "bg-white transition-all duration-500 ease-out transform origin-center paper-texture relative polaroid-card-light",
             variant === "preview" && [
               "hover:scale-[1.01] hover:rotate-1",
-              "w-full max-w-[340px] h-[510px]",
-              "p-3",
-              "shadow-polaroid",
-              "flex flex-col",
+              "w-full pt-5 px-3 pb-3 shadow-polaroid flex flex-col",
             ],
             variant === "export" && [
-              "w-[340px] h-[510px]",
-              "p-3",
-              "shadow-polaroid",
-              "flex flex-col",
+              "pt-5 px-3 pb-3 shadow-polaroid flex flex-col",
             ],
             className
           )}
+          style={{
+            width: variant === "preview" ? undefined : POLAROID_WIDTH_PX,
+            maxWidth: variant === "preview" ? POLAROID_WIDTH_PX : undefined,
+            height: POLAROID_HEIGHT_PX,
+            backgroundColor: "#ffffff",
+          }}
         >
           <PolaroidImage
             image={image}

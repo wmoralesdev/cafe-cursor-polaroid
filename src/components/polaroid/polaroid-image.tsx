@@ -105,7 +105,7 @@ export function PolaroidImage({
     <div
       ref={containerRef}
       className={clsx(
-        "aspect-square w-full bg-card-01 rounded-sm overflow-hidden relative shadow-[inset_0_2px_4px_rgba(0,0,0,0.1)] border border-border/20 transition-colors shrink-0",
+        "aspect-[4/3] w-full bg-card-01 rounded-sm overflow-hidden relative shadow-[inset_0_2px_4px_rgba(0,0,0,0.1)] border border-border/20 transition-colors shrink-0",
         editable && "group cursor-pointer",
         isDragOver && "bg-accent/10 border-accent"
       )}

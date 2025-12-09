@@ -200,11 +200,11 @@ export function CursorProfileRow({ profile, source }: CursorProfileRowProps) {
 
   return (
     <div 
-      className="flex flex-col gap-2"
+      className="flex flex-col gap-1.5"
       style={{ fontFamily: config.bodyFont }}
     >
-      <div className="flex items-start justify-between gap-2">
-        <div className="flex flex-col gap-1">
+      <div className="flex items-start justify-between gap-1">
+        <div className="flex flex-col gap-0.5">
           {handles.map((h, i) => (
             h.handle && (
               <div 
@@ -260,7 +260,7 @@ export function CursorProfileRow({ profile, source }: CursorProfileRowProps) {
       )}
 
       <div 
-        className="flex items-center gap-2 text-[11px] flex-wrap"
+        className="flex items-center gap-1.5 text-[11px] flex-wrap"
         style={{ color: config.textMuted }}
       >
         <div className="flex items-center gap-1" title="Coding Model">
@@ -279,7 +279,7 @@ export function CursorProfileRow({ profile, source }: CursorProfileRowProps) {
         </div>
       </div>
       
-      <div className="flex flex-wrap gap-1 mt-0.5">
+      <div className="flex flex-wrap gap-1">
         <FeatureBadge 
           label={getFeatureLabel(profile.favoriteFeature)} 
           theme={theme} 

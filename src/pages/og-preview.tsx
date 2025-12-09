@@ -7,7 +7,7 @@ import type { PolaroidTheme } from "@/types/form";
 import { Loader2 } from "lucide-react";
 import { OGCard } from "@/components/polaroid/og-card";
 
-const THEME_OPTIONS: PolaroidTheme[] = ["classic", "minimal", "coffee", "zen", "tokyo"];
+const THEME_OPTIONS: PolaroidTheme[] = ["classic", "minimal", "web", "sakura", "tokyo", "cyberpunk", "matrix"];
 
 function formatModel(model: string): string {
   return model

@@ -4,6 +4,7 @@ import { ArrowLeft, Database, Server, Palette, Camera, Share2, Printer, Zap, Glo
 import { useLanguage } from "@/contexts/language-context";
 import { CursorIcon } from "@/components/ui/cursor-icon";
 import { LanguageToggle } from "@/components/ui/language-toggle";
+import { AppFooter } from "@/components/layout/app-footer";
 import { clsx } from "clsx";
 
 // Stack badges with their colors - complete list
@@ -523,10 +524,7 @@ export function TechPage() {
         </section>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-border mt-16 py-8 text-center text-sm text-fg-muted">
-        <p>{t.tech.footer}</p>
-      </footer>
+      <AppFooter />
     </div>
   );
 }

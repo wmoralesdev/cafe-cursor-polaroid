@@ -97,6 +97,7 @@ Deno.serve(async (req: Request) => {
           .upload(filename, blob, {
             contentType,
             upsert: true,
+            cacheControl: "0",
           });
 
         if (uploadError) {
@@ -106,7 +107,8 @@ Deno.serve(async (req: Request) => {
         const { data: urlData } = supabase.storage
           .from("polaroids")
           .getPublicUrl(filename);
-        updateData.image_url = urlData.publicUrl;
+        // Add cache-busting query param to invalidate CDN cache
+        updateData.image_url = `${urlData.publicUrl}?v=${Date.now()}`;
         if (!hasExistingSourceImage) {
           updateData.source_image_url = urlData.publicUrl;
         }
@@ -137,6 +139,7 @@ Deno.serve(async (req: Request) => {
         .upload(ogFilename, ogBlob, {
           contentType: "image/png",
           upsert: true,
+          cacheControl: "0",
         });
 
       if (ogUploadError) {
@@ -145,7 +148,8 @@ Deno.serve(async (req: Request) => {
         const { data: ogUrlData } = supabase.storage
           .from("polaroids")
           .getPublicUrl(ogFilename);
-        updateData.og_image_url = ogUrlData.publicUrl;
+        // Add cache-busting query param to invalidate CDN cache
+        updateData.og_image_url = `${ogUrlData.publicUrl}?v=${Date.now()}`;
       }
     }
 
