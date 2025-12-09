@@ -4,6 +4,14 @@
     {
       "source": "/c/:slug",
       "destination": "/api/c/:slug"
+    },
+    {
+      "source": "/admin",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/tech",
+      "destination": "/index.html"
     }
   ],
   "headers": [
