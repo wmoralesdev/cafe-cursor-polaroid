@@ -77,13 +77,6 @@ export function PolaroidImage({
     // - Portrait (aspect < 1): width fills container, height overflows
     // - Square (aspect = 1): both fill exactly
     
-    // Base scale to achieve cover (before user zoom)
-    // This ensures the smaller dimension fills the container
-    const baseScale = imgAspect >= 1 ? imgAspect : 1 / imgAspect;
-    
-    // Final scale includes user zoom
-    const finalScale = baseScale * zoom;
-    
     // Calculate how much the image overflows the container after scaling
     // For a landscape image: width overflows by (aspect * zoom - 1) of container
     // For a portrait image: height overflows by ((1/aspect) * zoom - 1) of container

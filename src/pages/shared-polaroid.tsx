@@ -8,7 +8,7 @@ import { LanguageProvider } from "@/contexts/language-context";
 import type { PolaroidTheme } from "@/types/form";
 
 function getThemeConfig(profile: PolaroidRecord["profile"]) {
-  const theme = (profile?.theme as PolaroidTheme) || "classic";
+  const theme = (profile?.polaroidTheme as PolaroidTheme) || "classic";
   return polaroidThemes[theme] || polaroidThemes.classic;
 }
 
@@ -110,11 +110,12 @@ export function SharedPolaroidPage() {
               projectType: polaroid.profile?.projectType || "",
               primaryModel: polaroid.profile?.primaryModel || "composer-1",
               secondaryModel: polaroid.profile?.secondaryModel || "gpt-4",
+              favoriteFeature: polaroid.profile?.favoriteFeature || "agent",
               planTier: polaroid.profile?.planTier || "pro",
               isMaxMode: polaroid.profile?.isMaxMode || false,
               extras: polaroid.profile?.extras || [],
               cursorSince: polaroid.profile?.cursorSince || "2024",
-              polaroidTheme: (polaroid.profile?.theme as PolaroidTheme) || "classic",
+              polaroidTheme: (polaroid.profile?.polaroidTheme as PolaroidTheme) || "classic",
               stampRotation: polaroid.profile?.stampRotation || -12,
               generatedAt: polaroid.created_at,
             }}

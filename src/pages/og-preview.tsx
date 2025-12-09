@@ -80,7 +80,7 @@ export function OGPreviewPage() {
     );
   }
 
-  const activeTheme = selectedTheme || (polaroid.profile?.theme as PolaroidTheme) || "classic";
+  const activeTheme = selectedTheme || (polaroid.profile?.polaroidTheme as PolaroidTheme) || "classic";
   const theme = getThemeConfig(activeTheme);
   const handle = getHandle(polaroid.profile);
   const platform = polaroid.profile?.handles?.[0]?.platform || "x";
@@ -121,7 +121,6 @@ export function OGPreviewPage() {
                 style={{ 
                   background: themeConfig.accent,
                   color: "white",
-                  ringColor: isActive ? themeConfig.accent : undefined,
                 }}
               >
                 {themeName.charAt(0).toUpperCase() + themeName.slice(1)}
@@ -404,7 +403,7 @@ export function OGPreviewPage() {
         <div className="mt-8">
           <h2 className="text-neutral-400 text-sm mb-4 font-mono">
             Theme: {activeTheme}
-            {selectedTheme && selectedTheme !== polaroid.profile?.theme && (
+            {selectedTheme && selectedTheme !== polaroid.profile?.polaroidTheme && (
               <span className="text-amber-400 ml-2">(preview only)</span>
             )}
           </h2>

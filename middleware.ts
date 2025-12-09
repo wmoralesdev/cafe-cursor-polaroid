@@ -1,6 +1,3 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-
 // Bot user agents that need OG meta tags
 const BOT_USER_AGENTS = [
   'Twitterbot',
@@ -12,8 +9,9 @@ const BOT_USER_AGENTS = [
   'WhatsApp',
 ];
 
-export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+export default async function middleware(request: Request) {
+  const url = new URL(request.url);
+  const { pathname } = url;
 
   // Only handle /c/:slug routes
   if (!pathname.startsWith('/c/')) {
@@ -25,13 +23,17 @@ export async function middleware(request: NextRequest) {
 
   // If not a bot, continue to SPA
   if (!isBot) {
-    return NextResponse.next();
+    return new Response(null, {
+      status: 200,
+    });
   }
 
   // Extract slug
   const slug = pathname.replace('/c/', '');
   if (!slug) {
-    return NextResponse.next();
+    return new Response(null, {
+      status: 200,
+    });
   }
 
   // Fetch polaroid data
@@ -39,7 +41,9 @@ export async function middleware(request: NextRequest) {
   const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
-    return NextResponse.next();
+    return new Response(null, {
+      status: 200,
+    });
   }
 
   try {
@@ -57,7 +61,9 @@ export async function middleware(request: NextRequest) {
     const polaroid = data[0];
 
     if (!polaroid) {
-      return NextResponse.next();
+      return new Response(null, {
+        status: 200,
+      });
     }
 
     const profile = polaroid.profile || {};
@@ -102,7 +108,7 @@ export async function middleware(request: NextRequest) {
 </body>
 </html>`;
 
-    return new NextResponse(html, {
+    return new Response(html, {
       headers: {
         'Content-Type': 'text/html',
         'Cache-Control': 'public, max-age=3600',
@@ -110,11 +116,9 @@ export async function middleware(request: NextRequest) {
     });
   } catch (error) {
     console.error('Middleware error:', error);
-    return NextResponse.next();
+    return new Response(null, {
+      status: 200,
+    });
   }
 }
-
-export const config = {
-  matcher: '/c/:slug*',
-};
 
