@@ -471,7 +471,7 @@ export function TechPage() {
             {t.tech.sections.printPipeline}
           </h2>
           <div className="card-panel p-8">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-center mb-8">
               <div>
                 <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-card-02 flex items-center justify-center">
                   <Code2 className="w-7 h-7 text-fg-muted" strokeWidth={1.5} />
@@ -499,6 +499,31 @@ export function TechPage() {
                 </div>
                 <div className="text-sm font-semibold text-fg">{t.tech.print.printReady.title}</div>
                 <div className="text-xs text-fg-muted mt-1">{t.tech.print.printReady.desc}</div>
+              </div>
+            </div>
+            
+            {/* Detailed explanation */}
+            <div className="border-t border-border/50 pt-6 mt-6">
+              <h3 className="font-display text-lg font-semibold text-fg mb-4 text-center">
+                {t.tech.print.details.title}
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-1">
+                  <h4 className="text-sm font-semibold text-fg">{t.tech.print.details.step1.title}</h4>
+                  <p className="text-xs text-fg-muted leading-relaxed">{t.tech.print.details.step1.desc}</p>
+                </div>
+                <div className="space-y-1">
+                  <h4 className="text-sm font-semibold text-fg">{t.tech.print.details.step2.title}</h4>
+                  <p className="text-xs text-fg-muted leading-relaxed">{t.tech.print.details.step2.desc}</p>
+                </div>
+                <div className="space-y-1">
+                  <h4 className="text-sm font-semibold text-fg">{t.tech.print.details.step3.title}</h4>
+                  <p className="text-xs text-fg-muted leading-relaxed">{t.tech.print.details.step3.desc}</p>
+                </div>
+                <div className="space-y-1">
+                  <h4 className="text-sm font-semibold text-fg">{t.tech.print.details.step4.title}</h4>
+                  <p className="text-xs text-fg-muted leading-relaxed">{t.tech.print.details.step4.desc}</p>
+                </div>
               </div>
             </div>
           </div>

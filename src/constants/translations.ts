@@ -218,6 +218,13 @@ export interface Translations {
       screenshot: { title: string; desc: string };
       storage: { title: string; desc: string };
       printReady: { title: string; desc: string };
+      details: {
+        title: string;
+        step1: { title: string; desc: string };
+        step2: { title: string; desc: string };
+        step3: { title: string; desc: string };
+        step4: { title: string; desc: string };
+      };
     };
     cta: {
       title: string;
@@ -449,10 +456,41 @@ export const translations: Record<Language, Translations> = {
         getAdminPolaroids: "Admin: Fetch all polaroids with search, filters, pagination",
       },
       print: {
-        domRender: { title: "DOM Render", desc: "React component with white bg" },
-        screenshot: { title: "Screenshot", desc: "html-to-image capture" },
-        storage: { title: "Storage", desc: "Supabase CDN upload" },
-        printReady: { title: "Print Ready", desc: "340×510px @ 2x DPI" },
+        domRender: { 
+          title: "DOM Render", 
+          desc: "React component renders with white background (#ffffff), includes all styling, images, text, and theme effects" 
+        },
+        screenshot: { 
+          title: "Screenshot", 
+          desc: "modern-screenshot (domToPng) captures DOM at 4x scale (1360×2040px) for high-resolution output" 
+        },
+        storage: { 
+          title: "Storage", 
+          desc: "Data URL converted to blob, uploaded to Supabase Storage with cache-busting query params" 
+        },
+        printReady: { 
+          title: "Print Ready", 
+          desc: "Final image optimized at 340×459px (100×148mm print ratio) with 2x DPI for crisp printing" 
+        },
+        details: {
+          title: "How it works",
+          step1: {
+            title: "1. Component Rendering",
+            desc: "The PolaroidCard component renders with all user data: profile info, uploaded image, selected theme, badges, and stamp. The component uses a white background (#ffffff) to ensure clean printing.",
+          },
+          step2: {
+            title: "2. High-Resolution Capture",
+            desc: "Using modern-screenshot's domToPng, we capture the rendered DOM element at 4x scale. This means a 340×459px component becomes a 1360×1836px image, ensuring crisp detail when printed. A 100ms delay ensures all assets are loaded before capture.",
+          },
+          step3: {
+            title: "3. Storage & CDN",
+            desc: "The generated data URL is converted to a PNG blob and uploaded to Supabase Storage in the 'polaroids' bucket. The URL includes a timestamp query parameter (?v=timestamp) to bust CDN cache and ensure fresh images on every update.",
+          },
+          step4: {
+            title: "4. Print Optimization",
+            desc: "The final image is optimized for 100×148mm paper (4×6 inches) with two polaroids side by side. Each polaroid uses a 340×459px aspect ratio (74:100mm when rotated 90°), ensuring perfect fit without cropping borders or stamps.",
+          },
+        },
       },
       cta: {
         title: "Ready to create your card?",
@@ -682,10 +720,41 @@ export const translations: Record<Language, Translations> = {
         getAdminPolaroids: "Admin: Obtener todas las polaroids con búsqueda, filtros, paginación",
       },
       print: {
-        domRender: { title: "Render DOM", desc: "Componente React con fondo blanco" },
-        screenshot: { title: "Captura", desc: "html-to-image capture" },
-        storage: { title: "Storage", desc: "Subida a CDN de Supabase" },
-        printReady: { title: "Listo para Imprimir", desc: "340×510px @ 2x DPI" },
+        domRender: { 
+          title: "Render DOM", 
+          desc: "Componente React renderiza con fondo blanco (#ffffff), incluye todos los estilos, imágenes, texto y efectos temáticos" 
+        },
+        screenshot: { 
+          title: "Captura", 
+          desc: "modern-screenshot (domToPng) captura el DOM a escala 4x (1360×2040px) para salida de alta resolución" 
+        },
+        storage: { 
+          title: "Storage", 
+          desc: "Data URL convertida a blob, subida a Supabase Storage con parámetros de consulta para invalidar caché" 
+        },
+        printReady: { 
+          title: "Listo para Imprimir", 
+          desc: "Imagen final optimizada a 340×459px (ratio de impresión 100×148mm) con 2x DPI para impresión nítida" 
+        },
+        details: {
+          title: "Cómo funciona",
+          step1: {
+            title: "1. Renderizado de Componente",
+            desc: "El componente PolaroidCard renderiza con todos los datos del usuario: información del perfil, imagen subida, tema seleccionado, badges y sello. El componente usa fondo blanco (#ffffff) para asegurar impresión limpia.",
+          },
+          step2: {
+            title: "2. Captura de Alta Resolución",
+            desc: "Usando domToPng de modern-screenshot, capturamos el elemento DOM renderizado a escala 4x. Esto significa que un componente de 340×459px se convierte en una imagen de 1360×1836px, asegurando detalles nítidos al imprimir. Un retraso de 100ms asegura que todos los recursos estén cargados antes de la captura.",
+          },
+          step3: {
+            title: "3. Storage y CDN",
+            desc: "El data URL generado se convierte a un blob PNG y se sube a Supabase Storage en el bucket 'polaroids'. La URL incluye un parámetro de consulta de timestamp (?v=timestamp) para invalidar la caché del CDN y asegurar imágenes frescas en cada actualización.",
+          },
+          step4: {
+            title: "4. Optimización para Impresión",
+            desc: "La imagen final está optimizada para papel de 100×148mm (4×6 pulgadas) con dos polaroids lado a lado. Cada polaroid usa un ratio de aspecto de 340×459px (74:100mm cuando se rota 90°), asegurando ajuste perfecto sin recortar bordes o sellos.",
+          },
+        },
       },
       cta: {
         title: "¿Listo para crear tu tarjeta?",
