@@ -5,6 +5,8 @@ import { HomePage } from "@/components/pages/home-page";
 import { TechPageWrapper } from "@/components/pages/tech-page-wrapper";
 import { OGPreviewPage } from "@/pages/og-preview";
 import { SharedPolaroidPage } from "@/pages/shared-polaroid";
+import { AdminPolaroidsPage } from "@/components/pages/admin-polaroids-page";
+import { AdminRoute } from "@/components/admin/admin-route";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -24,6 +26,14 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/tech" element={<TechPageWrapper />} />
             <Route path="/c/:slug" element={<SharedPolaroidPage />} />
+            <Route
+              path="/admin"
+              element={
+                <AdminRoute>
+                  <AdminPolaroidsPage />
+                </AdminRoute>
+              }
+            />
             {import.meta.env.DEV && (
               <Route path="/og-preview/:slug" element={<OGPreviewPage />} />
             )}

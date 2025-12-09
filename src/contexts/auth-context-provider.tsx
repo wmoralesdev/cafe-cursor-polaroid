@@ -80,6 +80,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return null;
   };
 
+  const getIsAdmin = (): boolean => {
+    if (!session?.user) return false;
+    
+    // Check for admin role in app_metadata or user_metadata
+    const role = session.user.app_metadata?.role || session.user.user_metadata?.role;
+    if (role === "admin") return true;
+    
+    // Fallback: check email and username for admin access
+    const email = session.user.email;
+    const username = session.user.user_metadata?.user_name || session.user.user_metadata?.preferred_username;
+    
+    if (email === "walterrafael26@gmail.com" || username === "wmoralesdev") {
+      return true;
+    }
+    
+    return false;
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -87,6 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         session,
         loading,
         provider: getProvider(),
+        isAdmin: getIsAdmin(),
         signInWithGitHub,
         signInWithTwitter,
         signOut,

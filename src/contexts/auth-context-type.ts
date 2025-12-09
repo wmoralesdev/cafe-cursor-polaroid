@@ -7,6 +7,7 @@ export interface AuthContextType {
   session: Session | null;
   loading: boolean;
   provider: AuthProvider;
+  isAdmin: boolean;
   signInWithGitHub: () => Promise<void>;
   signInWithTwitter: () => Promise<void>;
   signOut: () => Promise<void>;
