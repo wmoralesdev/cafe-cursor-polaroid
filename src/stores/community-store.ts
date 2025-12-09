@@ -18,3 +18,4 @@ export const useCommunityStore = create<CommunityState>((set) => ({
   toggleMaxOnly: () => set((state) => ({ maxOnly: !state.maxOnly })),
 }));
 
+

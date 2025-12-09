@@ -41,3 +41,4 @@ export const usePolaroidStore = create<PolaroidState>((set, get) => ({
   handleNewCardHandled: () => set({ newCardRequested: false }),
 }));
 
+

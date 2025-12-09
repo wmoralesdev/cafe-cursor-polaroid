@@ -71,3 +71,4 @@ CREATE POLICY "Recipients can update their own notifications"
 -- Edge functions use service role key, so they can insert freely
 
 
+
