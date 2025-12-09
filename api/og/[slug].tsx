@@ -128,7 +128,7 @@ export default async function handler(request: Request) {
     }
 
     const profile = polaroid.profile || {};
-    const themeName = profile.theme || "classic";
+    const themeName = profile.polaroidTheme || profile.theme || "classic";
     const theme = themes[themeName] || themes.classic;
     
     const handle = profile.handles?.[0]?.handle || "dev";
@@ -324,7 +324,9 @@ export default async function handler(request: Request) {
 
               {/* Branding */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <div style={{ display: 'flex', width: '32px', height: '32px', background: 'black', borderRadius: '4px' }} />
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" style={{ opacity: 0.5 }}>
+                  <path d="M5.5 3.21V20.79L11.5 16.29L14.5 21.79L17.5 20.29L14.5 14.79L20.5 13.29L5.5 3.21Z" fill="black"/>
+                </svg>
                 <span style={{ fontSize: '20px', color: theme.textMuted }}>Cafe Cursor</span>
               </div>
             </div>
@@ -346,17 +348,34 @@ export default async function handler(request: Request) {
                   height: '100px',
                   borderRadius: '50%',
                   background: 'white',
-                  border: `3px solid ${theme.stampBorder}`,
+                  border: `3px ${themeName === 'coffee' ? 'dashed' : 'solid'} ${theme.stampBorder}`,
                   alignItems: 'center',
                   justifyContent: 'center',
                   boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                   flexDirection: 'column',
+                  position: 'relative',
                 }}
               >
+                {/* Inner dashed ring */}
+                <div
+                  style={{
+                    display: 'flex',
+                    position: 'absolute',
+                    top: '6px',
+                    left: '6px',
+                    right: '6px',
+                    bottom: '6px',
+                    borderRadius: '50%',
+                    border: `2px dashed ${theme.stampInnerBorder}`,
+                  }}
+                />
                 <span style={{ fontSize: '12px', fontWeight: 'bold', color: theme.stampText, textTransform: 'uppercase' }}>
                   {themeName === 'zen' ? '東京' : themeName === 'coffee' ? '☕' : 'CAFE'}
                 </span>
-                <div style={{ display: 'flex', width: '28px', height: '28px', background: 'black', borderRadius: '4px', margin: '4px 0' }} />
+                {/* Cursor logo placeholder - using a simple icon */}
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" style={{ margin: '4px 0' }}>
+                  <path d="M5.5 3.21V20.79L11.5 16.29L14.5 21.79L17.5 20.29L14.5 14.79L20.5 13.29L5.5 3.21Z" fill="black"/>
+                </svg>
                 <span style={{ fontSize: '10px', color: theme.stampText, textTransform: 'uppercase' }}>
                   {themeName === 'zen' ? '禅' : '2025'}
                 </span>

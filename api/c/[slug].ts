@@ -7,45 +7,67 @@ const BOT_USER_AGENTS = [
   'Discordbot',
   'TelegramBot',
   'WhatsApp',
+  'curl',
+  'Wget',
+  'Go-http-client',
+  'python-requests',
+  'MetaInspector',
+  'Embedly',
+  'Quora Link Preview',
+  'Showyoubot',
+  'outbrain',
+  'pinterest',
+  'Applebot',
+  'redditbot',
 ];
 
-export default async function middleware(request: Request) {
-  const url = new URL(request.url);
-  const { pathname } = url;
+export const config = {
+  runtime: 'edge',
+};
 
-  // Only handle /c/:slug routes
-  if (!pathname.startsWith('/c/')) {
-    return new Response(null, {
-      status: 200,
-    });
+export default async function handler(request: Request) {
+  const url = new URL(request.url);
+  const pathname = url.pathname;
+  
+  // Extract slug from /api/c/:slug or /c/:slug
+  const slug = pathname.replace('/api/c/', '').replace('/c/', '');
+  
+  if (!slug) {
+    return new Response('Not found', { status: 404 });
   }
 
   const userAgent = request.headers.get('user-agent') || '';
-  const isBot = BOT_USER_AGENTS.some((bot) => userAgent.includes(bot));
+  const isBot = BOT_USER_AGENTS.some((bot) => 
+    userAgent.toLowerCase().includes(bot.toLowerCase())
+  );
 
-  // If not a bot, continue to SPA
+  // If not a bot, serve the SPA by fetching index.html
   if (!isBot) {
-    return new Response(null, {
-      status: 200,
-    });
+    const host = request.headers.get('host') || 'cafe.cursor-sv.com';
+    const protocol = host.includes('localhost') ? 'http' : 'https';
+    
+    try {
+      // Fetch the index.html from the same origin
+      const indexResponse = await fetch(`${protocol}://${host}/index.html`);
+      const html = await indexResponse.text();
+      
+      return new Response(html, {
+        headers: {
+          'Content-Type': 'text/html; charset=utf-8',
+        },
+      });
+    } catch {
+      // Fallback: redirect to home with hash
+      return Response.redirect(`${protocol}://${host}/#/c/${slug}`, 302);
+    }
   }
 
-  // Extract slug
-  const slug = pathname.replace('/c/', '');
-  if (!slug) {
-    return new Response(null, {
-      status: 200,
-    });
-  }
-
-  // Fetch polaroid data
+  // Fetch polaroid data for bots
   const supabaseUrl = process.env.VITE_SUPABASE_URL;
   const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
-    return new Response(null, {
-      status: 200,
-    });
+    return new Response('Missing config', { status: 500 });
   }
 
   try {
@@ -59,13 +81,11 @@ export default async function middleware(request: Request) {
       }
     );
 
-    const data = await response.json();
+    const data = await response.json() as any[];
     const polaroid = data[0];
 
     if (!polaroid) {
-      return new Response(null, {
-        status: 200,
-      });
+      return new Response('Polaroid not found', { status: 404 });
     }
 
     const profile = polaroid.profile || {};
@@ -77,12 +97,10 @@ export default async function middleware(request: Request) {
     const title = `@${handle}'s dev card`;
     const description = [primaryModel, plan, isMax ? 'MAX' : ''].filter(Boolean).join(' · ') || 'Cafe Cursor dev card';
     
-    // Use Vercel OG image endpoint
     const host = request.headers.get('host') || 'cafe.cursor-sv.com';
     const ogImageUrl = `https://${host}/api/og/${slug}`;
     const pageUrl = `https://${host}/c/${slug}`;
 
-    // Return HTML with OG meta tags for bots
     const html = `<!DOCTYPE html>
 <html>
 <head>
@@ -112,15 +130,13 @@ export default async function middleware(request: Request) {
 
     return new Response(html, {
       headers: {
-        'Content-Type': 'text/html',
+        'Content-Type': 'text/html; charset=utf-8',
         'Cache-Control': 'public, max-age=3600',
       },
     });
   } catch (error) {
-    console.error('Middleware error:', error);
-    return new Response(null, {
-      status: 200,
-    });
+    console.error('Error:', error);
+    return new Response('Internal server error', { status: 500 });
   }
 }
 

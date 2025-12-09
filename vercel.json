@@ -3,7 +3,7 @@
   "rewrites": [
     {
       "source": "/c/:slug",
-      "destination": "/index.html"
+      "destination": "/api/c/:slug"
     }
   ],
   "headers": [
