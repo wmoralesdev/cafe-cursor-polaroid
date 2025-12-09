@@ -5,7 +5,6 @@ import type { CursorProfile, PolaroidTheme } from "@/types/form";
 import { polaroidThemes, type PolaroidThemeConfig } from "@/constants/polaroid-themes";
 import cursorLogo from "@/assets/cursor.svg";
 
-// Icons for model display
 const TerminalIcon = ({ className, style }: { className?: string; style?: React.CSSProperties }) => (
   <svg className={className} style={style} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="m5 7 5 5-5 5"/><path d="M12 19h7"/>
@@ -51,10 +50,6 @@ function formatShortDate(dateString: string | undefined, locale: typeof es | typ
   if (!dateString) return "";
   return format(new Date(dateString), "MMM d, yyyy", { locale });
 }
-
-// ═══════════════════════════════════════════════════════════════
-// OG STAMPS - Scaled for landscape format
-// ═══════════════════════════════════════════════════════════════
 
 interface OGStampProps {
   rotation: number;

@@ -8,13 +8,10 @@ interface ThemePatternProps {
 export function ThemePattern({ theme }: ThemePatternProps) {
   const config = polaroidThemes[theme] ?? polaroidThemes.classic;
 
-  // Position: left side, under the handle text in the caption area
   const baseClass = "absolute left-3 pointer-events-none";
-  // ~55% from top puts it right under the handle
   const topPosition = "top-[55%]";
 
   switch (theme) {
-    // Classic: Subtle dot grid pattern
     case "classic":
       return (
         <div className={`${baseClass} ${topPosition} w-14 h-14 opacity-[0.15]`}>
@@ -34,7 +31,6 @@ export function ThemePattern({ theme }: ThemePatternProps) {
         </div>
       );
 
-    // Minimal: Small dot cluster (3-5 dots)
     case "minimal":
       return (
         <div className={`${baseClass} ${topPosition} w-7 h-7 opacity-[0.2]`}>
@@ -48,7 +44,6 @@ export function ThemePattern({ theme }: ThemePatternProps) {
         </div>
       );
 
-    // Web: Browser/code brackets pattern
     case "web":
       return (
         <div className={`${baseClass} ${topPosition} w-12 h-14 opacity-[0.15]`}>
@@ -63,7 +58,6 @@ export function ThemePattern({ theme }: ThemePatternProps) {
         </div>
       );
 
-    // Sakura: Cherry blossom petals
     case "sakura":
       return (
         <div className={`${baseClass} ${topPosition} w-14 h-16 opacity-[0.2]`}>
@@ -83,7 +77,6 @@ export function ThemePattern({ theme }: ThemePatternProps) {
         </div>
       );
 
-    // Tokyo: Pixelated/glitch effect
     case "tokyo":
       return (
         <div className={`${baseClass} ${topPosition} w-14 h-12 opacity-[0.25]`}>
@@ -113,7 +106,6 @@ export function ThemePattern({ theme }: ThemePatternProps) {
         </div>
       );
 
-    // Cyberpunk: Neon city grid / circuit pattern (yellow + cyan)
     case "cyberpunk":
       return (
         <div className={`${baseClass} ${topPosition} w-14 h-14 opacity-[0.22]`}>
@@ -140,7 +132,6 @@ export function ThemePattern({ theme }: ThemePatternProps) {
         </div>
       );
 
-    // Matrix: Digital rain / falling characters
     case "matrix":
       return (
         <div className={`${baseClass} ${topPosition} w-14 h-16 opacity-[0.18]`}>

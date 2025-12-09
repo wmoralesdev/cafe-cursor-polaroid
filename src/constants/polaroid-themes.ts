@@ -1,41 +1,32 @@
 import type { PolaroidTheme } from "@/types/form";
 
 export interface PolaroidThemeConfig {
-  // Colors
   accent: string;
   accentLight: string;
   textPrimary: string;
   textMuted: string;
   badgeBg: string;
   badgeBorder: string;
-  
-  // Fonts
+
   displayFont: string;
   bodyFont: string;
   monoFont: string;
-  
-  // Stamp
+
   stampBorder: string;
   stampInnerBorder: string;
   stampText: string;
   stampFilter?: string;
-  
-  // Tape
+
   tapeGradient: string;
   tapeBorder: string;
-  
-  // Badge styles
+
   featureBadgeStyle: "pill" | "square" | "outline" | "handwritten" | "minimal" | "tag";
   techBadgeStyle: "pill" | "square" | "minimal" | "underline";
-  
-  // Special effects
+
   imageFilter?: string;
 }
 
 export const polaroidThemes: Record<PolaroidTheme, PolaroidThemeConfig> = {
-  // ═══════════════════════════════════════════════════════════════
-  // CLASSIC - Modern Cursor brand, orange accent
-  // ═══════════════════════════════════════════════════════════════
   classic: {
     accent: "#f54e00",
     accentLight: "rgba(245, 78, 0, 0.1)",
@@ -59,9 +50,6 @@ export const polaroidThemes: Record<PolaroidTheme, PolaroidThemeConfig> = {
     techBadgeStyle: "pill",
   },
   
-  // ═══════════════════════════════════════════════════════════════
-  // MINIMAL - Clean, subtle, understated
-  // ═══════════════════════════════════════════════════════════════
   minimal: {
     accent: "#9ca3af",
     accentLight: "rgba(156, 163, 175, 0.1)",
@@ -85,9 +73,6 @@ export const polaroidThemes: Record<PolaroidTheme, PolaroidThemeConfig> = {
     techBadgeStyle: "minimal",
   },
   
-  // ═══════════════════════════════════════════════════════════════
-  // WEB - Internet/browser aesthetic, blue links, tech vibes
-  // ═══════════════════════════════════════════════════════════════
   web: {
     accent: "#0066CC", // Classic hyperlink blue
     accentLight: "rgba(0, 102, 204, 0.1)",
@@ -111,9 +96,6 @@ export const polaroidThemes: Record<PolaroidTheme, PolaroidThemeConfig> = {
     techBadgeStyle: "pill",
   },
   
-  // ═══════════════════════════════════════════════════════════════
-  // SAKURA - Cherry blossom, soft pink, Japanese spring
-  // ═══════════════════════════════════════════════════════════════
   sakura: {
     accent: "#E91E8C", // Sakura pink
     accentLight: "rgba(233, 30, 140, 0.1)",
@@ -139,9 +121,6 @@ export const polaroidThemes: Record<PolaroidTheme, PolaroidThemeConfig> = {
     imageFilter: "contrast(1.02) saturate(1.05)",
   },
   
-  // ═══════════════════════════════════════════════════════════════
-  // TOKYO - Cyberpunk nightlife, neon lights, futuristic
-  // ═══════════════════════════════════════════════════════════════
   tokyo: {
     accent: "#FF2D95", // Hot pink neon
     accentLight: "rgba(255, 45, 149, 0.2)",
@@ -165,9 +144,6 @@ export const polaroidThemes: Record<PolaroidTheme, PolaroidThemeConfig> = {
     techBadgeStyle: "square",
   },
   
-  // ═══════════════════════════════════════════════════════════════
-  // CYBERPUNK - Blade Runner / CP2077, yellow neon, cyan accents
-  // ═══════════════════════════════════════════════════════════════
   cyberpunk: {
     accent: "#FCE300", // Cyberpunk yellow
     accentLight: "rgba(252, 227, 0, 0.15)",
@@ -193,9 +169,6 @@ export const polaroidThemes: Record<PolaroidTheme, PolaroidThemeConfig> = {
     imageFilter: "contrast(1.1) saturate(1.1)",
   },
   
-  // ═══════════════════════════════════════════════════════════════
-  // MATRIX - Digital rain, green on black, hacker movie aesthetic
-  // ═══════════════════════════════════════════════════════════════
   matrix: {
     accent: "#00FF00", // Pure matrix green
     accentLight: "rgba(0, 255, 0, 0.12)",
@@ -222,7 +195,6 @@ export const polaroidThemes: Record<PolaroidTheme, PolaroidThemeConfig> = {
   },
 };
 
-// Helper to get CSS variables for a theme
 export function getThemeStyles(theme: PolaroidTheme): React.CSSProperties {
   const config = polaroidThemes[theme];
   return {

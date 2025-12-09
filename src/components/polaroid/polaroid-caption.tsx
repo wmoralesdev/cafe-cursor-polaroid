@@ -23,9 +23,6 @@ function formatShortDate(dateString: string | undefined, locale: typeof es | typ
   return format(new Date(dateString), "MMM d, yyyy", { locale });
 }
 
-// ═══════════════════════════════════════════════════════════════
-// CLASSIC STAMP - Modern, clean, Cursor-branded
-// ═══════════════════════════════════════════════════════════════
 function ClassicStamp({ rotation, generatedAt, locale }: Omit<EventStampProps, 'theme'>) {
   const config = polaroidThemes.classic;
   return (
@@ -66,9 +63,6 @@ function ClassicStamp({ rotation, generatedAt, locale }: Omit<EventStampProps, '
   );
 }
 
-// ═══════════════════════════════════════════════════════════════
-// MINIMAL STAMP - Clean geometric square
-// ═══════════════════════════════════════════════════════════════
 function MinimalStamp({ rotation, generatedAt, locale }: Omit<EventStampProps, 'theme'>) {
   const config = polaroidThemes.minimal;
   return (
@@ -110,9 +104,6 @@ function MinimalStamp({ rotation, generatedAt, locale }: Omit<EventStampProps, '
   );
 }
 
-// ═══════════════════════════════════════════════════════════════
-// WEB STAMP - Internet/browser aesthetic, hyperlink blue
-// ═══════════════════════════════════════════════════════════════
 function WebStamp({ rotation, generatedAt, locale }: Omit<EventStampProps, 'theme'>) {
   const config = polaroidThemes.web;
   return (
@@ -168,9 +159,6 @@ function WebStamp({ rotation, generatedAt, locale }: Omit<EventStampProps, 'them
   );
 }
 
-// ═══════════════════════════════════════════════════════════════
-// SAKURA STAMP - Cherry blossom, soft pink, Japanese spring
-// ═══════════════════════════════════════════════════════════════
 function SakuraStamp({ rotation, generatedAt, locale }: Omit<EventStampProps, 'theme'>) {
   const config = polaroidThemes.sakura;
   return (
@@ -240,9 +228,6 @@ function SakuraStamp({ rotation, generatedAt, locale }: Omit<EventStampProps, 't
   );
 }
 
-// ═══════════════════════════════════════════════════════════════
-// TOKYO STAMP - Cyberpunk nightlife, neon glow, futuristic
-// ═══════════════════════════════════════════════════════════════
 function TokyoStamp({ rotation, generatedAt, locale }: Omit<EventStampProps, 'theme'>) {
   const config = polaroidThemes.tokyo;
   return (
@@ -331,9 +316,6 @@ function TokyoStamp({ rotation, generatedAt, locale }: Omit<EventStampProps, 'th
   );
 }
 
-// ═══════════════════════════════════════════════════════════════
-// CYBERPUNK STAMP - Blade Runner / CP2077 style, yellow neon
-// ═══════════════════════════════════════════════════════════════
 function CyberpunkStamp({ rotation, generatedAt, locale }: Omit<EventStampProps, 'theme'>) {
   const config = polaroidThemes.cyberpunk;
   return (
@@ -407,9 +389,6 @@ function CyberpunkStamp({ rotation, generatedAt, locale }: Omit<EventStampProps,
   );
 }
 
-// ═══════════════════════════════════════════════════════════════
-// MATRIX STAMP - Digital rain, green on black, hacker aesthetic
-// ═══════════════════════════════════════════════════════════════
 function MatrixStamp({ rotation, generatedAt, locale }: Omit<EventStampProps, 'theme'>) {
   const config = polaroidThemes.matrix;
   return (

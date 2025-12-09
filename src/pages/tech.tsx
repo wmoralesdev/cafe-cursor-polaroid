@@ -9,7 +9,6 @@ import { AppFooter } from "@/components/layout/app-footer";
 import { CURSOR_PROMPT } from "@/constants/cursor-prompt";
 import { clsx } from "clsx";
 
-// Stack badges with their colors and icons
 const techStack = [
   { name: "React 19", color: "#61DAFB", icon: Code2 },
   { name: "TypeScript", color: "#3178C6", icon: FileCode },
@@ -24,7 +23,6 @@ const techStack = [
   { name: "Vercel Analytics", color: "#000000", icon: BarChart },
 ];
 
-// All 9 edge functions
 const edgeFunctions = [
   { name: "create-polaroid", key: "createPolaroid" as const },
   { name: "get-polaroids", key: "getPolaroids" as const },
@@ -37,7 +35,6 @@ const edgeFunctions = [
   { name: "get-admin-polaroids", key: "getAdminPolaroids" as const },
 ];
 
-// Code snippets for each edge function
 const codeSnippets: Record<string, { lines: Array<{ text: string; color: string }> }> = {
   "create-polaroid": {
     lines: [
