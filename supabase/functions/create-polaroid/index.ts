@@ -48,32 +48,37 @@ Deno.serve(async (req: Request) => {
     }
 
     let imageUrl: string | null = null;
+    let sourceImageUrl: string | null = null;
     if (imageDataUrl) {
       if (imageDataUrl.startsWith("http://") || imageDataUrl.startsWith("https://")) {
         imageUrl = imageDataUrl;
+        sourceImageUrl = imageDataUrl;
       } else {
         const response = await fetch(imageDataUrl);
         const blob = await response.blob();
         const isJpeg = imageDataUrl.startsWith("data:image/jpeg");
         const ext = isJpeg ? "jpg" : "png";
         const contentType = isJpeg ? "image/jpeg" : "image/png";
-        const filename = `${user.id}/${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
+        const timestamp = Date.now();
+        const random = Math.random().toString(36).substring(7);
+        const sourceFilename = `${user.id}/${timestamp}-${random}.${ext}`;
         
-        const { error: uploadError } = await supabase.storage
+        const { error: sourceUploadError } = await supabase.storage
           .from("polaroids")
-          .upload(filename, blob, {
+          .upload(sourceFilename, blob, {
             contentType,
             upsert: false,
           });
 
-        if (uploadError) {
-          throw new Error(`Failed to upload image: ${uploadError.message}`);
+        if (sourceUploadError) {
+          throw new Error(`Failed to upload source image: ${sourceUploadError.message}`);
         }
 
-        const { data: urlData } = supabase.storage
+        const { data: sourceUrlData } = supabase.storage
           .from("polaroids")
-          .getPublicUrl(filename);
-        imageUrl = urlData.publicUrl;
+          .getPublicUrl(sourceFilename);
+        sourceImageUrl = sourceUrlData.publicUrl;
+        imageUrl = sourceImageUrl;
       }
     }
 
@@ -131,7 +136,7 @@ Deno.serve(async (req: Request) => {
         user_id: user.id,
         profile,
         image_url: imageUrl,
-        source_image_url: imageUrl,
+        source_image_url: sourceImageUrl,
         og_image_url: ogImageUrl,
         title: title || null,
         provider: provider || null,

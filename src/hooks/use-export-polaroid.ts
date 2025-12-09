@@ -5,7 +5,7 @@ export function useExportPolaroid() {
   const ref = useRef<HTMLDivElement>(null);
   const [isExporting, setIsExporting] = useState(false);
 
-  const exportImage = useCallback(async (): Promise<string | null> => {
+  const generateImageDataUrl = useCallback(async (): Promise<string | null> => {
     if (ref.current === null) {
       return null;
     }
@@ -20,24 +20,33 @@ export function useExportPolaroid() {
         backgroundColor: "#ffffff",
       });
 
-      const link = document.createElement("a");
-      link.download = `polaroid-${Date.now()}.png`;
-      link.href = dataUrl;
-      link.click();
-
       return dataUrl;
     } catch (err) {
-      console.error("Failed to export polaroid", err);
+      console.error("Failed to generate polaroid image", err);
       return null;
     } finally {
       setIsExporting(false);
     }
   }, []);
 
+  const exportImage = useCallback(async (): Promise<string | null> => {
+    const dataUrl = await generateImageDataUrl();
+    
+    if (dataUrl) {
+      const link = document.createElement("a");
+      link.download = `polaroid-${Date.now()}.png`;
+      link.href = dataUrl;
+      link.click();
+    }
+
+    return dataUrl;
+  }, [generateImageDataUrl]);
+
   return {
     ref,
     isExporting,
     exportImage,
+    generateImageDataUrl,
   };
 }
 

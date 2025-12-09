@@ -55,7 +55,6 @@ export function useImagePicker(options: UseImagePickerOptions = {}) {
   const [zoom, setZoom] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
 
-  // Hydrate from initial image when it changes (e.g., loading an existing polaroid)
   useEffect(() => {
     if (options.initialImage !== undefined) {
       setImage(options.initialImage);

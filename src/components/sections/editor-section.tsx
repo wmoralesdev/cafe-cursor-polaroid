@@ -1,5 +1,5 @@
 import type React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useImagePicker } from "@/hooks/use-image-picker";
 import { usePolaroidForm, getDefaultProfile } from "@/hooks/use-polaroid-form";
 import { useExportPolaroid } from "@/hooks/use-export-polaroid";
@@ -38,16 +38,20 @@ export function EditorSection({ initialPolaroid, onPolaroidChange }: EditorSecti
   const [hasUserInteracted, setHasUserInteracted] = useState(false);
   const isEditingExisting = !!initialPolaroid;
   
-  // Sync store with prop changes
   useEffect(() => {
     if (initialPolaroid && onPolaroidChange) {
-      // Store is source of truth, but sync if prop changes externally
       const storePolaroid = usePolaroidStore.getState().activePolaroid;
       if (storePolaroid?.id !== initialPolaroid?.id) {
         usePolaroidStore.getState().setActivePolaroid(initialPolaroid);
       }
     }
   }, [initialPolaroid, onPolaroidChange]);
+  
+  const initialImage = (initialPolaroid?.source_image_url && initialPolaroid.source_image_url.trim() !== "")
+    ? initialPolaroid.source_image_url
+    : (initialPolaroid?.image_url && initialPolaroid.image_url.trim() !== "")
+    ? initialPolaroid.image_url
+    : null;
   
   const { 
     image, 
@@ -59,7 +63,7 @@ export function EditorSection({ initialPolaroid, onPolaroidChange }: EditorSecti
     onDrop, 
     onFileChange, 
     clearImage 
-  } = useImagePicker({ initialImage: initialPolaroid?.source_image_url || initialPolaroid?.image_url });
+  } = useImagePicker({ initialImage });
   
   const { control, register, watch, errors, handleFields, appendHandle, removeHandle, reset } = usePolaroidForm({
     initialProfile: initialPolaroid?.profile,
@@ -82,6 +86,32 @@ export function EditorSection({ initialPolaroid, onPolaroidChange }: EditorSecti
   };
   const profile = watch("profile");
   
+  const updateMutation = useUpdatePolaroid();
+  const createMutation = useCreatePolaroid();
+  const setIsSharing = useEditorUIStore((state) => state.setIsSharing);
+  const setShareCopied = useEditorUIStore((state) => state.setShareCopied);
+  
+  const { ref: polaroidRef, exportImage, isExporting, generateImageDataUrl } = useExportPolaroid();
+  const { ogCardRef, generateOGImage } = useOGImageGenerator();
+
+  const generateRenderedImages = useCallback(async (polaroidId: string) => {
+    if (!polaroidRef.current) return;
+    
+    try {
+      const dataUrl = await generateImageDataUrl();
+      if (dataUrl) {
+        await updateMutation.mutateAsync({
+          id: polaroidId,
+          params: {
+            imageDataUrl: dataUrl,
+          },
+        });
+      }
+    } catch (err) {
+      console.error("Failed to generate rendered images:", err);
+    }
+  }, [generateImageDataUrl, updateMutation, polaroidRef]);
+
   const { currentPolaroidId, syncStatus, forceSave } = usePolaroidAutosave({
     profile,
     image,
@@ -90,16 +120,8 @@ export function EditorSection({ initialPolaroid, onPolaroidChange }: EditorSecti
     initialPolaroidId: initialPolaroid?.id,
     source,
     referred_by: referredBy,
+    onGenerateRenderedImages: generateRenderedImages,
   });
-
-  const updateMutation = useUpdatePolaroid();
-  const createMutation = useCreatePolaroid();
-  const setIsSharing = useEditorUIStore((state) => state.setIsSharing);
-  const setShareCopied = useEditorUIStore((state) => state.setShareCopied);
-  
-  const { ref: polaroidRef, exportImage, isExporting } = useExportPolaroid();
-  const { ogCardRef, generateOGImage } = useOGImageGenerator();
-
 
   const handleExportClick = async () => {
     if (!user || !image) return;

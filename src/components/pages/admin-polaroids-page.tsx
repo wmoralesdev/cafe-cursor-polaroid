@@ -197,6 +197,7 @@ function AdminPolaroidsContent() {
           <div className="flex items-center justify-between pt-4 border-t border-border">
             <div className="flex items-center gap-4">
               <button
+                type="button"
                 onClick={toggleSelectAll}
                 className="text-sm text-fg-muted hover:text-fg"
               >
@@ -211,6 +212,7 @@ function AdminPolaroidsContent() {
             <div className="flex items-center gap-2">
               {selectedIds.size > 0 && (
                 <button
+                  type="button"
                   onClick={downloadSelected}
                   className="flex items-center gap-2 px-4 py-2 bg-accent text-white rounded-sm text-sm hover:opacity-90 transition-opacity"
                 >
@@ -219,6 +221,7 @@ function AdminPolaroidsContent() {
                 </button>
               )}
               <button
+                type="button"
                 onClick={downloadAll}
                 className="flex items-center gap-2 px-4 py-2 bg-card border border-border rounded-sm text-sm hover:bg-card-01 transition-colors"
               >
@@ -329,6 +332,7 @@ function AdminPolaroidsContent() {
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
                             <button
+                              type="button"
                               onClick={() => setDetailPolaroid(polaroid)}
                               className="p-1.5 hover:bg-card-02 rounded-sm transition-colors"
                               title="View Details"
@@ -336,6 +340,7 @@ function AdminPolaroidsContent() {
                               <Eye className="w-4 h-4 text-fg-muted" />
                             </button>
                             <button
+                              type="button"
                               onClick={() => downloadImage(polaroid)}
                               className="p-1.5 hover:bg-card-02 rounded-sm transition-colors"
                               title="Download"
@@ -343,6 +348,7 @@ function AdminPolaroidsContent() {
                               <Download className="w-4 h-4 text-fg-muted" />
                             </button>
                             <button
+                              type="button"
                               onClick={() => handleDelete(polaroid.id)}
                               className="p-1.5 hover:bg-card-02 rounded-sm transition-colors text-accent"
                               title="Delete"
@@ -380,6 +386,7 @@ function AdminPolaroidsContent() {
             </div>
             <div className="flex items-center gap-2">
               <button
+                type="button"
                 onClick={() => handlePageChange(pagination.page - 1)}
                 disabled={pagination.page === 1}
                 className={clsx(
@@ -393,6 +400,7 @@ function AdminPolaroidsContent() {
                 Previous
               </button>
               <button
+                type="button"
                 onClick={() => handlePageChange(pagination.page + 1)}
                 disabled={pagination.page >= pagination.totalPages}
                 className={clsx(
@@ -416,6 +424,7 @@ function AdminPolaroidsContent() {
               <div className="p-6 border-b border-border flex items-center justify-between">
                 <h2 className="text-xl font-display font-bold text-fg">Polaroid Details</h2>
                 <button
+                  type="button"
                   onClick={() => setDetailPolaroid(null)}
                   className="text-fg-muted hover:text-fg"
                 >
@@ -466,6 +475,7 @@ function AdminPolaroidsContent() {
                 </div>
                 <div className="flex items-center gap-2 pt-4 border-t border-border">
                   <button
+                    type="button"
                     onClick={() => downloadImage(detailPolaroid)}
                     className="flex items-center gap-2 px-4 py-2 bg-accent text-white rounded-sm text-sm hover:opacity-90 transition-opacity"
                   >
@@ -473,6 +483,7 @@ function AdminPolaroidsContent() {
                     Download Image
                   </button>
                   <button
+                    type="button"
                     onClick={() => handleDelete(detailPolaroid.id)}
                     className="flex items-center gap-2 px-4 py-2 bg-card border border-border rounded-sm text-sm hover:bg-card-01 transition-colors text-accent"
                   >

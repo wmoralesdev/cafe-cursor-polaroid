@@ -62,10 +62,29 @@ Deno.serve(async (req: Request) => {
     }
 
     if (imageDataUrl) {
+      const { data: currentPolaroid } = await supabase
+        .from("polaroids")
+        .select("source_image_url, image_url")
+        .eq("id", id)
+        .eq("user_id", user.id)
+        .single();
+
+      const hasExistingSourceImage = currentPolaroid?.source_image_url && 
+                                     currentPolaroid.source_image_url.trim() !== "";
+
       if (imageDataUrl.startsWith("http://") || imageDataUrl.startsWith("https://")) {
         updateData.image_url = imageDataUrl;
-        updateData.source_image_url = imageDataUrl;
+        if (!hasExistingSourceImage) {
+          updateData.source_image_url = imageDataUrl;
+        }
       } else {
+        if (currentPolaroid?.image_url && currentPolaroid.image_url !== currentPolaroid.source_image_url) {
+          const oldPath = currentPolaroid.image_url.split("/polaroids/")[1];
+          if (oldPath) {
+            await supabase.storage.from("polaroids").remove([oldPath]);
+          }
+        }
+
         const response = await fetch(imageDataUrl);
         const blob = await response.blob();
         const isJpeg = imageDataUrl.startsWith("data:image/jpeg");
@@ -88,13 +107,13 @@ Deno.serve(async (req: Request) => {
           .from("polaroids")
           .getPublicUrl(filename);
         updateData.image_url = urlData.publicUrl;
-        updateData.source_image_url = urlData.publicUrl;
+        if (!hasExistingSourceImage) {
+          updateData.source_image_url = urlData.publicUrl;
+        }
       }
     }
 
-    // Upload OG image if provided
     if (ogImageDataUrl && !ogImageDataUrl.startsWith("http")) {
-      // First, get the current polaroid to check for existing OG image
       const { data: currentPolaroid } = await supabase
         .from("polaroids")
         .select("og_image_url")
@@ -102,7 +121,6 @@ Deno.serve(async (req: Request) => {
         .eq("user_id", user.id)
         .single();
 
-      // Delete old OG image if exists
       if (currentPolaroid?.og_image_url) {
         const oldPath = currentPolaroid.og_image_url.split("/polaroids/")[1];
         if (oldPath) {

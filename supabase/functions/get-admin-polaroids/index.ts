@@ -144,29 +144,20 @@ Deno.serve(async (req: Request) => {
       dateRange = "all",
     } = body;
 
-    // Service role client for database operations (bypasses RLS)
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Build query
     let query = supabase.from("polaroids").select("*", { count: "exact" });
 
-    // Apply search filter
     if (search) {
-      // Search in title, slug, and profile JSON (username)
-      // Use PostgREST's or() with JSONB path queries for username search
       const searchPattern = `%${search}%`;
-      // Search title, slug, and profile->handles array (first handle)
       query = query.or(
         `title.ilike.${searchPattern},slug.ilike.${searchPattern},profile->handles->0->handle.ilike.${searchPattern}`
       );
     }
 
-    // Apply provider filter
     if (provider) {
       query = query.eq("provider", provider);
     }
-
-    // Apply date range filter
     if (dateRange !== "all") {
       const now = new Date();
       let startDate: Date;
@@ -186,10 +177,8 @@ Deno.serve(async (req: Request) => {
       query = query.gte("created_at", startDate.toISOString());
     }
 
-    // Apply sorting
     query = query.order(sortBy, { ascending: sortOrder === "asc" });
 
-    // Apply pagination
     const offset = (page - 1) * pageSize;
     query = query.range(offset, offset + pageSize - 1);
 
@@ -201,7 +190,6 @@ Deno.serve(async (req: Request) => {
 
     const polaroids = data || [];
 
-    // Enrich with like data
     if (polaroids.length > 0) {
       const polaroidIds = polaroids.map((p) => p.id);
       const { data: likes } = await supabase

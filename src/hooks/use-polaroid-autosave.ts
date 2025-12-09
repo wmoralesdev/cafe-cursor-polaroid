@@ -21,6 +21,7 @@ interface UsePolaroidAutosaveParams {
   initialPolaroidId?: string | null;
   source?: string;
   referred_by?: string | null;
+  onGenerateRenderedImages?: (polaroidId: string) => Promise<void>;
 }
 
 export function usePolaroidAutosave({
@@ -32,6 +33,7 @@ export function usePolaroidAutosave({
   initialPolaroidId,
   source,
   referred_by,
+  onGenerateRenderedImages,
 }: UsePolaroidAutosaveParams): UsePolaroidAutosaveReturn {
   const [currentPolaroidId, setCurrentPolaroidId] = useState<string | null>(initialPolaroidId ?? null);
   const [syncStatus, setSyncStatus] = useState<SyncStatus>("idle");
@@ -84,6 +86,7 @@ export function usePolaroidAutosave({
 
     try {
       if (currentPolaroidId) {
+        const profileChanged = profileString !== lastSavedProfileRef.current;
         const updated = await updateMutation.mutateAsync({
           id: currentPolaroidId,
           params: {
@@ -94,6 +97,10 @@ export function usePolaroidAutosave({
         setCurrentPolaroidId(updated.id);
         lastSavedProfileRef.current = profileString;
         lastSavedImageRef.current = image;
+        
+        if (profileChanged && onGenerateRenderedImages) {
+          await onGenerateRenderedImages(updated.id);
+        }
       } else {
         const profileWithRotation = {
           ...profile,
@@ -109,6 +116,10 @@ export function usePolaroidAutosave({
         hasCreatedInitialRef.current = true;
         lastSavedProfileRef.current = JSON.stringify(profileWithRotation);
         lastSavedImageRef.current = image;
+        
+        if (onGenerateRenderedImages) {
+          await onGenerateRenderedImages(newPolaroid.id);
+        }
       }
 
       setSyncStatus("saved");
@@ -128,7 +139,7 @@ export function usePolaroidAutosave({
     } finally {
       isSavingRef.current = false;
     }
-  }, [user, currentPolaroidId, profile, profileString, image, hasUserInteracted, source, referred_by, createMutation, updateMutation, generateStampRotation]);
+  }, [user, currentPolaroidId, profile, profileString, image, hasUserInteracted, source, referred_by, createMutation, updateMutation, generateStampRotation, onGenerateRenderedImages]);
 
   const forceSave = useCallback(async () => {
     if (debounceTimerRef.current) {
@@ -157,7 +168,7 @@ export function usePolaroidAutosave({
         clearTimeout(debounceTimerRef.current);
       }
     };
-  }, [user, profileString, image, debounceMs, performSave]);
+  }, [user, debounceMs, performSave]);
 
   useEffect(() => {
     if (!user) {
