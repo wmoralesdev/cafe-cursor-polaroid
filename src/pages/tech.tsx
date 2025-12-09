@@ -21,7 +21,7 @@ const techStack = [
   { name: "Vercel Analytics", color: "#000000", icon: "📊" },
 ];
 
-// All 8 edge functions
+// All 9 edge functions
 const edgeFunctions = [
   { name: "create-polaroid", key: "createPolaroid" as const },
   { name: "get-polaroids", key: "getPolaroids" as const },
@@ -31,17 +31,23 @@ const edgeFunctions = [
   { name: "post-polaroid", key: "postPolaroid" as const },
   { name: "toggle-polaroid-like", key: "toggleLike" as const },
   { name: "get-like-notifications", key: "getNotifications" as const },
+  { name: "get-admin-polaroids", key: "getAdminPolaroids" as const },
 ];
 
 // Code snippets for each edge function
 const codeSnippets: Record<string, { lines: Array<{ text: string; color: string }> }> = {
   "create-polaroid": {
     lines: [
-      { text: 'const { profile, theme, settings } = await req.json();', color: "#d4d4d4" },
+      { text: 'const { profile, imageDataUrl } = await req.json();', color: "#d4d4d4" },
+      { text: '', color: "" },
+      { text: '// Upload source image to storage', color: "#6a9955" },
+      { text: 'const blob = await fetch(imageDataUrl).then(r => r.blob());', color: "#d4d4d4" },
+      { text: 'await supabase.storage.from("polaroids")', color: "#d4d4d4" },
+      { text: '  .upload(sourceFilename, blob);', color: "#d4d4d4" },
       { text: '', color: "" },
       { text: 'const { data } = await supabase', color: "#d4d4d4" },
       { text: '  .from("polaroids")', color: "#d4d4d4" },
-      { text: '  .insert({ user_id, profile, theme, settings })', color: "#d4d4d4" },
+      { text: '  .insert({ user_id, profile, source_image_url, image_url })', color: "#d4d4d4" },
       { text: '  .select().single();', color: "#d4d4d4" },
     ],
   },
@@ -67,12 +73,20 @@ const codeSnippets: Record<string, { lines: Array<{ text: string; color: string 
   },
   "update-polaroid": {
     lines: [
-      { text: 'const { id, profile, theme, settings } = await req.json();', color: "#d4d4d4" },
+      { text: 'const { id, profile, imageDataUrl } = await req.json();', color: "#d4d4d4" },
+      { text: '', color: "" },
+      { text: '// Delete old portrait if exists', color: "#6a9955" },
+      { text: 'if (oldImageUrl !== sourceImageUrl) {', color: "#d4d4d4" },
+      { text: '  await supabase.storage.from("polaroids").remove([oldPath]);', color: "#d4d4d4" },
+      { text: '}', color: "#d4d4d4" },
+      { text: '', color: "" },
+      { text: '// Upload new portrait image', color: "#6a9955" },
+      { text: 'await supabase.storage.from("polaroids")', color: "#d4d4d4" },
+      { text: '  .upload(filename, blob, { upsert: true });', color: "#d4d4d4" },
       { text: '', color: "" },
       { text: 'const { data } = await supabase', color: "#d4d4d4" },
       { text: '  .from("polaroids")', color: "#d4d4d4" },
-      { text: '  .update({ profile, theme, settings, updated_at: new Date() })', color: "#d4d4d4" },
-      { text: '  .eq("id", id).eq("user_id", user.id);', color: "#d4d4d4" },
+      { text: '  .update({ profile, image_url }).eq("id", id);', color: "#d4d4d4" },
     ],
   },
   "delete-polaroid": {
@@ -113,6 +127,19 @@ const codeSnippets: Record<string, { lines: Array<{ text: string; color: string 
       { text: '  .eq("owner_id", user.id)', color: "#d4d4d4" },
       { text: '  .order("created_at", { ascending: false })', color: "#d4d4d4" },
       { text: '  .limit(20);', color: "#d4d4d4" },
+    ],
+  },
+  "get-admin-polaroids": {
+    lines: [
+      { text: '// Admin-only: Check user role', color: "#6a9955" },
+      { text: 'if (user.app_metadata.role !== "admin") {', color: "#d4d4d4" },
+      { text: '  return new Response(JSON.stringify({ error: "Forbidden" }),', color: "#d4d4d4" },
+      { text: '    { status: 403 });', color: "#d4d4d4" },
+      { text: '}', color: "#d4d4d4" },
+      { text: '', color: "" },
+      { text: 'let query = supabase.from("polaroids")', color: "#d4d4d4" },
+      { text: '  .select("*, profile->handles")', color: "#d4d4d4" },
+      { text: '  .order(sortBy, { ascending: sortAsc });', color: "#d4d4d4" },
     ],
   },
 };
@@ -166,7 +193,7 @@ function CodeViewer() {
             <span className="text-[#d4d4d4]"> {"{"}</span>
             {"\n"}
             {snippet.lines.map((line, i) => (
-              <span key={i}>
+              <span key={`${line.text}-${i}`}>
                 <span className="text-[#d4d4d4]">{"  "}</span>
                 <span style={{ color: line.color }}>{line.text}</span>
                 {"\n"}
@@ -184,7 +211,8 @@ function ArchitectureDiagram({ t }: { t: ReturnType<typeof useLanguage>["t"] }) 
   return (
     <div className="relative w-full max-w-4xl mx-auto py-8">
       {/* Connection lines - SVG */}
-      <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 0 }}>
+      <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 0 }} aria-label="Architecture diagram connections">
+        <title>Architecture diagram connections</title>
         <defs>
           <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%" stopColor="var(--color-accent)" stopOpacity="0.3" />
@@ -281,12 +309,13 @@ function ArchitectureDiagram({ t }: { t: ReturnType<typeof useLanguage>["t"] }) 
   );
 }
 
-function FlowDiagram({ t }: { t: ReturnType<typeof useLanguage>["t"] }) {
+function FlowDiagram() {
   const steps = [
-    { num: 1, ...t.tech.flow.create },
-    { num: 2, ...t.tech.flow.preview },
-    { num: 3, ...t.tech.flow.export },
-    { num: 4, ...t.tech.flow.share },
+    { num: 1, title: "Create & Autosave", desc: "Fill profile, upload photo. Auto-saves to database" },
+    { num: 2, title: "Generate Portrait", desc: "Automatically generates portrait image after creation" },
+    { num: 3, title: "Preview", desc: "See live preview with 3D tilt effect" },
+    { num: 4, title: "Export", desc: "Download high-res PNG for printing" },
+    { num: 5, title: "Share", desc: "Post to X or share link. Generates OG image" },
   ];
 
   return (
@@ -383,7 +412,7 @@ export function TechPage() {
             {t.tech.sections.userFlow}
           </h2>
           <div className="card-panel p-6">
-            <FlowDiagram t={t} />
+            <FlowDiagram />
           </div>
         </section>
 

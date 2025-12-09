@@ -209,6 +209,7 @@ export interface Translations {
       postPolaroid: string;
       toggleLike: string;
       getNotifications: string;
+      getAdminPolaroids: string;
     };
     print: {
       domRender: { title: string; desc: string };
@@ -433,14 +434,15 @@ export const translations: Record<Language, Translations> = {
         autosave: { title: "Autosave", desc: "Form state is debounced and saved automatically. Never lose your progress." },
       },
       edgeFns: {
-        createPolaroid: "Create polaroid record with profile data",
+        createPolaroid: "Create polaroid record with profile data and source image",
         getPolaroids: "Fetch community cards with pagination & filters",
         getPolaroidBySlug: "Get single card by slug for sharing",
-        updatePolaroid: "Update existing card metadata",
+        updatePolaroid: "Update card metadata and upload portrait image",
         deletePolaroid: "Remove card and associated storage",
         postPolaroid: "Upload exported card image to storage",
         toggleLike: "Like/unlike a community card",
         getNotifications: "Fetch like notifications for user",
+        getAdminPolaroids: "Admin: Fetch all polaroids with search, filters, pagination",
       },
       print: {
         domRender: { title: "DOM Render", desc: "React component with white bg" },
@@ -663,14 +665,15 @@ export const translations: Record<Language, Translations> = {
         autosave: { title: "Autoguardado", desc: "El estado del formulario se guarda automáticamente con debounce. Nunca pierdas tu progreso." },
       },
       edgeFns: {
-        createPolaroid: "Crear registro de polaroid con datos de perfil",
+        createPolaroid: "Crear registro de polaroid con datos de perfil e imagen fuente",
         getPolaroids: "Obtener tarjetas de la comunidad con paginación y filtros",
         getPolaroidBySlug: "Obtener tarjeta por slug para compartir",
-        updatePolaroid: "Actualizar metadatos de tarjeta existente",
+        updatePolaroid: "Actualizar metadatos y subir imagen de retrato",
         deletePolaroid: "Eliminar tarjeta y almacenamiento asociado",
         postPolaroid: "Subir imagen de tarjeta exportada al storage",
         toggleLike: "Dar/quitar like a una tarjeta de la comunidad",
         getNotifications: "Obtener notificaciones de likes del usuario",
+        getAdminPolaroids: "Admin: Obtener todas las polaroids con búsqueda, filtros, paginación",
       },
       print: {
         domRender: { title: "Render DOM", desc: "Componente React con fondo blanco" },
