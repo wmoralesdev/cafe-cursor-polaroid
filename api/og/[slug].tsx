@@ -1,3 +1,4 @@
+/** @jsxImportSource react */
 import { ImageResponse } from '@vercel/og';
 
 export const config = {
@@ -119,7 +120,7 @@ export default async function handler(request: Request) {
       }
     );
 
-    const data = await response.json();
+    const data = await response.json() as any[];
     const polaroid = data[0];
 
     if (!polaroid) {

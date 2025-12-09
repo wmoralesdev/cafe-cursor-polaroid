@@ -15,7 +15,9 @@ export default async function middleware(request: Request) {
 
   // Only handle /c/:slug routes
   if (!pathname.startsWith('/c/')) {
-    return NextResponse.next();
+    return new Response(null, {
+      status: 200,
+    });
   }
 
   const userAgent = request.headers.get('user-agent') || '';
