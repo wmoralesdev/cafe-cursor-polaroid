@@ -168,6 +168,12 @@ export interface Translations {
       features: string;
       edgeFunctions: string;
       printPipeline: string;
+      cursorPrompt: string;
+    };
+    cursorPrompt: {
+      description: string;
+      copy: string;
+      copied: string;
     };
     flow: {
       create: { title: string; desc: string };
@@ -410,6 +416,12 @@ export const translations: Record<Language, Translations> = {
         features: "Technical Features",
         edgeFunctions: "Edge Functions",
         printPipeline: "Print Pipeline",
+        cursorPrompt: "Generate with Cursor",
+      },
+      cursorPrompt: {
+        description: "Copy this detailed prompt and paste it into Cursor to generate this entire application:",
+        copy: "Copy Prompt",
+        copied: "Copied!",
       },
       flow: {
         create: { title: "Create", desc: "Fill your profile, pick a theme, upload a photo" },
@@ -674,6 +686,12 @@ export const translations: Record<Language, Translations> = {
         features: "Características Técnicas",
         edgeFunctions: "Edge Functions",
         printPipeline: "Pipeline de Impresión",
+        cursorPrompt: "Generar con Cursor",
+      },
+      cursorPrompt: {
+        description: "Copia este prompt detallado y pégalo en Cursor para generar toda esta aplicación:",
+        copy: "Copiar Prompt",
+        copied: "¡Copiado!",
       },
       flow: {
         create: { title: "Crear", desc: "Completa tu perfil, elige un tema, sube una foto" },

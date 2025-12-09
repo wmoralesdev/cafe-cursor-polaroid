@@ -1,25 +1,27 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Database, Server, Palette, Camera, Share2, Printer, Zap, Globe, Code2, Layers, Heart, KeyRound, Save, Terminal } from "lucide-react";
+import { ArrowLeft, Database, Server, Palette, Camera, Share2, Printer, Zap, Globe, Code2, Layers, Heart, KeyRound, Save, Terminal, Copy, Check, FileCode, Sparkles, RefreshCw, FileText, Route, Calendar, BarChart } from "lucide-react";
 import { useLanguage } from "@/contexts/language-context";
+import { useTheme } from "@/hooks/use-theme";
 import { CursorIcon } from "@/components/ui/cursor-icon";
 import { LanguageToggle } from "@/components/ui/language-toggle";
 import { AppFooter } from "@/components/layout/app-footer";
+import { CURSOR_PROMPT } from "@/constants/cursor-prompt";
 import { clsx } from "clsx";
 
-// Stack badges with their colors - complete list
+// Stack badges with their colors and icons
 const techStack = [
-  { name: "React 19", color: "#61DAFB", icon: "⚛️" },
-  { name: "TypeScript", color: "#3178C6", icon: "📘" },
-  { name: "Tailwind CSS 4", color: "#06B6D4", icon: "🎨" },
-  { name: "Supabase", color: "#3ECF8E", icon: "⚡" },
-  { name: "Vite 7", color: "#646CFF", icon: "⚡" },
-  { name: "React Query", color: "#FF4154", icon: "🔄" },
-  { name: "React Hook Form", color: "#EC5990", icon: "📝" },
-  { name: "React Router", color: "#CA4245", icon: "🛤️" },
-  { name: "Lucide Icons", color: "#F56565", icon: "✨" },
-  { name: "date-fns", color: "#770C56", icon: "📅" },
-  { name: "Vercel Analytics", color: "#000000", icon: "📊" },
+  { name: "React 19", color: "#61DAFB", icon: Code2 },
+  { name: "TypeScript", color: "#3178C6", icon: FileCode },
+  { name: "Tailwind CSS 4", color: "#06B6D4", icon: Sparkles },
+  { name: "Supabase", color: "#3ECF8E", icon: Database },
+  { name: "Vite 7", color: "#646CFF", icon: Zap },
+  { name: "React Query", color: "#FF4154", icon: RefreshCw },
+  { name: "React Hook Form", color: "#EC5990", icon: FileText },
+  { name: "React Router", color: "#CA4245", icon: Route },
+  { name: "Lucide Icons", color: "#F56565", icon: Layers },
+  { name: "date-fns", color: "#770C56", icon: Calendar },
+  { name: "Vercel Analytics", color: "#000000", icon: BarChart },
 ];
 
 // All 9 edge functions
@@ -339,8 +341,49 @@ function FlowDiagram() {
   );
 }
 
+function CopyPromptButton() {
+  const [copied, setCopied] = useState(false);
+  const { t } = useLanguage();
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(CURSOR_PROMPT);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy prompt", err);
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={handleCopy}
+      className={clsx(
+        "absolute top-4 right-4 px-4 py-2 rounded-sm font-medium text-sm transition-all duration-200 flex items-center gap-2",
+        copied
+          ? "bg-green-600 text-white"
+          : "bg-accent text-white hover:bg-accent/90"
+      )}
+    >
+      {copied ? (
+        <>
+          <Check className="w-4 h-4" strokeWidth={1.5} />
+          <span>{t.tech.cursorPrompt.copied}</span>
+        </>
+      ) : (
+        <>
+          <Copy className="w-4 h-4" strokeWidth={1.5} />
+          <span>{t.tech.cursorPrompt.copy}</span>
+        </>
+      )}
+    </button>
+  );
+}
+
 export function TechPage() {
   const { t } = useLanguage();
+  const { theme } = useTheme();
 
   // Features with translations - now including likes, oauth, autosave
   const features = [
@@ -394,16 +437,23 @@ export function TechPage() {
             {t.tech.sections.techStack}
           </h2>
           <div className="flex flex-wrap justify-center gap-3">
-            {techStack.map((tech) => (
-              <div
-                key={tech.name}
-                className="card-panel px-4 py-2 flex items-center gap-2 hover:scale-105 transition-transform"
-                style={{ borderColor: `${tech.color}30` }}
-              >
-                <span className="text-lg">{tech.icon}</span>
-                <span className="font-medium text-fg text-sm">{tech.name}</span>
-              </div>
-            ))}
+            {techStack.map((tech) => {
+              const IconComponent = tech.icon;
+              // Vercel Analytics: white in dark mode, black in light mode
+              const iconColor = tech.name === "Vercel Analytics" 
+                ? (theme === "dark" ? "#ffffff" : "#000000")
+                : tech.color;
+              return (
+                <div
+                  key={tech.name}
+                  className="card-panel px-4 py-2 flex items-center gap-2 hover:scale-105 transition-transform"
+                  style={{ borderColor: `${tech.color}30` }}
+                >
+                  <IconComponent className="w-4 h-4" strokeWidth={1.5} style={{ color: iconColor }} />
+                  <span className="font-medium text-fg text-sm">{tech.name}</span>
+                </div>
+              );
+            })}
           </div>
         </section>
 
@@ -525,6 +575,26 @@ export function TechPage() {
                   <p className="text-xs text-fg-muted leading-relaxed">{t.tech.print.details.step4.desc}</p>
                 </div>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Cursor Prompt */}
+        <section className="mb-20">
+          <h2 className="font-display text-2xl font-semibold text-fg mb-6 text-center">
+            {t.tech.sections.cursorPrompt}
+          </h2>
+          <div className="card-panel p-6">
+            <p className="text-sm text-fg-muted mb-4 text-center font-body">
+              {t.tech.cursorPrompt.description}
+            </p>
+            <div className="relative">
+              <div className="bg-[#1a1a1a] rounded-sm p-4 overflow-x-auto max-h-[600px] overflow-y-auto">
+                <pre className="text-[11px] leading-relaxed font-mono text-[#d4d4d4] whitespace-pre-wrap">
+                  <code>{CURSOR_PROMPT}</code>
+                </pre>
+              </div>
+              <CopyPromptButton />
             </div>
           </div>
         </section>
