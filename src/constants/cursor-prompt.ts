@@ -292,3 +292,5 @@ supabase/
 Build this application following modern React best practices, ensuring type safety, performance, and excellent user experience.`;
 
 
+
+

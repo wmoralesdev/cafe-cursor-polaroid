@@ -8,3 +8,5 @@ COMMENT ON COLUMN polaroids.og_image_url IS 'Pre-generated landscape OG image UR
 
 
 
+
+
