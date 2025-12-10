@@ -4,7 +4,7 @@ import { AppShell } from "@/components/layout/app-shell";
 import { EditorSection } from "@/components/sections/editor-section";
 import { AboutSection } from "@/components/sections/about-section";
 import { PhotoStrip } from "@/components/sections/photo-strip";
-import { CommunityMarquee } from "@/components/sections/community-marquee";
+import { CommunitySwipeSection } from "@/components/sections/community-swipe";
 import { UserPolaroids } from "@/components/sections/user-polaroids";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { PolaroidModal } from "@/components/polaroid/polaroid-modal";
@@ -35,7 +35,7 @@ export function HomePage() {
             onPolaroidChange={setActivePolaroid}
           />
           <UserPolaroids />
-          <CommunityMarquee />
+          <CommunitySwipeSection />
           <PhotoStrip />
           <AboutSection />
         </AppShell>

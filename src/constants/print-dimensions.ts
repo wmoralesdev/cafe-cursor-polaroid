@@ -17,3 +17,4 @@ export const POLAROID_WIDTH_PX = 340;
 export const POLAROID_HEIGHT_PX = Math.round(POLAROID_WIDTH_PX / POLAROID_ASPECT_RATIO); // ~459px
 
 
+

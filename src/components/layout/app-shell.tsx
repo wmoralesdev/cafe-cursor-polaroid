@@ -10,7 +10,7 @@ interface AppShellProps {
 }
 
 export function AppShell({ children }: AppShellProps) {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
 
   return (
     <div className="min-h-screen flex flex-col overflow-x-hidden selection:bg-accent selection:text-white bg-bg">
@@ -20,6 +20,15 @@ export function AppShell({ children }: AppShellProps) {
           <div className="flex items-center gap-4 sm:gap-6">
             <HeaderNavigation />
             <NotificationsDropdown userId={user?.id || null} />
+            {user && (
+              <button
+                type="button"
+                onClick={signOut}
+                className="text-sm font-medium text-fg-muted hover:text-accent transition-colors duration-150 font-body"
+              >
+                Logout
+              </button>
+            )}
             <LanguageToggle />
           </div>
         </div>
