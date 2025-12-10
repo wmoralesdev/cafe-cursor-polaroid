@@ -200,6 +200,42 @@ export interface ToggleLikeResult {
   likeCount: number;
 }
 
+export async function getNetworkingPolaroids(
+  limit: number = 20,
+  profileHint?: CursorProfile | null
+): Promise<PolaroidRecord[]> {
+  const { data, error } = await supabase.functions.invoke("get-networking-polaroids", {
+    body: { limit, profileHint: profileHint || null },
+  });
+
+  if (error) {
+    throw new Error(`Failed to get networking polaroids: ${error.message}`);
+  }
+
+  if (data?.error) {
+    throw new Error(data.error);
+  }
+
+  return (data?.data || []) as PolaroidRecord[];
+}
+
+export async function recordNetworkingSwipe(
+  polaroidId: string,
+  decision: "pass" | "connect"
+): Promise<void> {
+  const { error, data } = await supabase.functions.invoke("record-networking-swipe", {
+    body: { polaroid_id: polaroidId, decision },
+  });
+
+  if (error) {
+    throw new Error(`Failed to record swipe: ${error.message}`);
+  }
+
+  if (data?.error) {
+    throw new Error(data.error);
+  }
+}
+
 /**
  * Toggle like on a polaroid
  */

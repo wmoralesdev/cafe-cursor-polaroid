@@ -1,6 +1,10 @@
-import { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useLanguage } from "@/contexts/language-context";
-import { useCommunityPolaroids, useTogglePolaroidLike } from "@/hooks/use-polaroids-query";
+import {
+  useNetworkingPolaroids,
+  useRecordNetworkingSwipe,
+  useTogglePolaroidLike,
+} from "@/hooks/use-polaroids-query";
 import { useAuth } from "@/hooks/use-auth";
 import { useUIStore } from "@/stores/ui-store";
 import { usePolaroidStore } from "@/stores/polaroid-store";
@@ -9,40 +13,24 @@ import { formatDistanceToNow } from "date-fns";
 import { es, enUS } from "date-fns/locale";
 import { Heart, X, Check } from "lucide-react";
 import { clsx } from "clsx";
+import { LoginModal } from "@/components/auth/login-modal";
 
-type Decision = "like" | "skip";
+type Decision = "connect" | "pass";
 
 interface DeckItem extends PolaroidRecord {
   matchScore?: number;
-}
-
-function computeMatchScore(userPolaroid: PolaroidRecord | null | undefined, candidate: PolaroidRecord): number {
-  if (!userPolaroid) return 0;
-  const user = userPolaroid.profile;
-  const other = candidate.profile;
-
-  let score = 0;
-  if (user.primaryModel && other.primaryModel && user.primaryModel === other.primaryModel) score += 2;
-  if (user.secondaryModel && other.secondaryModel && user.secondaryModel === other.secondaryModel) score += 1;
-  if (user.favoriteFeature && other.favoriteFeature && user.favoriteFeature === other.favoriteFeature) score += 1;
-
-  if (Array.isArray(user.extras) && Array.isArray(other.extras)) {
-    const set = new Set(user.extras);
-    const overlap = other.extras.filter((e) => set.has(e));
-    score += Math.min(overlap.length, 3) * 0.5;
-  }
-
-  return score;
 }
 
 export function CommunitySwipeSection() {
   const { t, lang } = useLanguage();
   const { user } = useAuth();
   const locale = lang === "es" ? es : enUS;
-  const { data: communityPolaroids = [], isLoading } = useCommunityPolaroids(50);
+  const activePolaroid = usePolaroidStore((state) => state.activePolaroid);
+  const { data: networkingPolaroids = [], isLoading } = useNetworkingPolaroids(50, activePolaroid?.profile);
+  const recordSwipe = useRecordNetworkingSwipe();
   const toggleLikeMutation = useTogglePolaroidLike();
   const setShowLoginModal = useUIStore((state) => state.setShowLoginModal);
-  const activePolaroid = usePolaroidStore((state) => state.activePolaroid);
+  const showLoginModal = useUIStore((state) => state.showLoginModal);
 
   const [deck, setDeck] = useState<DeckItem[]>([]);
   const [index, setIndex] = useState(0);
@@ -51,50 +39,45 @@ export function CommunitySwipeSection() {
   const touchStart = useRef<number | null>(null);
 
   useEffect(() => {
-    const scored = communityPolaroids.map((p) => ({
-      ...p,
-      matchScore: computeMatchScore(activePolaroid, p),
-    }));
-
-    const sorted = [...scored].sort((a, b) => {
-      const scoreDiff = (b.matchScore ?? 0) - (a.matchScore ?? 0);
-      if (scoreDiff !== 0) return scoreDiff;
-      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-    });
-
-    setDeck(sorted);
+    setDeck(networkingPolaroids as DeckItem[]);
     setIndex(0);
     setDragX(0);
-  }, [communityPolaroids, activePolaroid]);
+  }, [networkingPolaroids]);
 
   const current = deck[index];
-  const next = deck[index + 1];
 
   const decide = useCallback(
     (decision: Decision) => {
       if (!current || isAnimating) return;
       setIsAnimating(true);
-      const delta = decision === "like" ? 300 : -300;
+      const delta = decision === "connect" ? 300 : -300;
       setDragX(delta);
 
-      // Handle like action optimistically
-      if (decision === "like") {
+      if (decision === "connect") {
         if (!user) {
           setShowLoginModal(true);
-        } else {
-          setDeck((prev) =>
-            prev.map((item, idx) =>
-              idx === index
-                ? {
-                    ...item,
-                    viewer_has_liked: true,
-                    like_count: (item.like_count || 0) + 1,
-                  }
-                : item
-            )
-          );
-          toggleLikeMutation.mutate(current.id);
+          setTimeout(() => {
+            setDragX(0);
+            setIsAnimating(false);
+          }, 150);
+          return;
         }
+
+        recordSwipe.mutate({ polaroidId: current.id, decision: "connect" });
+        setDeck((prev) =>
+          prev.map((item, idx) =>
+            idx === index
+              ? {
+                  ...item,
+                  viewer_has_liked: true,
+                  like_count: (item.like_count || 0) + 1,
+                }
+              : item
+          )
+        );
+        toggleLikeMutation.mutate(current.id);
+      } else if (user) {
+        recordSwipe.mutate({ polaroidId: current.id, decision: "pass" });
       }
 
       setTimeout(() => {
@@ -103,7 +86,7 @@ export function CommunitySwipeSection() {
         setIsAnimating(false);
       }, 220);
     },
-    [current, index, isAnimating, setShowLoginModal, toggleLikeMutation, user]
+    [current, index, isAnimating, recordSwipe, setShowLoginModal, toggleLikeMutation, user]
   );
 
   const onTouchStart = (e: React.TouchEvent) => {
@@ -119,19 +102,11 @@ export function CommunitySwipeSection() {
   const onTouchEnd = () => {
     const threshold = 60;
     if (Math.abs(dragX) > threshold) {
-      decide(dragX > 0 ? "like" : "skip");
+      decide(dragX > 0 ? "connect" : "pass");
     } else {
       setDragX(0);
     }
     touchStart.current = null;
-  };
-
-  const onKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "ArrowLeft") {
-      decide("skip");
-    } else if (e.key === "ArrowRight") {
-      decide("like");
-    }
   };
 
   const refreshDeck = () => {
@@ -139,27 +114,44 @@ export function CommunitySwipeSection() {
     setDragX(0);
   };
 
-  const renderCard = (item: DeckItem | undefined, isNext = false) => {
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") {
+        decide("pass");
+      } else if (e.key === "ArrowRight") {
+        decide("connect");
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [decide]);
+
+  const renderCard = (item: DeckItem | undefined) => {
     if (!item) return null;
     const imageUrl = item.image_url || item.source_image_url;
     const matchScore = item.matchScore ?? 0;
     const matchLabel =
-      matchScore >= 3 ? "Great match" : matchScore >= 1.5 ? "Good match" : matchScore > 0 ? "Some overlap" : null;
+      matchScore >= 3
+        ? t.community.swipe?.matchGreat
+        : matchScore >= 1.5
+          ? t.community.swipe?.matchGood
+          : matchScore > 0
+            ? t.community.swipe?.matchSome
+            : null;
 
     return (
       <div
         className={clsx(
-          "relative w-full max-w-md mx-auto bg-card border border-border rounded-lg shadow-xl overflow-hidden select-none",
-          isNext ? "opacity-50 scale-95" : "opacity-100"
+          "relative w-full max-w-md mx-auto bg-card border border-border rounded-lg shadow-xl overflow-hidden select-none"
         )}
       >
         {imageUrl ? (
-          <div className="w-full aspect-[340/459] bg-card-02">
+          <div className="w-full aspect-340/459 bg-card-02">
             <img src={imageUrl} alt={item.title || "Polaroid"} className="w-full h-full object-cover" loading="lazy" />
           </div>
         ) : (
-          <div className="w-full aspect-[340/459] bg-card-02 flex items-center justify-center text-fg-muted text-sm">
-            No image
+          <div className="w-full aspect-340/459 bg-card-02 flex items-center justify-center text-fg-muted text-sm">
+            {t.imageUpload.noImage}
           </div>
         )}
 
@@ -181,7 +173,11 @@ export function CommunitySwipeSection() {
           </div>
 
           <div className="flex flex-wrap gap-2 text-xs text-fg-muted">
-            {item.profile.primaryModel && <span className="px-2 py-1 bg-card-02 rounded-sm">Model: {item.profile.primaryModel}</span>}
+            {item.profile.primaryModel && (
+              <span className="px-2 py-1 bg-card-02 rounded-sm">
+                {t.community.swipe?.modelLabel}: {item.profile.primaryModel}
+              </span>
+            )}
             {item.profile.extras?.slice(0, 3).map((tag) => (
               <span key={tag} className="px-2 py-1 bg-card-02 rounded-sm">
                 {tag}
@@ -207,9 +203,7 @@ export function CommunitySwipeSection() {
   return (
     <section
       id="community"
-      className="w-full py-10 px-4 sm:px-6 bg-gradient-to-b from-transparent via-card/30 to-transparent"
-      onKeyDown={onKeyDown}
-      tabIndex={0}
+      className="w-full py-10 px-4 sm:px-6 bg-linear-to-b from-transparent via-card/30 to-transparent"
     >
       <div className="max-w-5xl mx-auto space-y-6">
         <div className="flex flex-col gap-2">
@@ -222,32 +216,34 @@ export function CommunitySwipeSection() {
         </div>
 
         {isLoading ? (
-          <div className="flex justify-center items-center py-16 text-fg-muted">Loading community cards...</div>
+          <div className="flex justify-center items-center py-16 text-fg-muted">
+            {t.community.swipe?.loading}
+          </div>
         ) : deck.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-3 py-16 text-fg-muted">
             <p>{t.community.empty}</p>
           </div>
         ) : index >= deck.length ? (
           <div className="flex flex-col items-center justify-center gap-4 py-16 text-fg-muted">
-            <p>You're all caught up.</p>
+            <p>{t.community.swipe?.caughtUp}</p>
             <button
               type="button"
               onClick={refreshDeck}
               className="px-4 py-2 bg-card border border-border rounded-sm text-sm hover:bg-card-01 transition-colors"
             >
-              See again
+              {t.community.swipe?.seeAgain}
             </button>
           </div>
         ) : (
           <div className="w-full flex flex-col items-center gap-6">
             <div
-              className="relative w-full max-w-md"
+              className="w-full max-w-md"
               onTouchStart={onTouchStart}
               onTouchMove={onTouchMove}
               onTouchEnd={onTouchEnd}
             >
               <div
-                className={clsx("absolute inset-0 transition-transform duration-200 ease-out")}
+                className="transition-transform duration-200 ease-out"
                 style={{
                   transform: `translateX(${dragX}px) rotate(${dragX / 25}deg)`,
                   opacity: Math.max(0, 1 - Math.abs(dragX) / 300),
@@ -255,33 +251,32 @@ export function CommunitySwipeSection() {
               >
                 {renderCard(current)}
               </div>
-              <div className="absolute inset-0 pointer-events-none">{renderCard(next, true)}</div>
-              <div className="opacity-0">{/* reserve space */ renderCard(current)}</div>
             </div>
 
             <div className="flex items-center gap-4">
               <button
                 type="button"
-                onClick={() => decide("skip")}
+                onClick={() => decide("pass")}
                 className="flex items-center gap-2 px-4 py-3 rounded-full border border-border bg-card hover:bg-card-01 text-fg transition-colors"
-                disabled={!current}
+                disabled={!current || isAnimating}
               >
                 <X className="w-5 h-5" strokeWidth={1.75} />
-                Skip
+                {t.community.swipe?.pass}
               </button>
               <button
                 type="button"
-                onClick={() => decide("like")}
+                onClick={() => decide("connect")}
                 className="flex items-center gap-2 px-4 py-3 rounded-full bg-accent text-white hover:opacity-90 transition-opacity"
-                disabled={!current}
+                disabled={!current || isAnimating}
               >
                 <Check className="w-5 h-5" strokeWidth={1.75} />
-                Like
+                {t.community.swipe?.connect}
               </button>
             </div>
           </div>
         )}
       </div>
+      {showLoginModal && <LoginModal onClose={() => setShowLoginModal(false)} />}
     </section>
   );
 }

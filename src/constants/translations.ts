@@ -113,6 +113,17 @@ export interface Translations {
     title: string;
     subtitle: string;
     empty: string;
+    swipe?: {
+      loading: string;
+      caughtUp: string;
+      seeAgain: string;
+      pass: string;
+      connect: string;
+      matchGreat: string;
+      matchGood: string;
+      matchSome: string;
+      modelLabel: string;
+    };
     likes: {
       like: string;
       likedBy: string;
@@ -361,6 +372,17 @@ export const translations: Record<Language, Translations> = {
       title: "Community cards",
       subtitle: "See what others are building",
       empty: "No community cards yet",
+      swipe: {
+        loading: "Loading community cards...",
+        caughtUp: "You're all caught up.",
+        seeAgain: "See again",
+        pass: "Pass",
+        connect: "Connect",
+        matchGreat: "Great fit",
+        matchGood: "Good fit",
+        matchSome: "Some overlap",
+        modelLabel: "Model",
+      },
       likes: {
         like: "Like",
         likedBy: "Liked by",
@@ -631,6 +653,17 @@ export const translations: Record<Language, Translations> = {
       title: "Tarjetas de la comunidad",
       subtitle: "Ve lo que otros están construyendo",
       empty: "Aún no hay tarjetas de la comunidad",
+      swipe: {
+        loading: "Cargando tarjetas de la comunidad...",
+        caughtUp: "Ya viste todo.",
+        seeAgain: "Ver de nuevo",
+        pass: "Omitir",
+        connect: "Conectar",
+        matchGreat: "Gran afinidad",
+        matchGood: "Buena afinidad",
+        matchSome: "Algo en común",
+        modelLabel: "Modelo",
+      },
       likes: {
         like: "Me gusta",
         likedBy: "Le gustó a",
