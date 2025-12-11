@@ -46,13 +46,14 @@ export function useCommunityPolaroids(limit: number = 20) {
   });
 }
 
-export function useNetworkingPolaroids(limit: number = 20, profileHint?: CursorProfile | null) {
+export function useNetworkingPolaroids(limit: number = 20, profileHint?: CursorProfile | null, enabled: boolean = true) {
   return useQuery({
     queryKey: ["polaroids", "networking", limit, profileHint ? JSON.stringify(profileHint) : null],
     queryFn: async () => {
       const { getNetworkingPolaroids } = await import("@/lib/polaroids");
       return await getNetworkingPolaroids(limit, profileHint);
     },
+    enabled,
   });
 }
 

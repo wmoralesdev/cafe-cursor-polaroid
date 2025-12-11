@@ -70,7 +70,7 @@ export function UserPolaroids() {
   const errorMessage = error instanceof Error ? error.message : error ? "Failed to load polaroids" : null;
 
   return (
-    <section className="w-full py-12 max-w-7xl mx-auto px-4 sm:px-6">
+    <section className="w-full py-12 max-w-7xl mx-auto px-4 sm:px-6 border-t border-border/50">
       <div className="mb-8">
         <h2 className="font-display text-2xl md:text-3xl font-semibold text-fg mb-2">
           {t.userPolaroids.title}

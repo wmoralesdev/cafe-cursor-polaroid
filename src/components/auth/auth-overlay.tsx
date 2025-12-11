@@ -30,8 +30,8 @@ export function AuthOverlay() {
   };
 
   return (
-    <div className="absolute inset-0 z-50 flex items-center justify-center bg-bg/95 backdrop-blur-sm rounded-sm">
-      <div className="w-full max-w-md p-8 text-center">
+    <div className="w-full max-w-md mx-auto mb-4 bg-card border border-border rounded-sm shadow-lg lg:absolute lg:inset-0 lg:z-50 lg:flex lg:items-center lg:justify-center lg:bg-bg/95 lg:backdrop-blur-sm lg:rounded-sm lg:border-0 lg:shadow-none lg:mb-0 lg:max-w-none lg:mx-0">
+      <div className="w-full max-w-md mx-auto p-6 lg:p-8 text-center bg-card lg:border lg:border-border lg:rounded-sm lg:shadow-lg">
         <div className="mb-6">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-accent/10 mb-4">
             <Lock className="w-8 h-8 text-accent" strokeWidth={1.5} />

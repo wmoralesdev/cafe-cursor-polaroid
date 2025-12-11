@@ -54,12 +54,12 @@ export function PhotoStrip() {
   const { t } = useLanguage();
   
   return (
-    <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-12 overflow-hidden">
-      <div className="mb-8">
-        <h2 className="font-display text-2xl md:text-3xl font-semibold text-fg mb-2">
+    <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-12 overflow-hidden border-t border-border/50">
+      <div className="max-w-2xl mb-8">
+        <h2 className="font-display text-4xl md:text-5xl font-semibold text-fg tracking-tight leading-tight">
           {t.showcase.title}
         </h2>
-        <p className="text-fg-muted font-body text-sm md:text-base">
+        <p className="text-fg-muted font-body text-lg mt-3 max-w-xl leading-relaxed">
           {t.showcase.subtitle}
         </p>
       </div>

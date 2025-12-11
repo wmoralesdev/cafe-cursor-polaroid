@@ -6,7 +6,7 @@ import { useLanguage } from "@/contexts/language-context";
 export function AboutSection() {
   const { t } = useLanguage();
   return (
-    <section id="about" className="py-12 sm:py-16">
+    <section id="about" className="py-12 sm:py-16 border-t border-border/50">
       <div className="card-panel p-8 sm:p-12 text-center max-w-2xl mx-auto">
         
         <div className="flex items-center justify-center gap-2 mb-4">
@@ -28,11 +28,11 @@ export function AboutSection() {
         
         <div className="grid grid-cols-3 gap-4 border-t border-b border-border/50 py-6 mb-8">
             <div className="text-center">
-                <div className="text-2xl font-display font-medium text-fg">5+</div>
+                <div className="text-2xl font-display font-medium text-fg">20+</div>
                 <div className="text-[10px] uppercase tracking-widest text-fg-muted font-mono mt-1">{t.about.stats.cities}</div>
             </div>
             <div className="text-center border-l border-border/50">
-                <div className="text-2xl font-display font-medium text-fg">120+</div>
+                <div className="text-2xl font-display font-medium text-fg">1K+</div>
                 <div className="text-[10px] uppercase tracking-widest text-fg-muted font-mono mt-1">{t.about.stats.attendees}</div>
             </div>
             <div className="text-center border-l border-border/50">

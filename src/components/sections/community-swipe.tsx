@@ -26,7 +26,8 @@ export function CommunitySwipeSection() {
   const { user } = useAuth();
   const locale = lang === "es" ? es : enUS;
   const activePolaroid = usePolaroidStore((state) => state.activePolaroid);
-  const { data: networkingPolaroids, isLoading } = useNetworkingPolaroids(50, activePolaroid?.profile);
+  const isNetworkingEnabled = !!user;
+  const { data: networkingPolaroids, isLoading } = useNetworkingPolaroids(50, activePolaroid?.profile, isNetworkingEnabled);
   const recordSwipe = useRecordNetworkingSwipe();
   const toggleLikeMutation = useTogglePolaroidLike();
   const setShowLoginModal = useUIStore((state) => state.setShowLoginModal);
@@ -261,19 +262,23 @@ export function CommunitySwipeSection() {
   return (
     <section
       id="community"
-      className="w-full py-10 px-4 sm:px-6 bg-linear-to-b from-transparent via-card/30 to-transparent"
+      className="w-full py-10 px-4 sm:px-6 bg-linear-to-b from-transparent via-card/30 to-transparent border-t border-border/50"
     >
-      <div className="max-w-5xl mx-auto space-y-6">
-        <div className="flex flex-col gap-2">
-          <h2 className="font-display text-2xl md:text-3xl font-semibold text-fg">
+      <div className="max-w-7xl mx-auto space-y-6">
+        <div className="max-w-2xl">
+          <h2 className="font-display text-4xl md:text-5xl font-semibold text-fg tracking-tight leading-tight">
             {t.community.title}
           </h2>
-          <p className="text-fg-muted font-body text-sm md:text-base">
+          <p className="text-fg-muted font-body text-lg mt-3 max-w-xl leading-relaxed">
             {t.community.subtitle}
           </p>
         </div>
 
-        {isLoading ? (
+        {!user ? (
+          <div className="flex flex-col items-center justify-center gap-3 py-16 text-fg-muted">
+            <p>{t.community.swipe?.signInPrompt || "Sign in to see people to connect with"}</p>
+          </div>
+        ) : isLoading ? (
           <div className="flex justify-center items-center py-16 text-fg-muted">
             {t.community.swipe?.loading}
           </div>
