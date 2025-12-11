@@ -113,6 +113,7 @@ export interface Translations {
     title: string;
     subtitle: string;
     empty: string;
+    emptySubtitle: string;
     swipe?: {
       loading: string;
       caughtUp: string;
@@ -123,6 +124,28 @@ export interface Translations {
       matchGood: string;
       matchSome: string;
       modelLabel: string;
+      signInPrompt: string;
+      signInPromptSubtitle: string;
+    };
+    tabs?: {
+      discover: string;
+      history: string;
+      matches: string;
+    };
+    history?: {
+      loading: string;
+      connected: string;
+      passed: string;
+      emptyConnected: string;
+      emptyConnectedSubtitle: string;
+      emptyPassed: string;
+      emptyPassedSubtitle: string;
+      emptyMatches: string;
+      emptyMatchesSubtitle: string;
+      matchedLabel: string;
+      mutualMatch: string;
+      buildingLabel: string;
+      connectButton: string;
     };
     likes: {
       like: string;
@@ -372,6 +395,7 @@ export const translations: Record<Language, Translations> = {
       title: "Community cards",
       subtitle: "See what others are building",
       empty: "No community cards yet",
+      emptySubtitle: "Connect with other developers — you won't see your own cards here",
       swipe: {
         loading: "Loading community cards...",
         caughtUp: "You're all caught up.",
@@ -382,6 +406,28 @@ export const translations: Record<Language, Translations> = {
         matchGood: "Good fit",
         matchSome: "Some overlap",
         modelLabel: "Model",
+        signInPrompt: "Sign in to see people to connect with",
+        signInPromptSubtitle: "Create your dev card and start connecting with the community",
+      },
+      tabs: {
+        discover: "Discover",
+        history: "History",
+        matches: "Matches",
+      },
+      history: {
+        loading: "Loading history...",
+        connected: "Connected",
+        passed: "Passed",
+        emptyConnected: "No connections yet",
+        emptyConnectedSubtitle: "Swipe right on cards to connect",
+        emptyPassed: "No passed cards yet",
+        emptyPassedSubtitle: "Passed cards will appear here",
+        emptyMatches: "No matches yet",
+        emptyMatchesSubtitle: "When someone you connect with also connects with you, they'll appear here",
+        matchedLabel: "Matched",
+        mutualMatch: "Match",
+        buildingLabel: "Building",
+        connectButton: "Connect",
       },
       likes: {
         like: "Like",
@@ -653,6 +699,7 @@ export const translations: Record<Language, Translations> = {
       title: "Tarjetas de la comunidad",
       subtitle: "Ve lo que otros están construyendo",
       empty: "Aún no hay tarjetas de la comunidad",
+      emptySubtitle: "Conecta con otros desarrolladores — no verás tus propias tarjetas aquí",
       swipe: {
         loading: "Cargando tarjetas de la comunidad...",
         caughtUp: "Ya viste todo.",
@@ -663,6 +710,28 @@ export const translations: Record<Language, Translations> = {
         matchGood: "Buena afinidad",
         matchSome: "Algo en común",
         modelLabel: "Modelo",
+        signInPrompt: "Inicia sesión para ver personas con las que conectar",
+        signInPromptSubtitle: "Crea tu tarjeta dev y comienza a conectar con la comunidad",
+      },
+      tabs: {
+        discover: "Descubrir",
+        history: "Historial",
+        matches: "Coincidencias",
+      },
+      history: {
+        loading: "Cargando historial...",
+        connected: "Conectados",
+        passed: "Omitidos",
+        emptyConnected: "Aún no hay conexiones",
+        emptyConnectedSubtitle: "Desliza a la derecha para conectar",
+        emptyPassed: "Aún no has omitido tarjetas",
+        emptyPassedSubtitle: "Las tarjetas omitidas aparecerán aquí",
+        emptyMatches: "Aún no hay coincidencias",
+        emptyMatchesSubtitle: "Cuando alguien con quien conectes también conecte contigo, aparecerá aquí",
+        matchedLabel: "Coincidencia",
+        mutualMatch: "Match",
+        buildingLabel: "Construyendo",
+        connectButton: "Conectar",
       },
       likes: {
         like: "Me gusta",

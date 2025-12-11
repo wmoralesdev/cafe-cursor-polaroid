@@ -10,17 +10,17 @@ import { CURSOR_PROMPT } from "@/constants/cursor-prompt";
 import { clsx } from "clsx";
 
 const techStack = [
-  { name: "React 19", color: "#61DAFB", icon: Code2 },
-  { name: "TypeScript", color: "#3178C6", icon: FileCode },
-  { name: "Tailwind CSS 4", color: "#06B6D4", icon: Sparkles },
-  { name: "Supabase", color: "#3ECF8E", icon: Database },
-  { name: "Vite 7", color: "#646CFF", icon: Zap },
-  { name: "React Query", color: "#FF4154", icon: RefreshCw },
-  { name: "React Hook Form", color: "#EC5990", icon: FileText },
-  { name: "React Router", color: "#CA4245", icon: Route },
-  { name: "Lucide Icons", color: "#F56565", icon: Layers },
-  { name: "date-fns", color: "#770C56", icon: Calendar },
-  { name: "Vercel Analytics", color: "#000000", icon: BarChart },
+  { name: "React 19", color: "#61DAFB", icon: Code2, url: "https://react.dev" },
+  { name: "TypeScript", color: "#3178C6", icon: FileCode, url: "https://www.typescriptlang.org" },
+  { name: "Tailwind CSS 4", color: "#06B6D4", icon: Sparkles, url: "https://tailwindcss.com" },
+  { name: "Supabase", color: "#3ECF8E", icon: Database, url: "https://supabase.com" },
+  { name: "Vite 7", color: "#646CFF", icon: Zap, url: "https://vitejs.dev" },
+  { name: "React Query", color: "#FF4154", icon: RefreshCw, url: "https://tanstack.com/query/latest" },
+  { name: "React Hook Form", color: "#EC5990", icon: FileText, url: "https://react-hook-form.com" },
+  { name: "React Router", color: "#CA4245", icon: Route, url: "https://reactrouter.com" },
+  { name: "Lucide Icons", color: "#F56565", icon: Layers, url: "https://lucide.dev" },
+  { name: "date-fns", color: "#770C56", icon: Calendar, url: "https://date-fns.org" },
+  { name: "Vercel Analytics", color: "#000000", icon: BarChart, url: "https://vercel.com/analytics" },
 ];
 
 const edgeFunctions = [
@@ -441,14 +441,17 @@ export function TechPage() {
                 ? (theme === "dark" ? "#ffffff" : "#000000")
                 : tech.color;
               return (
-                <div
+                <a
                   key={tech.name}
-                  className="card-panel px-4 py-2 flex items-center gap-2 hover:scale-105 transition-transform"
+                  href={tech.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="card-panel px-4 py-2 flex items-center gap-2 hover:scale-105 transition-transform cursor-pointer"
                   style={{ borderColor: `${tech.color}30` }}
                 >
                   <IconComponent className="w-4 h-4" strokeWidth={1.5} style={{ color: iconColor }} />
                   <span className="font-medium text-fg text-sm">{tech.name}</span>
-                </div>
+                </a>
               );
             })}
           </div>

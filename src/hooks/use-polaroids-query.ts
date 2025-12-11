@@ -227,7 +227,19 @@ export function useRecordNetworkingSwipe() {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["polaroids", "networking"] });
+      queryClient.invalidateQueries({ queryKey: ["polaroids", "networking-history"] });
     },
+  });
+}
+
+export function useNetworkingHistory(enabled: boolean = true) {
+  return useQuery({
+    queryKey: ["polaroids", "networking-history"],
+    queryFn: async () => {
+      const { getNetworkingHistory } = await import("@/lib/polaroids");
+      return await getNetworkingHistory();
+    },
+    enabled,
   });
 }
 

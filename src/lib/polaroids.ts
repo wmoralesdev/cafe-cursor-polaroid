@@ -200,6 +200,23 @@ export interface ToggleLikeResult {
   likeCount: number;
 }
 
+export interface SwipeHistoryItem extends PolaroidRecord {
+  swiped_at: string;
+  decision: "pass" | "connect";
+}
+
+export interface MatchItem extends PolaroidRecord {
+  swiped_at: string;
+  decision: "connect";
+  matched_at: string;
+}
+
+export interface NetworkingHistoryResult {
+  passed: SwipeHistoryItem[];
+  connected: SwipeHistoryItem[];
+  matches: MatchItem[];
+}
+
 export async function getNetworkingPolaroids(
   limit: number = 20,
   profileHint?: CursorProfile | null
@@ -253,5 +270,22 @@ export async function togglePolaroidLike(polaroidId: string): Promise<ToggleLike
   }
 
   return data?.data;
+}
+
+/**
+ * Get networking history (passed/connected cards and matches) for the current user
+ */
+export async function getNetworkingHistory(): Promise<NetworkingHistoryResult> {
+  const { data, error } = await supabase.functions.invoke("get-networking-history");
+
+  if (error) {
+    throw new Error(`Failed to get networking history: ${error.message}`);
+  }
+
+  if (data?.error) {
+    throw new Error(data.error);
+  }
+
+  return data?.data || { passed: [], connected: [], matches: [] };
 }
 
