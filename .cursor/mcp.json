@@ -1,7 +1,0 @@
-{
-  "mcpServers": {
-    "supabase-core": {
-      "url": "https://mcp.supabase.com/mcp?project_ref=qikotilzxqgnbjpgmgbj&read_only=true"
-    }
-  }
-}

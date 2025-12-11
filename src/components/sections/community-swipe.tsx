@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { useLanguage } from "@/contexts/language-context";
 import {
   useNetworkingPolaroids,
@@ -26,11 +26,12 @@ export function CommunitySwipeSection() {
   const { user } = useAuth();
   const locale = lang === "es" ? es : enUS;
   const activePolaroid = usePolaroidStore((state) => state.activePolaroid);
-  const { data: networkingPolaroids = [], isLoading } = useNetworkingPolaroids(50, activePolaroid?.profile);
+  const { data: networkingPolaroids, isLoading } = useNetworkingPolaroids(50, activePolaroid?.profile);
   const recordSwipe = useRecordNetworkingSwipe();
   const toggleLikeMutation = useTogglePolaroidLike();
   const setShowLoginModal = useUIStore((state) => state.setShowLoginModal);
   const showLoginModal = useUIStore((state) => state.showLoginModal);
+  const networkingList = useMemo(() => networkingPolaroids ?? [], [networkingPolaroids]);
 
   const [deck, setDeck] = useState<DeckItem[]>([]);
   const [index, setIndex] = useState(0);
@@ -39,15 +40,53 @@ export function CommunitySwipeSection() {
   const touchStart = useRef<number | null>(null);
 
   useEffect(() => {
-    setDeck(networkingPolaroids as DeckItem[]);
+    // #region agent log
+    fetch("http://127.0.0.1:7243/ingest/3b85e886-5738-4958-929a-efd54a8f8262", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        sessionId: "debug-session",
+        runId: "run1",
+        hypothesisId: "A",
+        location: "community-swipe.tsx:useEffect:networkingPolaroids",
+        message: "sync deck from networkingPolaroids",
+        data: {
+          length: networkingList.length,
+          isLoading,
+          index,
+          deckLength: deck.length,
+          activePolaroidId: activePolaroid?.id ?? null,
+        },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {});
+    // #endregion
+
+    setDeck(networkingList as DeckItem[]);
     setIndex(0);
     setDragX(0);
-  }, [networkingPolaroids]);
+  }, [networkingList, activePolaroid?.id]);
 
   const current = deck[index];
 
   const decide = useCallback(
     (decision: Decision) => {
+      // #region agent log
+      fetch("http://127.0.0.1:7243/ingest/3b85e886-5738-4958-929a-efd54a8f8262", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sessionId: "debug-session",
+          runId: "run1",
+          hypothesisId: "C",
+          location: "community-swipe.tsx:decide",
+          message: "decide invoked",
+          data: { decision, hasCurrent: !!current, currentId: current?.id ?? null, index, isAnimating, dragX },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {});
+      // #endregion
+
       if (!current || isAnimating) return;
       setIsAnimating(true);
       const delta = decision === "connect" ? 300 : -300;
@@ -113,6 +152,25 @@ export function CommunitySwipeSection() {
     setIndex(0);
     setDragX(0);
   };
+
+  useEffect(() => {
+    // #region agent log
+    fetch("http://127.0.0.1:7243/ingest/3b85e886-5738-4958-929a-efd54a8f8262", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        sessionId: "debug-session",
+        runId: "run1",
+        hypothesisId: "B",
+        location: "community-swipe.tsx:useEffect:stateSnapshot",
+        message: "state snapshot after render",
+        data: { index, deckLength: deck.length, isAnimating, dragX },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {});
+    // #endregion
+  }, [index, deck.length, isAnimating, dragX]);
+
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
