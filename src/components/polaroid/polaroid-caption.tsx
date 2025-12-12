@@ -365,7 +365,7 @@ function CyberpunkStamp({ rotation, generatedAt, locale }: Omit<EventStampProps,
             src={cursorLogo}
             alt="Cursor" 
             className="h-4 w-4 object-contain"
-            style={{ filter: 'brightness(0) saturate(100%) invert(89%) sepia(61%) saturate(1000%) hue-rotate(358deg) brightness(103%) contrast(106%)' }}
+            style={{ filter: 'brightness(0) saturate(100%) invert(89%) sepia(61%) saturate(1000%) hue-rotate(358deg) brightness(75%) contrast(90%)' }}
           />
           <span 
             className="text-[7px] font-bold uppercase tracking-widest"
@@ -428,7 +428,7 @@ function MatrixStamp({ rotation, generatedAt, locale }: Omit<EventStampProps, 't
             src={cursorLogo}
             alt="Cursor" 
             className="h-4 w-4 object-contain"
-            style={{ filter: 'brightness(0) saturate(100%) invert(67%) sepia(89%) saturate(1647%) hue-rotate(84deg) brightness(113%) contrast(108%)' }}
+            style={{ filter: 'brightness(0) saturate(100%) invert(67%) sepia(89%) saturate(1647%) hue-rotate(84deg) brightness(75%) contrast(90%)' }}
           />
           <span 
             className="text-[6px] font-bold uppercase tracking-widest"

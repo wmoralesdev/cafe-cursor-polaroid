@@ -169,7 +169,7 @@ export function useMarqueeRealtime() {
           );
         }
       )
-      .subscribe((subscriptionStatus, err) => {
+      .subscribe((subscriptionStatus, _err) => {
         if (isCleaningUpRef.current) return;
 
         if (subscriptionStatus === "SUBSCRIBED") {
