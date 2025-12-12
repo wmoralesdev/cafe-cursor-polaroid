@@ -19,6 +19,8 @@ export function ProjectInput({ register, errors, onInteraction }: ProjectInputPr
     return placeholders[Math.floor(Math.random() * placeholders.length)];
   }, [t]);
 
+  const registerResult = register("profile.projectType", { required: t.form.currentProject.errorRequired });
+
   return (
     <div className="space-y-2">
       <label htmlFor="project" className="block text-xs font-medium text-fg-muted uppercase tracking-[0.08em] font-display">
@@ -28,14 +30,11 @@ export function ProjectInput({ register, errors, onInteraction }: ProjectInputPr
         type="text"
         id="project"
         maxLength={60}
-        {...register("profile.projectType", { required: t.form.currentProject.errorRequired })}
+        {...registerResult}
         onFocus={onInteraction}
-        onChange={(e) => {
-          onInteraction?.();
-          register("profile.projectType").onChange(e);
-        }}
+        onInput={onInteraction}
         className={clsx(
-          "block w-full px-4 py-2.5 bg-card border rounded-sm text-sm font-body placeholder-fg-muted/70 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-150",
+          "block w-full px-4 py-2.5 glass-panel-inner rounded-sm text-sm font-body placeholder-fg-muted/70 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-150",
           error ? "border-accent focus:border-accent" : "border-border hover:border-border-strong"
         )}
         placeholder={placeholder}

@@ -13,7 +13,7 @@ interface PolaroidMarqueeSectionProps {
 }
 
 // Fixed thumbnail dimensions for deterministic scroll compensation
-const THUMBNAIL_WIDTH = 220;
+const THUMBNAIL_WIDTH = 280;
 const THUMBNAIL_GAP = 16;
 const ITEM_TOTAL_WIDTH = THUMBNAIL_WIDTH + THUMBNAIL_GAP;
 
@@ -51,7 +51,11 @@ function ConnectionIndicator({ status }: { status: ConnectionStatus }) {
   const config = statusConfig[status];
 
   return (
-    <div className={clsx("flex items-center gap-1.5 text-xs font-medium", config.color)}>
+    <div className={clsx(
+      "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium",
+      "bg-card/80 backdrop-blur-sm border border-border/50",
+      config.color
+    )}>
       {config.icon}
       <span>{config.label}</span>
     </div>
@@ -319,7 +323,7 @@ export function PolaroidMarqueeSection({ showSignInOverlay = false }: PolaroidMa
           <div className="flex items-start justify-between gap-4 mb-6">
             <SectionHeader
               kicker={
-                <div className="flex items-center gap-3">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-card/80 backdrop-blur-sm border border-border/50">
                   <div className="w-2 h-2 rounded-full bg-accent animate-pulse" />
                   <span className="text-xs uppercase tracking-wider text-accent font-semibold">Live</span>
                 </div>
@@ -331,7 +335,7 @@ export function PolaroidMarqueeSection({ showSignInOverlay = false }: PolaroidMa
               <button
                 type="button"
                 onClick={() => scrollByCards("left")}
-                className="hidden md:flex items-center justify-center w-9 h-9 rounded-sm text-fg-muted hover:text-accent hover:bg-card-02/50 transition-all duration-150 border border-transparent hover:border-border"
+                className="hidden md:flex items-center justify-center w-9 h-9 rounded-full text-fg-muted hover:text-accent bg-card/80 backdrop-blur-sm border border-border/50 hover:border-border transition-all duration-150"
                 aria-label="Scroll left"
                 title="Scroll left"
               >
@@ -340,7 +344,7 @@ export function PolaroidMarqueeSection({ showSignInOverlay = false }: PolaroidMa
               <button
                 type="button"
                 onClick={() => scrollByCards("right")}
-                className="hidden md:flex items-center justify-center w-9 h-9 rounded-sm text-fg-muted hover:text-accent hover:bg-card-02/50 transition-all duration-150 border border-transparent hover:border-border"
+                className="hidden md:flex items-center justify-center w-9 h-9 rounded-full text-fg-muted hover:text-accent bg-card/80 backdrop-blur-sm border border-border/50 hover:border-border transition-all duration-150"
                 aria-label="Scroll right"
                 title="Scroll right"
               >
@@ -349,7 +353,7 @@ export function PolaroidMarqueeSection({ showSignInOverlay = false }: PolaroidMa
               <button
                 type="button"
                 onClick={toggleAutoScroll}
-                className="flex items-center justify-center w-9 h-9 rounded-sm text-fg-muted hover:text-accent hover:bg-card-02/50 transition-all duration-150 border border-transparent hover:border-border"
+                className="flex items-center justify-center w-9 h-9 rounded-full text-fg-muted hover:text-accent bg-card/80 backdrop-blur-sm border border-border/50 hover:border-border transition-all duration-150"
                 aria-label={isPaused ? "Resume auto-scroll" : "Pause auto-scroll"}
                 title={isPaused ? "Resume" : "Pause"}
               >
@@ -424,6 +428,16 @@ export function PolaroidMarqueeSection({ showSignInOverlay = false }: PolaroidMa
                   {isFetchingNextPage && (
                     <div className="shrink-0 flex items-center justify-center px-4">
                       <span className="text-xs text-fg-muted">{t.marquee.loadMore}</span>
+                    </div>
+                  )}
+
+                  {!hasNextPage && !isFetchingNextPage && allItems.length > 0 && (
+                    <div className="shrink-0 flex items-center justify-center px-8">
+                      <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-card/80 backdrop-blur-sm border border-border/50">
+                        <div className="w-8 h-px bg-border/50" />
+                        <span className="text-xs text-fg-muted font-mono whitespace-nowrap">{t.marquee.endReached}</span>
+                        <div className="w-8 h-px bg-border/50" />
+                      </div>
                     </div>
                   )}
                 </section>

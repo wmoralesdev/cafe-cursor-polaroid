@@ -94,7 +94,7 @@ export function UserPolaroids() {
                       className="absolute inset-0 bg-black/60 backdrop-blur-sm rounded-sm flex items-center justify-center z-20 p-4"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <div className="card-panel p-4 rounded-sm max-w-xs w-full bg-card shadow-lg border border-border">
+                      <div className="glass-panel-inner p-4 rounded-sm max-w-xs w-full shadow-lg">
                         <p className="font-body text-fg mb-4 text-center text-sm">
                           {t.userPolaroids.deleteConfirm}
                         </p>
@@ -109,7 +109,7 @@ export function UserPolaroids() {
                           <button
                             type="button"
                             onClick={handleCancelDelete}
-                            className="flex-1 px-4 py-2 bg-card-02 text-fg rounded-sm font-medium text-sm hover:bg-card-03 transition-colors"
+                            className="flex-1 px-4 py-2 glass-panel-inner text-fg rounded-sm font-medium text-sm transition-colors"
                           >
                             {t.userPolaroids.cancel}
                           </button>

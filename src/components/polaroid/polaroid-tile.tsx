@@ -1,10 +1,11 @@
 import React from "react";
 import { formatDistanceToNow } from "date-fns";
 import { es, enUS } from "date-fns/locale";
-import { Trash2, Loader2 } from "lucide-react";
+import { Trash2, Loader2, Heart } from "lucide-react";
 import { clsx } from "clsx";
-import { PolaroidCard } from "@/components/polaroid/polaroid-card";
 import { useLanguage } from "@/contexts/language-context";
+import { useAuth } from "@/hooks/use-auth";
+import { useTogglePolaroidLike } from "@/hooks/use-polaroids-query";
 import type { PolaroidRecord } from "@/lib/polaroids";
 
 interface PolaroidTileProps {
@@ -20,17 +21,6 @@ interface PolaroidTileProps {
   children?: React.ReactNode;
 }
 
-function getUserDisplayInfo(polaroid: PolaroidRecord, userAvatarUrl?: string | null) {
-  const firstHandle = polaroid.profile.handles[0];
-  const handle = firstHandle ? `@${firstHandle.handle}` : "@user";
-  const name = firstHandle?.handle || "User";
-  
-  // Use provided avatar URL for user variant (current user), or deterministic avatar for public
-  const avatar = userAvatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(firstHandle?.handle || polaroid.user_id)}`;
-  
-  return { name, handle, avatar };
-}
-
 export function PolaroidTile({
   polaroid,
   variant = "public",
@@ -38,17 +28,27 @@ export function PolaroidTile({
   onSelect,
   onDelete,
   isDeleting,
-  userAvatarUrl,
   className,
   width,
+  children,
 }: PolaroidTileProps) {
   const { t, lang } = useLanguage();
   const locale = lang === "es" ? es : enUS;
-  const { name, handle, avatar } = getUserDisplayInfo(polaroid, userAvatarUrl);
+  const firstHandle = polaroid.profile.handles[0];
+  const handle = firstHandle ? `@${firstHandle.handle}` : "@user";
+  const { user } = useAuth();
+  const toggleLike = useTogglePolaroidLike();
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
     onDelete?.();
+  };
+
+  const handleLike = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (user) {
+      toggleLike.mutate(polaroid.id);
+    }
   };
 
   return (
@@ -57,8 +57,8 @@ export function PolaroidTile({
         "relative group rounded-sm transition-all duration-200",
         // Base styles for the tile container
         variant === "user" 
-          ? "card-panel p-4 shadow-sm hover:shadow-md hover:ring-1 hover:ring-accent/30" 
-          : "bg-transparent", // Public variant might be simpler or styled by parent
+          ? "bg-transparent border-2 border-transparent hover:border-accent" 
+          : "bg-transparent border-2 border-transparent hover:border-accent", // Public variant might be simpler or styled by parent
         isSelected && variant === "user" ? "ring-2 ring-accent shadow-md" : "",
         className
       )}
@@ -72,76 +72,78 @@ export function PolaroidTile({
         aria-label={`View card by ${handle}`}
       />
 
-      {/* Header Info */}
-      <div className={clsx(
-        "relative z-10 flex items-center gap-3 mb-3 pb-3",
-        variant === "user" ? "border-b border-border/50" : "hidden" // Only show header in user variant for now, or customize for public
-      )}>
-        <img
-          src={avatar}
-          alt={name}
-          className="w-10 h-10 rounded-full border-2 border-accent/20 bg-card"
-        />
-        <div className="flex-1 min-w-0">
-          <p className="font-body font-semibold text-fg text-sm truncate">
-            {name}
-          </p>
-          <p className="font-mono text-xs text-fg-muted truncate">
-            {handle}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-fg-muted font-body whitespace-nowrap">
-            {formatDistanceToNow(new Date(polaroid.created_at), { addSuffix: true, locale })}
-          </span>
-          {variant === "user" && onDelete && (
-            <button
-              type="button"
-              onClick={handleDelete}
-              disabled={isDeleting}
-              className="p-1.5 rounded-sm text-fg-muted hover:text-red-500 hover:bg-red-500/10 transition-colors"
-              aria-label={t.userPolaroids.delete}
-              title={t.userPolaroids.delete}
-            >
-              {isDeleting ? (
-                <Loader2 className="w-4 h-4 animate-spin" strokeWidth={1.5} />
-              ) : (
-                <Trash2 className="w-4 h-4" strokeWidth={1.5} />
-              )}
-            </button>
-          )}
-        </div>
-      </div>
-
       {/* Public Variant Content Overlay (Bottom) */}
       {variant === "public" && (
-        <div className="absolute bottom-0 left-0 right-0 z-20 p-3 bg-linear-to-t from-black/80 via-black/40 to-transparent pt-12 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-end justify-between pointer-events-none">
-           <div className="text-white">
+        <div className="absolute bottom-0 left-0 right-0 z-20 p-3 bg-linear-to-t from-black/80 via-black/40 to-transparent pt-12 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-end justify-between">
+           <div className="text-white pointer-events-none">
              <p className="font-mono text-xs font-medium">@{polaroid.profile.handles[0]?.handle || "user"}</p>
              <p className="text-[10px] opacity-80">{formatDistanceToNow(new Date(polaroid.created_at), { addSuffix: true, locale })}</p>
            </div>
-           {/* Placeholder for likes if we had them passed in */}
-           {/* <div className="flex items-center gap-1 text-white/90">
-             <Heart className="w-3.5 h-3.5 fill-white/20" />
-             <span className="text-xs font-mono">0</span>
-           </div> */}
+           {user && (
+             <button
+               type="button"
+               onClick={handleLike}
+               className={clsx(
+                 "flex items-center gap-2 text-white transition-all pointer-events-auto px-3 py-2 rounded-full backdrop-blur-sm border",
+                 polaroid.viewer_has_liked 
+                   ? "bg-red-500/90 border-red-400/50 hover:bg-red-500 shadow-lg" 
+                   : "bg-white/20 border-white/30 hover:bg-white/30 shadow-md"
+               )}
+               aria-label={polaroid.viewer_has_liked ? t.community.likes.likedBy : t.community.likes.like}
+             >
+               <Heart 
+                 className={clsx(
+                   "w-4 h-4 transition-all",
+                   polaroid.viewer_has_liked ? "fill-white text-white" : "fill-white/80 text-white"
+                 )} 
+               />
+               <span className="text-sm font-mono font-semibold">{polaroid.like_count || 0}</span>
+             </button>
+           )}
+        </div>
+      )}
+
+      {/* User Variant Content Overlay (Bottom) */}
+      {variant === "user" && (
+        <div className="absolute bottom-0 left-0 right-0 z-20 p-3 bg-linear-to-t from-black/80 via-black/40 to-transparent pt-12 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-end justify-between">
+           <div className="text-white pointer-events-none">
+             <p className="text-[10px] opacity-80">{formatDistanceToNow(new Date(polaroid.created_at), { addSuffix: true, locale })}</p>
+           </div>
+           {onDelete && (
+             <button
+               type="button"
+               onClick={handleDelete}
+               disabled={isDeleting}
+               className="flex items-center gap-2 text-white transition-all pointer-events-auto px-3 py-2 rounded-full bg-red-500/90 border border-red-400/50 hover:bg-red-500 shadow-lg backdrop-blur-sm disabled:opacity-50"
+               aria-label={t.userPolaroids.delete}
+               title={t.userPolaroids.delete}
+             >
+               {isDeleting ? (
+                 <Loader2 className="w-4 h-4 animate-spin" strokeWidth={1.5} />
+               ) : (
+                 <Trash2 className="w-4 h-4" strokeWidth={1.5} />
+               )}
+             </button>
+           )}
         </div>
       )}
 
       {/* Polaroid Preview */}
       <div className={clsx(
         "relative z-10 pointer-events-none transition-transform duration-300",
-        variant === "public" ? "group-hover:scale-[1.02]" : ""
+        variant === "public" || variant === "user" ? "group-hover:scale-[1.02]" : ""
       )}>
-        <PolaroidCard
-          image={polaroid.source_image_url || polaroid.image_url || null}
-          profile={polaroid.profile}
-          variant="preview"
-          className="pointer-events-none shadow-sm"
-          zoom={1}
-          position={{ x: 0, y: 0 }}
-          source={polaroid.source}
-        />
+        {polaroid.image_url ? (
+          <img
+            src={polaroid.image_url}
+            alt={`Polaroid by ${handle}`}
+            className="w-full h-auto shadow-sm rounded-sm"
+          />
+        ) : (
+          <div className="w-full aspect-[3/4] bg-card-01 rounded-sm flex items-center justify-center text-fg-muted">
+            <span className="text-sm">No image</span>
+          </div>
+        )}
       </div>
       
       {children}

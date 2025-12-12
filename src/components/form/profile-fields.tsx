@@ -68,7 +68,7 @@ function ThemeSelector({
                 "relative flex flex-col items-center gap-1.5 p-2 rounded-sm border transition-all duration-200",
                 isSelected
                   ? "border-accent bg-accent/5 ring-1 ring-accent"
-                  : "border-border hover:border-border-strong hover:bg-card-02"
+                  : "glass-panel-inner border-border hover:border-border-strong"
               )}
             >
               {/* Mini polaroid preview */}
@@ -147,6 +147,7 @@ export function ProfileFields({
           
           {handleFields.map((field, index) => {
             const inputId = `handle-${index}`;
+            const registerResult = register(`profile.handles.${index}.handle`, { required: t.form.socialHandles.errorRequired });
             return (
               <div key={field.id} className="flex gap-2 items-center">
                 <HandlePlatformSelector control={control} handleIndex={index} onInteraction={handleInputInteraction} />
@@ -159,21 +160,18 @@ export function ProfileFields({
                   </div>
                   <input
                     id={inputId}
-                    {...register(`profile.handles.${index}.handle`, { required: t.form.socialHandles.errorRequired })}
+                    {...registerResult}
                     placeholder={t.form.socialHandles.placeholder}
                     onFocus={handleInputInteraction}
-                    onChange={(e) => {
-                      handleInputInteraction();
-                      register(`profile.handles.${index}.handle`).onChange(e);
-                    }}
-                    className="block w-full pl-9 pr-4 py-2.5 bg-card border border-border rounded-sm text-sm font-mono font-medium text-fg placeholder:text-fg-muted/50 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+                    onInput={handleInputInteraction}
+                    className="block w-full pl-9 pr-4 py-2.5 glass-panel-inner rounded-sm text-sm font-mono font-medium text-fg placeholder:text-fg-muted/50 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
                   />
                 </div>
               {handleFields.length > 1 && (
                 <button
                   type="button"
                   onClick={() => removeHandle(index)}
-                  className="p-2 text-accent hover:bg-accent/10 rounded-sm transition-all duration-150"
+                  className="p-2 text-accent glass-panel-inner hover:bg-accent/10 rounded-sm transition-all duration-150"
                   aria-label={t.form.socialHandles.removeHandle}
                 >
                   <Trash2 className="w-4 h-4" strokeWidth={1.5} />

@@ -44,7 +44,7 @@ function BaseModelSelector({ control, name, labelKey, onInteraction }: { control
                 field.onChange(e);
               }}
               onFocus={onInteraction}
-              className="block w-full appearance-none bg-card border border-border rounded-sm py-2.5 pl-3 pr-10 text-sm font-body text-fg focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors cursor-pointer"
+              className="block w-full appearance-none glass-panel-inner py-2.5 pl-3 pr-10 text-sm font-body text-fg focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors cursor-pointer"
             >
               {CURSOR_MODELS.map((model) => (
                 <option key={model.id} value={model.id}>
@@ -88,7 +88,7 @@ export function MaxModeToggle({ control, onInteraction }: SelectorProps) {
             "hover:scale-[1.02] active:scale-[0.98]",
             value
               ? "bg-accent/10 text-accent border-accent shadow-sm animate-[pulse-soft_2s_ease-in-out_infinite]"
-              : "bg-card text-fg-muted border-border hover:border-border-strong hover:bg-card-02"
+              : "glass-panel-inner text-fg-muted border-border hover:border-border-strong"
           )}
           aria-pressed={value}
         >
@@ -128,7 +128,7 @@ export function FeatureSelector({ control, onInteraction }: SelectorProps) {
                     "hover:scale-[1.03] active:scale-[0.97]",
                     isSelected
                       ? "bg-accent/10 text-accent border-accent shadow-sm scale-[1.02]"
-                      : "bg-card text-fg-muted border-border hover:border-border-strong hover:bg-card-02"
+                      : "glass-panel-inner text-fg-muted border-border hover:border-border-strong"
                   )}
                   aria-pressed={isSelected}
                 >
@@ -171,7 +171,7 @@ export function PlanSelector({ control, onInteraction }: SelectorProps) {
                     "hover:scale-[1.02] active:scale-[0.98]",
                     isSelected
                       ? "bg-accent/10 text-accent border-accent shadow-sm scale-[1.01]"
-                      : "bg-card text-fg-muted border-border hover:border-border-strong hover:bg-card-02"
+                      : "glass-panel-inner text-fg-muted border-border hover:border-border-strong"
                   )}
                   aria-pressed={isSelected}
                 >
@@ -214,7 +214,7 @@ export function TenureSelector({ control, onInteraction }: SelectorProps) {
                     "hover:scale-[1.03] active:scale-[0.97]",
                     isSelected
                       ? "bg-accent/10 text-accent border-accent shadow-sm scale-[1.02]"
-                      : "bg-card text-fg-muted border-border hover:border-border-strong hover:bg-card-02"
+                      : "glass-panel-inner text-fg-muted border-border hover:border-border-strong"
                   )}
                   aria-pressed={isSelected}
                 >
@@ -251,7 +251,7 @@ export function HandlePlatformSelector({ control, handleIndex, onInteraction }: 
                   "hover:scale-[1.05] active:scale-[0.95]",
                   isSelected
                     ? "bg-accent text-white border-accent shadow-sm"
-                    : "bg-card text-fg-muted border-border hover:border-border-strong"
+                    : "glass-panel-inner text-fg-muted border-border hover:border-border-strong"
                 )}
                 aria-pressed={isSelected}
                 title={platform.label}

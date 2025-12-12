@@ -48,8 +48,8 @@ export function TechExtras({ control, onInteraction }: TechExtrasProps) {
                       isSelected
                         ? "bg-accent text-white border-accent"
                         : clsx(
-                            "bg-card text-fg-muted border-border hover:border-fg-muted hover:bg-card-02",
-                            limitReached && "opacity-40 cursor-not-allowed hover:border-border hover:bg-card"
+                            "glass-panel-inner text-fg-muted border-border hover:border-fg-muted",
+                            limitReached && "opacity-40 cursor-not-allowed hover:border-border"
                           )
                     )}
                     disabled={limitReached}

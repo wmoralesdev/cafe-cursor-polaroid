@@ -117,7 +117,7 @@
 /* Glass panel — semi-transparent backdrop blur for section wrappers */
 .glass-panel {
   background-color: rgba(var(--color-card-rgb, 242, 241, 237), 0.3);
-  border: 1px solid rgba(var(--color-border-rgb, 217, 216, 211), 0.5);
+  border: none;
   border-radius: var(--radius-lg);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
@@ -125,19 +125,20 @@
 
 [data-theme="dark"] .glass-panel {
   background-color: rgba(27, 25, 19, 0.3);
-  border-color: rgba(58, 56, 48, 0.5);
 }
 
 /* Glass panel inner — for nested surfaces inside glass sections */
 .glass-panel-inner {
-  background-color: rgba(var(--color-card-rgb, 242, 241, 237), 0.5);
-  border: 1px solid rgba(var(--color-border-rgb, 217, 216, 211), 0.6);
+  background-color: rgba(var(--color-card-rgb, 242, 241, 237), 0.3);
+  border: 1px solid rgba(var(--color-border-rgb, 217, 216, 211), 0.5);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 [data-theme="dark"] .glass-panel-inner {
-  background-color: rgba(27, 25, 19, 0.5);
-  border-color: rgba(58, 56, 48, 0.6);
+  background-color: rgba(27, 25, 19, 0.3);
+  border-color: rgba(58, 56, 48, 0.5);
 }
 

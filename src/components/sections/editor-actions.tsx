@@ -20,6 +20,7 @@ interface EditorActionsProps {
   onShare: (provider: "twitter" | "github") => void;
   onNewCardOverwrite: () => void;
   onNewCardCreate: () => void;
+  onNewCardRequested: () => void;
 }
 
 export function EditorActions({
@@ -38,6 +39,7 @@ export function EditorActions({
   onShare,
   onNewCardOverwrite,
   onNewCardCreate,
+  onNewCardRequested,
 }: EditorActionsProps) {
   const { t } = useLanguage();
   const shareCopied = useEditorUIStore((state) => state.shareCopied);
@@ -48,7 +50,7 @@ export function EditorActions({
   return (
     <div className="mt-6 w-full max-w-sm space-y-6">
       {image && (
-        <div className="p-5 card-panel space-y-4">
+        <div className="p-5 glass-panel-inner space-y-4">
           <div className="space-y-3">
             <div className="flex items-center justify-between text-xs font-medium uppercase tracking-wide text-fg-muted">
               <span className="flex items-center gap-1.5 font-body">
@@ -127,7 +129,7 @@ export function EditorActions({
         )}
 
         {showNewCardChoice && (
-          <div className="p-4 card-panel border border-border rounded-sm space-y-3 animate-[fadeIn_0.2s_ease-out]">
+          <div className="p-4 glass-panel-inner space-y-3 animate-[fadeIn_0.2s_ease-out]">
             <p className="text-sm text-fg font-body text-center">
               {t.editor.exportChoice.title}
             </p>

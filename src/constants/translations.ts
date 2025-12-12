@@ -146,6 +146,7 @@ export interface Translations {
     };
     newItems: string;
     loadMore: string;
+    endReached: string;
     signedOut?: {
       title: string;
       subtitle: string;
@@ -437,6 +438,7 @@ export const translations: Record<Language, Translations> = {
       },
       newItems: "New",
       loadMore: "Loading more…",
+      endReached: "You've reached the end",
       signedOut: {
         title: "Join the community",
         subtitle: "See what builders are sharing — sign in to add yours",
@@ -750,6 +752,7 @@ export const translations: Record<Language, Translations> = {
       },
       newItems: "Nuevo",
       loadMore: "Cargando más…",
+      endReached: "Has llegado al final",
       signedOut: {
         title: "Únete a la comunidad",
         subtitle: "Mira lo que los builders están compartiendo — inicia sesión para agregar la tuya",
