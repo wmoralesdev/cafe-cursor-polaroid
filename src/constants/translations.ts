@@ -162,6 +162,23 @@ export interface Translations {
       maxOnly: string;
     };
   };
+  marquee: {
+    title: string;
+    subtitle: string;
+    status: {
+      connecting: string;
+      live: string;
+      updating: string;
+      offline: string;
+    };
+    newItems: string;
+    loadMore: string;
+    signedOut?: {
+      title: string;
+      subtitle: string;
+      cta: string;
+    };
+  };
   showcase: {
     title: string;
     subtitle: string;
@@ -183,6 +200,21 @@ export interface Translations {
     empty: string;
     likedYourCard: string;
     markAllRead: string;
+  };
+  signedOut?: {
+    hero: {
+      title: string;
+      subtitle: string;
+      features: string[];
+    };
+    editorTeaser: {
+      title: string;
+      subtitle: string;
+    };
+    communityTeaser: {
+      title: string;
+      subtitle: string;
+    };
   };
   imageUpload: {
     perfect: string;
@@ -287,7 +319,7 @@ export const translations: Record<Language, Translations> = {
       get footer() { return `Made with love by Walter — Cursor Ambassador for El Salvador`; },
     },
     editor: {
-      title: "Join the session",
+      title: "Cafe Cursor",
       subtitle: "Create your dev card — share your setup, meet others, enjoy good coffee.",
       loading: "Loading your card...",
       eventBadge: {
@@ -392,8 +424,8 @@ export const translations: Record<Language, Translations> = {
       },
     },
     community: {
-      title: "Community cards",
-      subtitle: "See what others are building",
+      title: "Meet & Match",
+      subtitle: "Swipe through dev cards and connect with builders like you",
       empty: "No community cards yet",
       emptySubtitle: "Connect with other developers — you won't see your own cards here",
       swipe: {
@@ -448,6 +480,23 @@ export const translations: Record<Language, Translations> = {
       title: "Cafe Cursor around the world",
       subtitle: "A glimpse into our global community",
     },
+    marquee: {
+      title: "Live wall",
+      subtitle: "All community cards in real-time",
+      status: {
+        connecting: "Connecting…",
+        live: "Live",
+        updating: "Updating",
+        offline: "Offline",
+      },
+      newItems: "New",
+      loadMore: "Loading more…",
+      signedOut: {
+        title: "Get on the wall",
+        subtitle: "Sign in to create your dev card and join the community",
+        cta: "Join now",
+      },
+    },
     userPolaroids: {
       title: "Your cards",
       subtitle: "Previously generated cards",
@@ -465,6 +514,25 @@ export const translations: Record<Language, Translations> = {
       empty: "No notifications yet",
       likedYourCard: "liked your card",
       markAllRead: "Mark all as read",
+    },
+    signedOut: {
+      hero: {
+        title: "Cafe Cursor",
+        subtitle: "Create your dev card, share your setup, and connect with builders worldwide.",
+        features: [
+          "Design a unique polaroid-style dev card",
+          "Browse the live wall of community cards",
+          "Match with developers who share your stack",
+        ],
+      },
+      editorTeaser: {
+        title: "Create your dev card",
+        subtitle: "Sign in to design and export your personalized dev card",
+      },
+      communityTeaser: {
+        title: "Meet & Match",
+        subtitle: "Sign in to discover and connect with developers like you",
+      },
     },
     imageUpload: {
       perfect: "Perfect",
@@ -591,7 +659,7 @@ export const translations: Record<Language, Translations> = {
       get footer() { return `Hecho con amor por Walter — Cursor Ambassador para El Salvador`; },
     },
     editor: {
-      title: "Únete a la sesión",
+      title: "Cafe Cursor",
       subtitle: "Crea tu tarjeta dev — comparte tu configuración, conoce gente, disfruta buen café.",
       loading: "Cargando tu tarjeta...",
       eventBadge: {
@@ -696,8 +764,8 @@ export const translations: Record<Language, Translations> = {
       },
     },
     community: {
-      title: "Tarjetas de la comunidad",
-      subtitle: "Ve lo que otros están construyendo",
+      title: "Conoce y haz match",
+      subtitle: "Desliza entre tarjetas dev y conecta con builders como tú",
       empty: "Aún no hay tarjetas de la comunidad",
       emptySubtitle: "Conecta con otros desarrolladores — no verás tus propias tarjetas aquí",
       swipe: {
@@ -752,6 +820,23 @@ export const translations: Record<Language, Translations> = {
       title: "Cafe Cursor alrededor del mundo",
       subtitle: "Un vistazo a nuestra comunidad global",
     },
+    marquee: {
+      title: "Muro en vivo",
+      subtitle: "Todas las tarjetas de la comunidad en tiempo real",
+      status: {
+        connecting: "Conectando…",
+        live: "En vivo",
+        updating: "Actualizando",
+        offline: "Sin conexión",
+      },
+      newItems: "Nuevo",
+      loadMore: "Cargando más…",
+      signedOut: {
+        title: "Súbete al muro",
+        subtitle: "Inicia sesión para crear tu tarjeta dev y unirte a la comunidad",
+        cta: "Únete ahora",
+      },
+    },
     userPolaroids: {
       title: "Tus tarjetas",
       subtitle: "Tarjetas generadas anteriormente",
@@ -769,6 +854,25 @@ export const translations: Record<Language, Translations> = {
       empty: "Aún no hay notificaciones",
       likedYourCard: "le gustó tu tarjeta",
       markAllRead: "Marcar todo como leído",
+    },
+    signedOut: {
+      hero: {
+        title: "Cafe Cursor",
+        subtitle: "Crea tu tarjeta dev, comparte tu setup y conecta con builders de todo el mundo.",
+        features: [
+          "Diseña una tarjeta dev única estilo polaroid",
+          "Explora el muro en vivo de tarjetas de la comunidad",
+          "Haz match con desarrolladores que comparten tu stack",
+        ],
+      },
+      editorTeaser: {
+        title: "Crea tu tarjeta dev",
+        subtitle: "Inicia sesión para diseñar y exportar tu tarjeta dev personalizada",
+      },
+      communityTeaser: {
+        title: "Conoce y haz match",
+        subtitle: "Inicia sesión para descubrir y conectar con desarrolladores como tú",
+      },
     },
     imageUpload: {
       perfect: "Perfecto",

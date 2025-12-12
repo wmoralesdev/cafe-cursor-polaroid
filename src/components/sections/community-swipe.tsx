@@ -139,19 +139,8 @@ export function CommunitySwipeSection() {
 
   const renderTabContent = () => {
     if (!user) {
-      return (
-        <div className="card-panel p-12 rounded-sm text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-accent/10 mb-4">
-            <Users className="w-8 h-8 text-accent" strokeWidth={1.5} />
-          </div>
-          <p className="text-fg font-body text-lg mb-2 font-semibold">
-            {t.community.swipe?.signInPrompt || "Sign in to see people to connect with"}
-          </p>
-          <p className="text-fg-muted font-body text-sm">
-            {t.community.swipe?.signInPromptSubtitle || "Create your dev card and start connecting with the community"}
-          </p>
-        </div>
-      );
+      // Return null - signed-out users see this section differently
+      return null;
     }
 
     if (activeTab === "discover") {
@@ -196,6 +185,11 @@ export function CommunitySwipeSection() {
     return null;
   };
 
+  // For signed-out users, hide this section completely (content merged into SignedOutHero)
+  if (!user) {
+    return null;
+  }
+
   return (
     <section
       id="community"
@@ -211,13 +205,11 @@ export function CommunitySwipeSection() {
           </p>
         </div>
 
-        {user && (
-          <CommunityTabs
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-            matchesCount={historyData?.matches?.length || 0}
-          />
-        )}
+        <CommunityTabs
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          matchesCount={historyData?.matches?.length || 0}
+        />
 
         {renderTabContent()}
       </div>

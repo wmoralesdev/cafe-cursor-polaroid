@@ -1,7 +1,9 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import type { PolaroidRecord, CreatePolaroidParams, UpdatePolaroidParams } from "@/lib/polaroids";
 import type { CursorProfile } from "@/types/form";
+
+const MARQUEE_PAGE_SIZE = 20;
 
 export function useUserPolaroids(enabled: boolean = true) {
   return useQuery({
@@ -43,6 +45,48 @@ export function useCommunityPolaroids(limit: number = 20) {
 
       return (data?.data || []) as PolaroidRecord[];
     },
+  });
+}
+
+/**
+ * Infinite query for the marquee feed. Fetches complete polaroids (with image_url and valid handles)
+ * ordered by created_at desc with deterministic paging via range().
+ */
+export function useInfiniteCommunityPolaroids(pageSize: number = MARQUEE_PAGE_SIZE) {
+  return useInfiniteQuery({
+    queryKey: ["polaroids", "community", "infinite"],
+    queryFn: async ({ pageParam = 0 }) => {
+      const from = pageParam * pageSize;
+      const to = from + pageSize - 1;
+
+      const { data, error } = await supabase
+        .from("polaroids")
+        .select("*")
+        .not("image_url", "is", null)
+        .order("created_at", { ascending: false })
+        .range(from, to);
+
+      if (error) {
+        throw new Error(`Failed to get infinite community polaroids: ${error.message}`);
+      }
+
+      // Filter to only include polaroids with at least one non-empty handle (client-side)
+      const filtered = (data || []).filter(
+        (polaroid) =>
+          polaroid.profile?.handles &&
+          Array.isArray(polaroid.profile.handles) &&
+          polaroid.profile.handles.length > 0 &&
+          polaroid.profile.handles[0]?.handle?.trim()
+      ) as PolaroidRecord[];
+
+      return {
+        items: filtered,
+        nextPage: filtered.length === pageSize ? pageParam + 1 : undefined,
+        pageParam,
+      };
+    },
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) => lastPage.nextPage,
   });
 }
 

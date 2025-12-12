@@ -80,3 +80,5 @@ export function DiscoverCard({ item }: DiscoverCardProps) {
   );
 }
 
+
+
