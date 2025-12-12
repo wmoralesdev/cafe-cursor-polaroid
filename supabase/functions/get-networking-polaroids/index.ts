@@ -32,7 +32,10 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-function computeMatchScore(profileHint: CursorProfile | null | undefined, candidate: any): number {
+function computeMatchScore(
+  profileHint: CursorProfile | null | undefined,
+  candidate: { profile?: CursorProfile }
+): number {
   if (!profileHint) return 0;
   const user = profileHint;
   const other = candidate.profile || {};

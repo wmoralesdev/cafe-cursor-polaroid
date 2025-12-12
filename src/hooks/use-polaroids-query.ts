@@ -209,15 +209,11 @@ export function useTogglePolaroidLike() {
 
       // Optimistically update community queries
       previousCommunity.forEach(([queryKey]) => {
-        try {
-          queryClient.setQueryData(queryKey, (old: any) => {
-            const isArray = Array.isArray(old);
-            if (isArray) return (old as PolaroidRecord[]).map(updatePolaroid);
-            return old;
-          });
-        } catch (err: any) {
-          throw err;
-        }
+        queryClient.setQueryData(queryKey, (old: unknown) => {
+          const isArray = Array.isArray(old);
+          if (isArray) return (old as PolaroidRecord[]).map(updatePolaroid);
+          return old;
+        });
       });
 
       // Optimistically update user query

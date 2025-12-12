@@ -1,5 +1,5 @@
 import { clsx } from "clsx";
-import { useLanguage } from "@/contexts/language-context";
+import { useLanguage } from "@/hooks/use-language";
 import { SectionHeader } from "@/components/ui/section-header";
 
 type CommunityPhoto = {

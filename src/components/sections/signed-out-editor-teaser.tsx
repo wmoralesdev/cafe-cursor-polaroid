@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLanguage } from "@/contexts/language-context";
+import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
 import { SectionHeader } from "@/components/ui/section-header";
 import { Github, Twitter, Camera, Palette, Download } from "lucide-react";

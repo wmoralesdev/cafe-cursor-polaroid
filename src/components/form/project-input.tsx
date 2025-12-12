@@ -1,7 +1,7 @@
 import type { UseFormRegister, FieldErrors } from "react-hook-form";
 import { clsx } from "clsx";
 import { useState } from "react";
-import { useLanguage } from "@/contexts/language-context";
+import { useLanguage } from "@/hooks/use-language";
 import type { PolaroidFormValues } from "@/types/form";
 
 interface ProjectInputProps {

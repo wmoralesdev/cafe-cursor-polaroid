@@ -3,7 +3,7 @@ import { es, enUS } from "date-fns/locale";
 import type { CursorProfile, PolaroidTheme } from "@/types/form";
 import { polaroidThemes } from "@/constants/polaroid-themes";
 import { CursorProfileRow } from "./polaroid-profile-row";
-import { useLanguage } from "@/contexts/language-context";
+import { useLanguage } from "@/hooks/use-language";
 import cursorLogo from "@/assets/cursor.svg";
 
 interface PolaroidCaptionProps {

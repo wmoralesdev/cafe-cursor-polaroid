@@ -13,7 +13,7 @@ export function UserMenu() {
   const { user, signOut } = useAuth();
   const [open, setOpen] = useState(false);
 
-  const meta = (user?.user_metadata ?? {}) as Record<string, unknown>;
+  const meta = useMemo(() => (user?.user_metadata ?? {}) as Record<string, unknown>, [user?.user_metadata]);
   const avatarUrl =
     (typeof meta.avatar_url === "string" && meta.avatar_url) ||
     (typeof meta.picture === "string" && meta.picture) ||
@@ -92,5 +92,6 @@ export function UserMenu() {
     </div>
   );
 }
+
 
 

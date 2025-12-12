@@ -1,7 +1,7 @@
 import { type Control, Controller } from "react-hook-form";
 import { clsx } from "clsx";
 import type { PolaroidFormValues } from "@/types/form";
-import { useLanguage } from "@/contexts/language-context";
+import { useLanguage } from "@/hooks/use-language";
 import { TECH_EXTRAS } from "@/constants/cursor-data";
 
 interface TechExtrasProps {

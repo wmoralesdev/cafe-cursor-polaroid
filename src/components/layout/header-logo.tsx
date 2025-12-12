@@ -1,5 +1,5 @@
 import { CursorIcon } from "@/components/ui/cursor-icon";
-import { useLanguage } from "@/contexts/language-context";
+import { useLanguage } from "@/hooks/use-language";
 
 export function HeaderLogo() {
   const { t } = useLanguage();

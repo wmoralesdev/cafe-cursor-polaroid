@@ -85,7 +85,21 @@ export default async function handler(request: Request) {
       }
     );
 
-    const result = await response.json() as { data?: any; error?: string };
+    const result = await response.json() as { 
+      data?: { 
+        profile?: {
+          handles?: Array<{ handle?: string }>;
+          primaryModel?: string;
+          planTier?: string;
+          isMaxMode?: boolean;
+        };
+        og_image_url?: string;
+        source_image_url?: string;
+        image_url?: string;
+        created_at?: string;
+      };
+      error?: string;
+    };
 
     if (!response.ok || result.error || !result.data) {
       return new Response('Polaroid not found', { status: 404 });

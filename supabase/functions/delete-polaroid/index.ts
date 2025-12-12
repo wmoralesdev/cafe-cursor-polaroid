@@ -85,7 +85,7 @@ Deno.serve(async (req: Request) => {
         if (deleteError) {
           // Continue with polaroid deletion even if image deletion fails
         }
-      } catch (storageError) {
+      } catch {
         // Continue with polaroid deletion
       }
     }

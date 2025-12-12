@@ -1,18 +1,7 @@
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
+import { useState, useEffect, type ReactNode } from "react";
+import { TrackingContext } from "./tracking-context-value";
 
 export type SourceType = "event" | "x" | "github" | "shared" | "direct";
-
-interface TrackingContextType {
-  source: SourceType;
-  referredBy: string | null;
-  utmSource: string | null;
-}
-
-const TrackingContext = createContext<TrackingContextType>({
-  source: "direct",
-  referredBy: null,
-  utmSource: null,
-});
 
 const STORAGE_KEY = "polaroid-tracking";
 
@@ -65,41 +54,48 @@ export function TrackingProvider({ children }: { children: ReactNode }) {
     // Determine source from current URL/referrer
     const determinedSource = determineSource(urlUtmSource, urlRef, documentReferrer);
     
-    // If we have URL params or referrer, use them (overrides localStorage)
-    if (urlUtmSource || urlRef || documentReferrer) {
-      setSource(determinedSource);
-      setReferredBy(urlRef);
-      setUtmSource(urlUtmSource);
+    // Use a callback to batch state updates
+    const updateTracking = () => {
+      // If we have URL params or referrer, use them (overrides localStorage)
+      if (urlUtmSource || urlRef || documentReferrer) {
+        setSource(determinedSource);
+        setReferredBy(urlRef);
+        setUtmSource(urlUtmSource);
 
-      // Store in localStorage for persistence across auth redirects
-      localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify({
-          source: determinedSource,
-          referredBy: urlRef,
-          utmSource: urlUtmSource,
-        })
-      );
-    } else {
-      // If no URL params or referrer, try loading from localStorage (for persistence across auth redirects)
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          setSource(parsed.source || "direct");
-          setReferredBy(parsed.referredBy || null);
-          setUtmSource(parsed.utmSource || null);
-          return;
-        } catch {
-          // Invalid stored data, fall through to default
+        // Store in localStorage for persistence across auth redirects
+        localStorage.setItem(
+          STORAGE_KEY,
+          JSON.stringify({
+            source: determinedSource,
+            referredBy: urlRef,
+            utmSource: urlUtmSource,
+          })
+        );
+      } else {
+        // If no URL params or referrer, try loading from localStorage (for persistence across auth redirects)
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            setSource(parsed.source || "direct");
+            setReferredBy(parsed.referredBy || null);
+            setUtmSource(parsed.utmSource || null);
+            return;
+          } catch {
+            // Invalid stored data, fall through to default
+          }
         }
-      }
 
-      // Default fallback
-      setSource("direct");
-      setReferredBy(null);
-      setUtmSource(null);
-    }
+        // Default fallback
+        setSource("direct");
+        setReferredBy(null);
+        setUtmSource(null);
+      }
+    };
+    
+    // Use setTimeout to defer state updates outside the effect
+    const timeoutId = setTimeout(updateTracking, 0);
+    return () => clearTimeout(timeoutId);
   }, []);
 
   return (
@@ -109,7 +105,4 @@ export function TrackingProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export function useTracking() {
-  return useContext(TrackingContext);
-}
 

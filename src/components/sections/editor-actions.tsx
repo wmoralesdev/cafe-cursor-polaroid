@@ -1,6 +1,6 @@
 import { Download, Maximize2, Move, Github, Plus, Share2 } from "lucide-react";
 import { XIcon } from "@/components/ui/x-icon";
-import { useLanguage } from "@/contexts/language-context";
+import { useLanguage } from "@/hooks/use-language";
 import { useEditorUIStore } from "@/stores/editor-ui-store";
 import { useUIStore } from "@/stores/ui-store";
 

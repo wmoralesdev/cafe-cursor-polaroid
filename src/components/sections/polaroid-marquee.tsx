@@ -1,7 +1,7 @@
 import { useRef, useEffect, useCallback, useState, useMemo } from "react";
 import { clsx } from "clsx";
 import { Wifi, WifiOff, RefreshCw, Sparkles, ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
-import { useLanguage } from "@/contexts/language-context";
+import { useLanguage } from "@/hooks/use-language";
 import { useInfiniteCommunityPolaroids } from "@/hooks/use-polaroids-query";
 import { useMarqueeRealtime, type ConnectionStatus } from "@/hooks/use-marquee-realtime";
 import { PolaroidTile } from "@/components/polaroid/polaroid-tile";

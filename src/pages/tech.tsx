@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Database, Server, Palette, Camera, Share2, Printer, Zap, Globe, Code2, Layers, Heart, KeyRound, Save, Terminal, Copy, Check, FileCode, Sparkles, RefreshCw, FileText, Route, Calendar, BarChart } from "lucide-react";
-import { useLanguage } from "@/contexts/language-context";
+import { useLanguage } from "@/hooks/use-language";
 import { useTheme } from "@/hooks/use-theme";
 import { CursorIcon } from "@/components/ui/cursor-icon";
 import { LanguageToggle } from "@/components/ui/language-toggle";

@@ -1,7 +1,7 @@
 import { clsx } from "clsx";
 import { Image as ImageIcon, Upload, X } from "lucide-react";
 import React, { useState, useRef, useCallback, useMemo } from "react";
-import { useLanguage } from "@/contexts/language-context";
+import { useLanguage } from "@/hooks/use-language";
 
 interface PolaroidImageProps {
   image: string | null;

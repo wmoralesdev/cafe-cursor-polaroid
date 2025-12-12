@@ -1,5 +1,5 @@
 import { Bell } from "lucide-react";
-import { useLanguage } from "@/contexts/language-context";
+import { useLanguage } from "@/hooks/use-language";
 import { useLikeNotifications, useMarkNotificationsRead } from "@/hooks/use-like-notifications";
 import { useUIStore } from "@/stores/ui-store";
 import { NotificationItem } from "./notification-item";

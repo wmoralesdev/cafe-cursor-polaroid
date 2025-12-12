@@ -68,6 +68,8 @@ export function useMarqueeRealtime() {
   }, []);
 
   // Create and subscribe to the realtime channel
+  const createSubscriptionRef = useRef<(() => void) | undefined>(undefined);
+  
   const createSubscription = useCallback(() => {
     if (isCleaningUpRef.current) return;
 
@@ -169,7 +171,7 @@ export function useMarqueeRealtime() {
           );
         }
       )
-      .subscribe((subscriptionStatus, _err) => {
+      .subscribe((subscriptionStatus) => {
         if (isCleaningUpRef.current) return;
 
         if (subscriptionStatus === "SUBSCRIBED") {
@@ -184,8 +186,8 @@ export function useMarqueeRealtime() {
             retryAttemptRef.current += 1;
 
             retryTimeoutRef.current = setTimeout(() => {
-              if (!isCleaningUpRef.current) {
-                createSubscription();
+              if (!isCleaningUpRef.current && createSubscriptionRef.current) {
+                createSubscriptionRef.current();
               }
             }, delay);
           }
@@ -194,12 +196,21 @@ export function useMarqueeRealtime() {
 
     channelRef.current = channel;
   }, [queryClient, isCompletePolaroid, flashUpdating, getRetryDelay]);
+  
+  // Update ref in effect to avoid updating during render
+  useEffect(() => {
+    createSubscriptionRef.current = createSubscription;
+  }, [createSubscription]);
 
   useEffect(() => {
     isCleaningUpRef.current = false;
-    createSubscription();
+    // Defer subscription creation to avoid setState in effect
+    const timeoutId = setTimeout(() => {
+      createSubscription();
+    }, 0);
 
     return () => {
+      clearTimeout(timeoutId);
       isCleaningUpRef.current = true;
 
       if (updateTimeoutRef.current) {

@@ -23,7 +23,7 @@ export function useOGImageGenerator() {
       });
 
       return dataUrl;
-    } catch (err) {
+    } catch {
       return null;
     } finally {
       setIsGenerating(false);

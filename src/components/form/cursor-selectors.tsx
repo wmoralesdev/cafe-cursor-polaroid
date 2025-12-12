@@ -2,7 +2,7 @@ import { type Control, Controller } from "react-hook-form";
 import { clsx } from "clsx";
 import { ChevronDown, Zap } from "lucide-react";
 import type { PolaroidFormValues, SocialPlatform } from "@/types/form";
-import { useLanguage } from "@/contexts/language-context";
+import { useLanguage } from "@/hooks/use-language";
 import { CURSOR_MODELS, CURSOR_FEATURES, PLAN_TIERS, CURSOR_TENURES } from "@/constants/cursor-data";
 import { XIcon } from "@/components/ui/x-icon";
 import { Linkedin } from "lucide-react";

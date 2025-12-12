@@ -3,7 +3,7 @@ import { formatDistanceToNow } from "date-fns";
 import { es, enUS } from "date-fns/locale";
 import { Trash2, Loader2, Heart } from "lucide-react";
 import { clsx } from "clsx";
-import { useLanguage } from "@/contexts/language-context";
+import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
 import { useTogglePolaroidLike } from "@/hooks/use-polaroids-query";
 import type { PolaroidRecord } from "@/lib/polaroids";

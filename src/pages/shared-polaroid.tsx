@@ -61,7 +61,7 @@ export function SharedPolaroidPage() {
           text: `Check out @${handle}'s dev card on Cafe Cursor!`,
           url: shareUrl,
         });
-      } catch (err) {
+      } catch {
         // User cancelled or error
       }
     } else {

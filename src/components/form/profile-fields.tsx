@@ -3,7 +3,7 @@ import { useController } from "react-hook-form";
 import { Plus, Trash2, AtSign } from "lucide-react";
 import type { PolaroidFormValues, PolaroidTheme } from "@/types/form";
 import { polaroidThemes } from "@/constants/polaroid-themes";
-import { useLanguage } from "@/contexts/language-context";
+import { useLanguage } from "@/hooks/use-language";
 import { CodingModelSelector, ThinkingModelSelector, FeatureSelector, PlanSelector, MaxModeToggle, TenureSelector, HandlePlatformSelector } from "./cursor-selectors";
 import { ProjectInput } from "./project-input";
 import { TechExtras } from "./tech-extras";

@@ -1,6 +1,6 @@
 import { useAuth } from "@/hooks/use-auth";
 import { PolaroidTile } from "@/components/polaroid/polaroid-tile";
-import { useLanguage } from "@/contexts/language-context";
+import { useLanguage } from "@/hooks/use-language";
 import { useUserPolaroids, useDeletePolaroid } from "@/hooks/use-polaroids-query";
 import { useUIStore } from "@/stores/ui-store";
 import { usePolaroidStore } from "@/stores/polaroid-store";

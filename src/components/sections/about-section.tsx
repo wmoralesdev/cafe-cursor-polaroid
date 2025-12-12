@@ -1,7 +1,7 @@
 import { Github, Users, Linkedin } from "lucide-react";
 import { XIcon } from "@/components/ui/x-icon";
 import { CursorIcon } from "@/components/ui/cursor-icon";
-import { useLanguage } from "@/contexts/language-context";
+import { useLanguage } from "@/hooks/use-language";
 import { SectionHeader } from "@/components/ui/section-header";
 
 export function AboutSection() {

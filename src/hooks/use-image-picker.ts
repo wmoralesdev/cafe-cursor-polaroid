@@ -1,4 +1,4 @@
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useState, useEffect, useRef } from "react";
 
 interface UseImagePickerOptions {
   initialImage?: string | null;
@@ -55,11 +55,20 @@ export function useImagePicker(options: UseImagePickerOptions = {}) {
   const [zoom, setZoom] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
 
+  // Initialize image from options (only on mount or when initialImage changes)
+  const initialImageRef = useRef(options.initialImage);
   useEffect(() => {
-    if (options.initialImage !== undefined) {
-      setImage(options.initialImage);
-      setZoom(1);
-      setPosition({ x: 0, y: 0 });
+    if (options.initialImage !== initialImageRef.current) {
+      initialImageRef.current = options.initialImage;
+      if (options.initialImage !== undefined) {
+        // Use setTimeout to defer state updates outside the effect
+        const imageValue = options.initialImage ?? null;
+        setTimeout(() => {
+          setImage(imageValue);
+          setZoom(1);
+          setPosition({ x: 0, y: 0 });
+        }, 0);
+      }
     }
   }, [options.initialImage]);
 

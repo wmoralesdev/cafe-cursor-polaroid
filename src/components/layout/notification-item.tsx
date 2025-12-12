@@ -1,7 +1,7 @@
 import { formatDistanceToNow } from "date-fns";
 import { es, enUS } from "date-fns/locale";
 import { Heart } from "lucide-react";
-import { useLanguage } from "@/contexts/language-context";
+import { useLanguage } from "@/hooks/use-language";
 import type { LikeNotification } from "@/hooks/use-like-notifications";
 import { clsx } from "clsx";
 
