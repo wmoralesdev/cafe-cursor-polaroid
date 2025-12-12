@@ -317,7 +317,7 @@ export function PolaroidMarqueeSection({ showSignInOverlay = false }: PolaroidMa
   }, [markInteraction]);
 
   return (
-    <section className="w-full py-12 overflow-hidden">
+    <section className="w-full py-12 border-t border-border/50 overflow-hidden">
       <div className="container mx-auto px-4">
           {/* Header */}
           <div className="flex items-start justify-between gap-4 mb-6">
@@ -456,4 +456,5 @@ export function PolaroidMarqueeSection({ showSignInOverlay = false }: PolaroidMa
     </section>
   );
 }
+
 
