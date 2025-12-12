@@ -43,13 +43,13 @@ export function SignedOutEditorTeaser() {
   ];
 
   return (
-    <section id="join" className="w-full py-16">
+    <section id="join" className="w-full py-16 border-t border-border/50">
       <div className="container mx-auto px-4">
         {/* Unified Card */}
-        <div className="overflow-hidden bg-card border border-border rounded-xl shadow-sm">
+        <div className="lg:overflow-hidden lg:bg-card lg:border lg:border-border lg:rounded-xl lg:shadow-sm">
           <div className="grid lg:grid-cols-2 gap-0">
             {/* Left: Content */}
-            <div className="p-8 sm:p-12 flex flex-col justify-center space-y-8">
+            <div className="py-8 px-0 lg:p-8 sm:py-12 lg:p-12 flex flex-col justify-center space-y-8">
               <SectionHeader
                 title={t.signedOut?.hero?.title || "Join the session"}
                 subtitle={t.signedOut?.hero?.subtitle || "Create your dev card, share your setup, and connect with builders worldwide."}
@@ -100,7 +100,7 @@ export function SignedOutEditorTeaser() {
             </div>
 
             {/* Right: Visual preview */}
-            <div className="relative bg-card-02/50 min-h-[400px] lg:min-h-full flex items-center justify-center overflow-hidden p-8">
+            <div className="relative bg-card-02/50 min-h-[400px] lg:min-h-full flex items-center justify-center overflow-hidden py-8 px-0 lg:p-8">
               {/* Blurred card mock */}
               <div className="relative w-[280px] h-[380px] bg-white rounded-sm shadow-2xl rotate-3 transition-transform duration-500 hover:rotate-0">
                 {/* Tape strip */}

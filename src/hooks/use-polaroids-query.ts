@@ -56,16 +56,10 @@ export function useInfiniteCommunityPolaroids(pageSize: number = MARQUEE_PAGE_SI
     queryKey: ["polaroids", "community", "infinite"],
     queryFn: async ({ pageParam = 0 }) => {
       const offset = pageParam * pageSize;
-      // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/3b85e886-5738-4958-929a-efd54a8f8262',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H4',location:'src/hooks/use-polaroids-query.tsx:useInfiniteCommunityPolaroids',message:'get-polaroids queryFn called',data:{pageParam,offset,pageSize},timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
 
       const { data, error } = await supabase.functions.invoke("get-polaroids", {
         body: { type: "community", limit: pageSize, offset },
       });
-      // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/3b85e886-5738-4958-929a-efd54a8f8262',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H4',location:'src/hooks/use-polaroids-query.tsx:useInfiniteCommunityPolaroids',message:'get-polaroids invoke result',data:{hasError:!!error,errorMessage:error?.message ?? null,dataError:(data as any)?.error ?? null,itemCount:Array.isArray((data as any)?.data)?(data as any).data.length:null},timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
 
       if (error) {
         throw new Error(`Failed to get infinite community polaroids: ${error.message}`);
@@ -187,16 +181,10 @@ export function useTogglePolaroidLike() {
 
   return useMutation({
     mutationFn: async (polaroidId: string) => {
-      // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/3b85e886-5738-4958-929a-efd54a8f8262',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H2',location:'src/hooks/use-polaroids-query.tsx:useTogglePolaroidLike',message:'mutationFn start',data:{polaroidId},timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
       const { togglePolaroidLike } = await import("@/lib/polaroids");
       return await togglePolaroidLike(polaroidId);
     },
     onMutate: async (polaroidId: string) => {
-      // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/3b85e886-5738-4958-929a-efd54a8f8262',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H2',location:'src/hooks/use-polaroids-query.tsx:useTogglePolaroidLike',message:'onMutate start',data:{polaroidId,communityQueryCount:queryClient.getQueriesData({queryKey:['polaroids','community']}).length},timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
       // Cancel any outgoing refetches
       await queryClient.cancelQueries({ queryKey: ["polaroids", "community"] });
       await queryClient.cancelQueries({ queryKey: ["polaroids", "user"] });
@@ -206,9 +194,6 @@ export function useTogglePolaroidLike() {
         queryKey: ["polaroids", "community"] 
       });
       const previousUser = queryClient.getQueryData<PolaroidRecord[]>(["polaroids", "user"]);
-      // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/3b85e886-5738-4958-929a-efd54a8f8262',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H2',location:'src/hooks/use-polaroids-query.tsx:useTogglePolaroidLike',message:'onMutate snapshot',data:{communityKeys:previousCommunity.map(([k])=>k),hasUserQuery:!!previousUser,userCount:Array.isArray(previousUser)?previousUser.length:null},timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
 
       // Helper to optimistically update a polaroid
       const updatePolaroid = (polaroid: PolaroidRecord): PolaroidRecord => {
@@ -227,17 +212,10 @@ export function useTogglePolaroidLike() {
         try {
           queryClient.setQueryData(queryKey, (old: any) => {
             const isArray = Array.isArray(old);
-            const isInfinite = !!old && typeof old === "object" && Array.isArray(old.pages);
-            // #region agent log
-            fetch('http://127.0.0.1:7243/ingest/3b85e886-5738-4958-929a-efd54a8f8262',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H2',location:'src/hooks/use-polaroids-query.tsx:useTogglePolaroidLike',message:'onMutate setQueryData community',data:{queryKey,isArray,isInfinite,oldType:typeof old},timestamp:Date.now()})}).catch(()=>{});
-            // #endregion
             if (isArray) return (old as PolaroidRecord[]).map(updatePolaroid);
             return old;
           });
         } catch (err: any) {
-          // #region agent log
-          fetch('http://127.0.0.1:7243/ingest/3b85e886-5738-4958-929a-efd54a8f8262',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H2',location:'src/hooks/use-polaroids-query.tsx:useTogglePolaroidLike',message:'onMutate setQueryData threw',data:{queryKey,errorMessage:err?.message ?? String(err)},timestamp:Date.now()})}).catch(()=>{});
-          // #endregion
           throw err;
         }
       });
@@ -252,9 +230,6 @@ export function useTogglePolaroidLike() {
       return { previousCommunity, previousUser };
     },
     onError: (_err, _polaroidId, context) => {
-      // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/3b85e886-5738-4958-929a-efd54a8f8262',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H2',location:'src/hooks/use-polaroids-query.tsx:useTogglePolaroidLike',message:'onError called',data:{errorMessage:(_err as any)?.message ?? String(_err)},timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
       // Rollback on error
       if (context?.previousCommunity) {
         context.previousCommunity.forEach(([queryKey, data]) => {
@@ -266,9 +241,6 @@ export function useTogglePolaroidLike() {
       }
     },
     onSettled: () => {
-      // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/3b85e886-5738-4958-929a-efd54a8f8262',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H4',location:'src/hooks/use-polaroids-query.tsx:useTogglePolaroidLike',message:'onSettled invalidateQueries',data:{keys:['polaroids.community.*','polaroids.user']},timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
       // Always refetch after error or success to ensure sync
       queryClient.invalidateQueries({ queryKey: ["polaroids", "community"] });
       queryClient.invalidateQueries({ queryKey: ["polaroids", "user"] });

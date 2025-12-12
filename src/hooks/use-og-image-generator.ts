@@ -7,7 +7,6 @@ export function useOGImageGenerator() {
 
   const generateOGImage = useCallback(async (): Promise<string | null> => {
     if (!ogCardRef.current) {
-      console.warn("OG card ref not available");
       return null;
     }
 
@@ -25,7 +24,6 @@ export function useOGImageGenerator() {
 
       return dataUrl;
     } catch (err) {
-      console.error("Failed to generate OG image", err);
       return null;
     } finally {
       setIsGenerating(false);

@@ -83,11 +83,9 @@ Deno.serve(async (req: Request) => {
           .remove([filename]);
 
         if (deleteError) {
-          console.warn(`Failed to delete image from storage: ${deleteError.message}`);
           // Continue with polaroid deletion even if image deletion fails
         }
       } catch (storageError) {
-        console.warn(`Error deleting image: ${storageError}`);
         // Continue with polaroid deletion
       }
     }

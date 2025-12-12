@@ -48,14 +48,8 @@ export function PolaroidTile({
 
   const handleLike = (e: React.MouseEvent) => {
     e.stopPropagation();
-    // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/3b85e886-5738-4958-929a-efd54a8f8262',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H1',location:'src/components/polaroid/polaroid-tile.tsx:handleLike',message:'handleLike called',data:{polaroidId:polaroid.id,variant,hasUser:!!user,eventType:(e as any)?.type},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
     setIsClicking(false);
     if (user) {
-      // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/3b85e886-5738-4958-929a-efd54a8f8262',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H1',location:'src/components/polaroid/polaroid-tile.tsx:handleLike',message:'calling toggleLike.mutate',data:{polaroidId:polaroid.id},timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
       toggleLike.mutate(polaroid.id);
     }
   };
@@ -72,10 +66,7 @@ export function PolaroidTile({
         className
       )}
       style={width ? { width } : undefined}
-      onClick={(e) => {
-        // #region agent log
-        fetch('http://127.0.0.1:7243/ingest/3b85e886-5738-4958-929a-efd54a8f8262',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H1',location:'src/components/polaroid/polaroid-tile.tsx:root',message:'tile onClick fired',data:{polaroidId:polaroid.id,variant,targetTag:(e.target as HTMLElement | null)?.tagName ?? null},timestamp:Date.now()})}).catch(()=>{});
-        // #endregion
+      onClick={() => {
         onSelect?.();
       }}
       onMouseEnter={() => {
@@ -190,4 +181,5 @@ export function PolaroidTile({
     </div>
   );
 }
+
 

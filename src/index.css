@@ -146,6 +146,10 @@
 }
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     @apply bg-bg text-fg antialiased;
     font-family: var(--font-body);

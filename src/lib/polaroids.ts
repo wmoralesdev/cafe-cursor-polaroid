@@ -266,15 +266,9 @@ export async function recordNetworkingSwipe(
  * Toggle like on a polaroid
  */
 export async function togglePolaroidLike(polaroidId: string): Promise<ToggleLikeResult> {
-  // #region agent log
-  fetch('http://127.0.0.1:7243/ingest/3b85e886-5738-4958-929a-efd54a8f8262',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H2',location:'src/lib/polaroids.ts:togglePolaroidLike',message:'before invoke toggle-polaroid-like',data:{polaroidId},timestamp:Date.now()})}).catch(()=>{});
-  // #endregion
   const { data, error } = await supabase.functions.invoke("toggle-polaroid-like", {
     body: { polaroidId },
   });
-  // #region agent log
-  fetch('http://127.0.0.1:7243/ingest/3b85e886-5738-4958-929a-efd54a8f8262',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H2',location:'src/lib/polaroids.ts:togglePolaroidLike',message:'after invoke toggle-polaroid-like',data:{hasError:!!error,errorMessage:error?.message ?? null,hasData:!!data,dataError:(data as any)?.error ?? null},timestamp:Date.now()})}).catch(()=>{});
-  // #endregion
 
   if (error) {
     throw new Error(`Failed to toggle like: ${error.message}`);

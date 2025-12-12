@@ -100,7 +100,7 @@ function SignInOverlayCTA() {
   const { t } = useLanguage();
 
   return (
-    <div className="absolute inset-0 z-20 flex items-end justify-center pb-8 pointer-events-none">
+    <div className="absolute inset-y-0 -left-4 -right-4 md:left-0 md:right-0 z-20 flex items-end justify-center pb-8 pointer-events-none">
       {/* Subtle gradient overlay at bottom */}
       <div className="absolute inset-0 bg-linear-to-t from-bg via-bg/40 to-transparent" />
       
@@ -317,10 +317,10 @@ export function PolaroidMarqueeSection({ showSignInOverlay = false }: PolaroidMa
   }, [markInteraction]);
 
   return (
-    <section className="w-full py-12 border-t border-border/50 overflow-hidden">
+    <section className={clsx("w-full py-12 overflow-hidden", !showSignInOverlay && "border-t border-border/50")}>
       <div className="container mx-auto px-4">
           {/* Header */}
-          <div className="flex items-start justify-between gap-4 mb-6">
+          <div className="flex flex-col gap-4 mb-6 md:flex-row md:items-start md:justify-between">
             <SectionHeader
               kicker={
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-card/80 backdrop-blur-sm border border-border/50">
