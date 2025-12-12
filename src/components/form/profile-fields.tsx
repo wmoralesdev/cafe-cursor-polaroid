@@ -103,7 +103,7 @@ function ThemeSelector({
                 </div>
               </div>
               <span className={clsx(
-                "text-[9px] font-medium uppercase tracking-wide",
+                "text-xs font-medium uppercase tracking-wide",
                 isSelected ? "text-accent" : "text-fg-muted"
               )}>
                 {themeLabel}
@@ -132,12 +132,14 @@ export function ProfileFields({
   };
   
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between border-b border-border pb-4">
-        <h3 className="text-lg font-display font-semibold text-fg">{t.form.header}</h3>
-      </div>
-
-      <div className="card-panel p-6 space-y-6">
+    <div className="space-y-8">
+      {/* Identity Section */}
+      <section className="space-y-4">
+        <div className="flex items-center gap-2 pb-2 border-b border-border/40">
+          <span className="text-xs font-bold text-accent uppercase tracking-wider font-mono">01</span>
+          <h3 className="text-sm font-semibold text-fg font-body uppercase tracking-wide">{t.form.sections?.identity || "Identity"}</h3>
+        </div>
+        
         <div className="space-y-3">
           <div className="block text-xs font-medium text-fg-muted uppercase tracking-[0.08em] font-display">
             {t.form.socialHandles.label} <span className="text-accent">*</span>
@@ -196,6 +198,14 @@ export function ProfileFields({
             </button>
           )}
         </div>
+      </section>
+
+      {/* Profile Section */}
+      <section className="space-y-4">
+        <div className="flex items-center gap-2 pb-2 border-b border-border/40">
+          <span className="text-xs font-bold text-accent uppercase tracking-wider font-mono">02</span>
+          <h3 className="text-sm font-semibold text-fg font-body uppercase tracking-wide">{t.form.sections?.profile || "Profile"}</h3>
+        </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-12 gap-6">
           <div className="sm:col-span-8">
@@ -220,17 +230,33 @@ export function ProfileFields({
           <FeatureSelector control={control} onInteraction={handleInputInteraction} />
           <TenureSelector control={control} onInteraction={handleInputInteraction} />
         </div>
-        
+      </section>
+
+      {/* Project Section */}
+      <section className="space-y-4">
+        <div className="flex items-center gap-2 pb-2 border-b border-border/40">
+          <span className="text-xs font-bold text-accent uppercase tracking-wider font-mono">03</span>
+          <h3 className="text-sm font-semibold text-fg font-body uppercase tracking-wide">{t.form.sections?.project || "Project"}</h3>
+        </div>
+
         <ProjectInput
           register={register}
           errors={errors}
           onInteraction={handleInputInteraction}
         />
-        
+      </section>
+      
+      {/* Style Section */}
+      <section className="space-y-4">
+        <div className="flex items-center gap-2 pb-2 border-b border-border/40">
+          <span className="text-xs font-bold text-accent uppercase tracking-wider font-mono">04</span>
+          <h3 className="text-sm font-semibold text-fg font-body uppercase tracking-wide">{t.form.sections?.style || "Style"}</h3>
+        </div>
+
         <TechExtras control={control} onInteraction={handleInputInteraction} />
         
         <ThemeSelector control={control} onInteraction={handleInputInteraction} />
-      </div>
+      </section>
     </div>
   );
 }

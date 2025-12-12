@@ -1,12 +1,12 @@
 import { useRef, useEffect, useCallback, useState, useMemo } from "react";
 import { clsx } from "clsx";
-import { Wifi, WifiOff, RefreshCw, Sparkles, Github, Twitter } from "lucide-react";
+import { Wifi, WifiOff, RefreshCw, Sparkles, ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
 import { useLanguage } from "@/contexts/language-context";
 import { useInfiniteCommunityPolaroids } from "@/hooks/use-polaroids-query";
 import { useMarqueeRealtime, type ConnectionStatus } from "@/hooks/use-marquee-realtime";
-import { useAuth } from "@/hooks/use-auth";
+import { PolaroidTile } from "@/components/polaroid/polaroid-tile";
 import { PolaroidModal } from "@/components/polaroid/polaroid-modal";
-import type { PolaroidRecord } from "@/lib/polaroids";
+import { SectionHeader } from "@/components/ui/section-header";
 
 interface PolaroidMarqueeSectionProps {
   showSignInOverlay?: boolean;
@@ -58,54 +58,6 @@ function ConnectionIndicator({ status }: { status: ConnectionStatus }) {
   );
 }
 
-function MarqueeThumbnail({ 
-  item, 
-  onClick 
-}: { 
-  item: PolaroidRecord;
-  onClick: () => void;
-}) {
-  const imageUrl = item.image_url || item.source_image_url;
-  const handle = item.profile?.handles?.[0]?.handle;
-
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="shrink-0 bg-card border border-border rounded-lg overflow-hidden shadow-md hover:shadow-xl hover:scale-[1.02] hover:border-accent/50 transition-all duration-200 cursor-pointer group text-left"
-      style={{ width: THUMBNAIL_WIDTH }}
-    >
-      <div className="aspect-340/459 bg-card-02 overflow-hidden relative">
-        {imageUrl ? (
-          <>
-            <img
-              src={imageUrl}
-              alt={handle || "Polaroid"}
-              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-              loading="lazy"
-            />
-            {/* Hover overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-end justify-center pb-4">
-              <span className="text-white text-xs font-medium px-3 py-1 bg-black/40 rounded-full backdrop-blur-sm">
-                View card
-              </span>
-            </div>
-          </>
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-fg-muted text-xs">
-            No image
-          </div>
-        )}
-      </div>
-      {handle && (
-        <div className="px-3 py-2.5 truncate bg-card">
-          <span className="text-sm text-fg font-medium group-hover:text-accent transition-colors">@{handle}</span>
-        </div>
-      )}
-    </button>
-  );
-}
-
 function SkeletonThumbnail() {
   return (
     <div
@@ -113,9 +65,6 @@ function SkeletonThumbnail() {
       style={{ width: THUMBNAIL_WIDTH }}
     >
       <div className="aspect-340/459 bg-card-02" />
-      <div className="px-3 py-2.5">
-        <div className="h-4 bg-card-02 rounded w-24" />
-      </div>
     </div>
   );
 }
@@ -145,73 +94,19 @@ function NewItemsPill({
 
 function SignInOverlayCTA() {
   const { t } = useLanguage();
-  const { signInWithGitHub, signInWithTwitter } = useAuth();
-  const [isLoading, setIsLoading] = useState<string | null>(null);
-
-  const handleGitHubLogin = async () => {
-    setIsLoading("github");
-    try {
-      await signInWithGitHub();
-    } catch (error) {
-      console.error("GitHub login failed:", error);
-      setIsLoading(null);
-    }
-  };
-
-  const handleTwitterLogin = async () => {
-    setIsLoading("twitter");
-    try {
-      await signInWithTwitter();
-    } catch (error) {
-      console.error("Twitter login failed:", error);
-      setIsLoading(null);
-    }
-  };
 
   return (
-    <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
-      {/* Gradient overlay - lighter/more transparent at top to see content */}
-      <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/60 to-transparent" />
+    <div className="absolute inset-0 z-20 flex items-end justify-center pb-8 pointer-events-none">
+      {/* Subtle gradient overlay at bottom */}
+      <div className="absolute inset-0 bg-linear-to-t from-bg via-bg/40 to-transparent" />
       
-      {/* CTA Card - Glassmorphism, less boxy */}
-      <div className="relative pointer-events-auto mt-12 bg-card/60 backdrop-blur-md border border-white/10 rounded-xl shadow-2xl p-8 max-w-sm mx-4 text-center">
-        <h3 className="font-display text-2xl font-semibold text-fg mb-2">
-          {t.marquee.signedOut?.title || "Get on the wall"}
-        </h3>
-        <p className="text-fg-muted font-body text-sm mb-6 leading-relaxed">
-          {t.marquee.signedOut?.subtitle || "Sign in to create your dev card and join the community"}
-        </p>
-        
-        <div className="space-y-2.5">
-          <button
-            type="button"
-            onClick={handleGitHubLogin}
-            disabled={isLoading !== null}
-            className={clsx(
-              "w-full py-2.5 px-4 rounded-md font-medium text-sm tracking-wide transition-all duration-200 flex items-center justify-center gap-2 font-body",
-              "bg-[#24292e] text-white hover:bg-[#1a1e22] hover:shadow-md hover:-translate-y-0.5 active:scale-[0.99]",
-              "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none"
-            )}
-          >
-            <Github className="w-4 h-4" strokeWidth={1.5} />
-            {isLoading === "github" ? t.editor.auth.connecting : t.editor.auth.github}
-          </button>
-
-          <button
-            type="button"
-            onClick={handleTwitterLogin}
-            disabled={isLoading !== null}
-            className={clsx(
-              "w-full py-2.5 px-4 rounded-md font-medium text-sm tracking-wide transition-all duration-200 flex items-center justify-center gap-2 font-body",
-              "bg-black text-white hover:bg-gray-900 hover:shadow-md hover:-translate-y-0.5 active:scale-[0.99]",
-              "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none"
-            )}
-          >
-            <Twitter className="w-4 h-4" strokeWidth={1.5} />
-            {isLoading === "twitter" ? t.editor.auth.connecting : t.editor.auth.twitter}
-          </button>
-        </div>
-      </div>
+      {/* Minimal prompt - scroll down to primary CTA */}
+      <a 
+        href="#join"
+        className="relative pointer-events-auto bg-card/80 backdrop-blur-sm border border-border/50 rounded-full px-6 py-3 text-sm font-medium text-fg hover:bg-card hover:border-accent/50 transition-all duration-200 shadow-lg hover:shadow-xl"
+      >
+        {t.marquee.signedOut?.cta || "Join the wall"} →
+      </a>
     </div>
   );
 }
@@ -225,6 +120,8 @@ export function PolaroidMarqueeSection({ showSignInOverlay = false }: PolaroidMa
 
   const [isDragging, setIsDragging] = useState(false);
   const [selectedPolaroidId, setSelectedPolaroidId] = useState<string | null>(null);
+  const [hasInteracted, setHasInteracted] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
   const dragStartRef = useRef({ x: 0, scrollLeft: 0 });
 
   // Data
@@ -248,7 +145,28 @@ export function PolaroidMarqueeSection({ showSignInOverlay = false }: PolaroidMa
   // Mark interaction (pauses auto-scroll)
   const markInteraction = useCallback(() => {
     lastInteractionRef.current = Date.now();
+    setHasInteracted(true);
   }, []);
+
+  const toggleAutoScroll = useCallback(() => {
+    setIsPaused((prev) => {
+      const next = !prev;
+      isAutoScrollingRef.current = !next;
+      return next;
+    });
+    markInteraction();
+  }, [markInteraction]);
+
+  const scrollByCards = useCallback(
+    (dir: "left" | "right") => {
+      const rail = railRef.current;
+      if (!rail) return;
+      markInteraction();
+      const delta = (dir === "right" ? 1 : -1) * ITEM_TOTAL_WIDTH * 2.5;
+      rail.scrollBy({ left: delta, behavior: "smooth" });
+    },
+    [markInteraction]
+  );
 
   // Check if we should load more (near end of rail)
   const checkLoadMore = useCallback(() => {
@@ -322,8 +240,9 @@ export function PolaroidMarqueeSection({ showSignInOverlay = false }: PolaroidMa
 
   // Handle scroll event for infinite loading
   const handleScroll = useCallback(() => {
+    markInteraction();
     checkLoadMore();
-  }, [checkLoadMore]);
+  }, [checkLoadMore, markInteraction]);
 
   // Handle "New" pill click - merge pending items with scroll compensation
   const handleMergePending = useCallback(() => {
@@ -394,31 +313,64 @@ export function PolaroidMarqueeSection({ showSignInOverlay = false }: PolaroidMa
   }, [markInteraction]);
 
   return (
-    <section className="w-full py-12 px-4 sm:px-6 overflow-hidden">
-      <div className="max-w-7xl mx-auto">
-        {/* Carded container */}
-        <div className="bg-card/30 border border-border/50 rounded-xl p-6 sm:p-8 backdrop-blur-sm">
+    <section className="w-full py-12 overflow-hidden">
+      <div className="container mx-auto px-4">
           {/* Header */}
           <div className="flex items-start justify-between gap-4 mb-6">
-            <div className="max-w-2xl">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-                <span className="text-xs uppercase tracking-wider text-accent font-semibold">Live</span>
-              </div>
-              <h2 className="font-display text-4xl md:text-5xl font-semibold text-fg tracking-tight leading-tight">
-                {t.marquee.title}
-              </h2>
-              <p className="text-fg-muted font-body text-lg mt-3 max-w-xl leading-relaxed">
-                {t.marquee.subtitle}
-              </p>
+            <SectionHeader
+              kicker={
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-2 rounded-full bg-accent animate-pulse" />
+                  <span className="text-xs uppercase tracking-wider text-accent font-semibold">Live</span>
+                </div>
+              }
+              title={t.marquee.title}
+              subtitle={t.marquee.subtitle}
+            />
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => scrollByCards("left")}
+                className="hidden md:flex items-center justify-center w-9 h-9 rounded-sm text-fg-muted hover:text-accent hover:bg-card-02/50 transition-all duration-150 border border-transparent hover:border-border"
+                aria-label="Scroll left"
+                title="Scroll left"
+              >
+                <ChevronLeft className="w-4 h-4" strokeWidth={1.5} />
+              </button>
+              <button
+                type="button"
+                onClick={() => scrollByCards("right")}
+                className="hidden md:flex items-center justify-center w-9 h-9 rounded-sm text-fg-muted hover:text-accent hover:bg-card-02/50 transition-all duration-150 border border-transparent hover:border-border"
+                aria-label="Scroll right"
+                title="Scroll right"
+              >
+                <ChevronRight className="w-4 h-4" strokeWidth={1.5} />
+              </button>
+              <button
+                type="button"
+                onClick={toggleAutoScroll}
+                className="flex items-center justify-center w-9 h-9 rounded-sm text-fg-muted hover:text-accent hover:bg-card-02/50 transition-all duration-150 border border-transparent hover:border-border"
+                aria-label={isPaused ? "Resume auto-scroll" : "Pause auto-scroll"}
+                title={isPaused ? "Resume" : "Pause"}
+              >
+                {isPaused ? <Play className="w-4 h-4" strokeWidth={1.5} /> : <Pause className="w-4 h-4" strokeWidth={1.5} />}
+              </button>
+              <ConnectionIndicator status={status} />
             </div>
-            <ConnectionIndicator status={status} />
           </div>
 
           {/* Rail container */}
           <div className="relative">
             {showSignInOverlay && <SignInOverlayCTA />}
             <NewItemsPill count={pendingCount} onClick={handleMergePending} />
+
+            {!hasInteracted && !isLoading && allItems.length > 0 ? (
+              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 pointer-events-none">
+                <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-mono bg-card/80 text-fg backdrop-blur-sm border border-border/50">
+                  Drag or scroll to browse
+                </span>
+              </div>
+            ) : null}
 
             {isLoading ? (
               <div className="flex gap-4 overflow-hidden py-2">
@@ -430,7 +382,7 @@ export function PolaroidMarqueeSection({ showSignInOverlay = false }: PolaroidMa
                 <SkeletonThumbnail />
               </div>
             ) : allItems.length === 0 ? (
-              <div className="flex items-center justify-center py-16 text-fg-muted bg-card/50 rounded-lg border border-border/50">
+              <div className="flex items-center justify-center py-16 text-fg-muted glass-panel-inner rounded-lg">
                 <div className="text-center">
                   <Sparkles className="w-8 h-8 mx-auto mb-3 text-accent/50" />
                   <p className="font-body">No polaroids yet</p>
@@ -438,40 +390,46 @@ export function PolaroidMarqueeSection({ showSignInOverlay = false }: PolaroidMa
                 </div>
               </div>
             ) : (
-              <section
-                ref={railRef}
-                aria-label="Polaroid gallery"
-                className={clsx(
-                  "flex gap-4 overflow-x-auto scrollbar-hide py-2 -mx-2 px-2 outline-none",
-                  isDragging ? "cursor-grabbing" : "cursor-grab"
-                )}
-                style={{ scrollBehavior: isDragging ? "auto" : "smooth" }}
-                onPointerDown={handlePointerDown}
-                onPointerMove={handlePointerMove}
-                onPointerUp={handlePointerUp}
-                onPointerCancel={handlePointerUp}
-                onPointerLeave={handlePointerUp}
-                onScroll={handleScroll}
-                onMouseEnter={handleMouseEnter}
-              >
-                {allItems.map((item) => (
-                  <MarqueeThumbnail 
-                    key={item.id} 
-                    item={item} 
-                    onClick={() => setSelectedPolaroidId(item.id)}
-                  />
-                ))}
+              <div className="relative">
+                <div className="pointer-events-none absolute inset-y-0 left-0 w-10 bg-linear-to-r from-bg via-bg/60 to-transparent z-10" />
+                <div className="pointer-events-none absolute inset-y-0 right-0 w-10 bg-linear-to-l from-bg via-bg/60 to-transparent z-10" />
 
-                {/* Loading indicator at end */}
-                {isFetchingNextPage && (
-                  <div className="shrink-0 flex items-center justify-center px-4">
-                    <span className="text-xs text-fg-muted">{t.marquee.loadMore}</span>
-                  </div>
-                )}
-              </section>
+                <section
+                  ref={railRef}
+                  aria-label="Polaroid gallery"
+                  className={clsx(
+                    "flex gap-4 overflow-x-auto scrollbar-hide py-2 -mx-2 px-2 outline-none",
+                    isDragging ? "cursor-grabbing" : "cursor-grab"
+                  )}
+                  style={{ scrollBehavior: isDragging ? "auto" : "smooth" }}
+                  onPointerDown={handlePointerDown}
+                  onPointerMove={handlePointerMove}
+                  onPointerUp={handlePointerUp}
+                  onPointerCancel={handlePointerUp}
+                  onPointerLeave={handlePointerUp}
+                  onScroll={handleScroll}
+                  onMouseEnter={handleMouseEnter}
+                >
+                  {allItems.map((item) => (
+                    <PolaroidTile 
+                      key={item.id} 
+                      polaroid={item} 
+                      variant="public"
+                      width={THUMBNAIL_WIDTH}
+                      onSelect={() => setSelectedPolaroidId(item.id)}
+                      className="shrink-0 cursor-pointer"
+                    />
+                  ))}
+
+                  {isFetchingNextPage && (
+                    <div className="shrink-0 flex items-center justify-center px-4">
+                      <span className="text-xs text-fg-muted">{t.marquee.loadMore}</span>
+                    </div>
+                  )}
+                </section>
+              </div>
             )}
           </div>
-        </div>
       </div>
 
       {/* Preview modal */}
@@ -484,3 +442,4 @@ export function PolaroidMarqueeSection({ showSignInOverlay = false }: PolaroidMa
     </section>
   );
 }
+

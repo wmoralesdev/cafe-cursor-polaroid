@@ -13,11 +13,12 @@ import { useLanguage } from "@/contexts/language-context";
 import { useAuth } from "@/hooks/use-auth";
 import { useTracking } from "@/contexts/tracking-context";
 import { AuthOverlay } from "@/components/auth/auth-overlay";
-import { Loader2, CheckCircle2, AlertCircle, Plus } from "lucide-react";
+import { Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import { useUpdatePolaroid, useCreatePolaroid } from "@/hooks/use-polaroids-query";
 import { useEditorUIStore } from "@/stores/editor-ui-store";
 import { useUIStore } from "@/stores/ui-store";
 import { usePolaroidStore } from "@/stores/polaroid-store";
+import { SectionHeader } from "@/components/ui/section-header";
 import type { PolaroidRecord } from "@/lib/polaroids";
 import type { CursorProfile } from "@/types/form";
 
@@ -307,7 +308,7 @@ export function EditorSection({ initialPolaroid, onPolaroidChange }: EditorSecti
   };
 
   return (
-    <section id="editor" className="py-8 lg:min-h-[700px] flex flex-col justify-center mb-16 relative overflow-hidden">
+    <section id="editor" className="w-full py-12 overflow-hidden">
       {/* Hidden OG Card for capture */}
       <div style={{ position: "absolute", left: "-9999px", top: "-9999px", pointerEvents: "none" }}>
         <OGCard
@@ -318,107 +319,109 @@ export function EditorSection({ initialPolaroid, onPolaroidChange }: EditorSecti
         />
       </div>
       
-      <div className="max-w-7xl mx-auto w-full mb-12 relative z-10 animate-[fadeInUp_0.6s_ease-out_forwards]">
-        <div className="max-w-2xl">
-          <h1 className="font-display text-4xl md:text-5xl font-semibold text-fg tracking-tight leading-tight">
-            {t.editor.title}
-          </h1>
-          <p className="text-fg-muted font-body text-lg mt-3 max-w-xl leading-relaxed">
-            {t.editor.subtitle}
-          </p>
-        </div>
-      </div>
+      <div className="container mx-auto px-4">
+          {/* Header */}
+          <SectionHeader
+            as="h1"
+            className="mb-8 animate-[fadeInUp_0.6s_ease-out_forwards]"
+            title={t.editor.title}
+            subtitle={t.editor.subtitle}
+          />
 
-      <div className="grid lg:grid-cols-12 gap-8 items-start relative z-10 max-w-7xl mx-auto w-full">
-        <div className="lg:col-span-6 flex flex-col gap-6 animate-[fadeInUp_0.6s_ease-out_0.1s_forwards] opacity-0 relative">
-          {!user && <AuthOverlay />}
-          <div className={user ? "" : "pointer-events-none opacity-40"}>
-            <ProfileFields
-              control={control}
-              register={register}
-              errors={errors}
-              handleFields={handleFields}
-              appendHandle={appendHandle}
-              removeHandle={removeHandle}
-              onInteraction={handleInteraction}
-            />
-          </div>
-        </div>
-
-        <div className="lg:col-span-6 flex flex-col items-center justify-center lg:h-full relative animate-[fadeInUp_0.6s_ease-out_0.2s_forwards] opacity-0">
-          {isLoadingInitial ? (
-            <div className="w-full h-[510px] bg-card rounded-sm shadow-polaroid flex flex-col items-center justify-center gap-4 animate-pulse">
-              <Loader2 className="w-8 h-8 animate-spin text-accent" strokeWidth={1.5} />
-              <span className="text-sm text-fg-muted font-body">{t.editor.loading || "Loading your card..."}</span>
+          {/* Editor grid */}
+          <div className="grid lg:grid-cols-12 gap-8 items-start">
+            <div className="lg:col-span-6 flex flex-col gap-6 animate-[fadeInUp_0.6s_ease-out_0.1s_forwards] opacity-0 relative">
+              {!user && <AuthOverlay />}
+              <div className={user ? "" : "pointer-events-none opacity-40"}>
+                  <ProfileFields
+                    control={control}
+                    register={register}
+                    errors={errors}
+                    handleFields={handleFields}
+                    appendHandle={appendHandle}
+                    removeHandle={removeHandle}
+                    onInteraction={handleInteraction}
+                  />
+              </div>
             </div>
-          ) : (
-            <>
-              {user && (
-                <div className="w-full max-w-[340px] mb-8 flex flex-col gap-2">
-                  {/* Sync status indicator */}
-                  <div className={`flex items-center justify-center gap-2 text-xs font-medium h-5 transition-opacity duration-200 ${syncStatus !== "idle" ? "opacity-100" : "opacity-0"}`}>
-                    {syncStatus === "saving" && (
-                      <>
-                        <Loader2 className="w-3.5 h-3.5 animate-spin text-fg-muted" strokeWidth={1.5} />
-                        <span className="text-fg-muted">{t.editor.syncStatus.saving}</span>
-                      </>
-                    )}
-                    {syncStatus === "saved" && (
-                      <>
-                        <CheckCircle2 className="w-3.5 h-3.5 text-green-500" strokeWidth={1.5} />
-                        <span className="text-green-600">{t.editor.syncStatus.saved}</span>
-                      </>
-                    )}
-                    {syncStatus === "error" && (
-                      <>
-                        <AlertCircle className="w-3.5 h-3.5 text-red-500" strokeWidth={1.5} />
-                        <span className="text-red-500">{t.editor.syncStatus.error}</span>
-                      </>
-                    )}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={handleNewCard}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-accent text-white rounded-sm font-medium text-sm hover:bg-accent/90 active:scale-[0.98] transition-all duration-150 w-full justify-center shadow-sm hover:shadow-md"
-                  >
-                    <Plus className="w-4 h-4" strokeWidth={2.5} />
-                    <span>{t.userPolaroids.newCard}</span>
-                  </button>
+
+            <div className="lg:col-span-6 flex flex-col items-center gap-6 relative animate-[fadeInUp_0.6s_ease-out_0.2s_forwards] opacity-0">
+              {isLoadingInitial ? (
+                <div className="w-full h-[510px] bg-card rounded-sm shadow-polaroid flex flex-col items-center justify-center gap-4 animate-pulse">
+                  <Loader2 className="w-8 h-8 animate-spin text-accent" strokeWidth={1.5} />
+                  <span className="text-sm text-fg-muted font-body">{t.editor.loading || "Loading your card..."}</span>
                 </div>
+              ) : (
+                <>
+                  <div className="w-full lg:sticky lg:top-24">
+                    <div className="glass-panel p-5 sm:p-6 flex flex-col items-center">
+                      {user && (
+                        <div className="w-full max-w-[340px] mb-6 flex flex-col gap-2">
+                          {/* Sync status indicator */}
+                          <div
+                            className={`flex items-center justify-center gap-2 text-xs font-medium h-5 transition-opacity duration-200 ${
+                              syncStatus !== "idle" ? "opacity-100" : "opacity-0"
+                            }`}
+                          >
+                            {syncStatus === "saving" && (
+                              <>
+                                <Loader2 className="w-3.5 h-3.5 animate-spin text-fg-muted" strokeWidth={1.5} />
+                                <span className="text-fg-muted">{t.editor.syncStatus.saving}</span>
+                              </>
+                            )}
+                            {syncStatus === "saved" && (
+                              <>
+                                <CheckCircle2 className="w-3.5 h-3.5 text-green-500" strokeWidth={1.5} />
+                                <span className="text-green-600">{t.editor.syncStatus.saved}</span>
+                              </>
+                            )}
+                            {syncStatus === "error" && (
+                              <>
+                                <AlertCircle className="w-3.5 h-3.5 text-red-500" strokeWidth={1.5} />
+                                <span className="text-red-500">{t.editor.syncStatus.error}</span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      <EditorPreview
+                        image={image}
+                        profile={profile}
+                        zoom={zoom}
+                        position={position}
+                        imageError={imageError}
+                        onDrop={handleImageDrop}
+                        onFileChange={handleImageFileChange}
+                        clearImage={clearImage}
+                        source={source}
+                        polaroidRef={polaroidRef}
+                        user={!!user}
+                      />
+                      <EditorActions
+                        image={image}
+                        zoom={zoom}
+                        position={position}
+                        setZoom={setZoom}
+                        setPosition={setPosition}
+                        isExporting={isExporting}
+                        user={!!user}
+                        isEditingExisting={isEditingExisting}
+                        currentPolaroidId={currentPolaroidId}
+                        provider={provider || null}
+                        onExport={handleExportClick}
+                        onCopyShareLink={handleCopyShareLink}
+                        onShare={handleShare}
+                        onNewCardOverwrite={handleNewCardOverwrite}
+                        onNewCardCreate={handleNewCardCreate}
+                        onNewCardRequested={handleNewCard}
+                      />
+                    </div>
+                  </div>
+                </>
               )}
-              <EditorPreview
-                image={image}
-                profile={profile}
-                zoom={zoom}
-                position={position}
-                imageError={imageError}
-                onDrop={handleImageDrop}
-                onFileChange={handleImageFileChange}
-                clearImage={clearImage}
-                source={source}
-                polaroidRef={polaroidRef}
-                user={!!user}
-              />
-              <EditorActions
-                image={image}
-                zoom={zoom}
-                position={position}
-                setZoom={setZoom}
-                setPosition={setPosition}
-                isExporting={isExporting}
-                user={!!user}
-                isEditingExisting={isEditingExisting}
-                currentPolaroidId={currentPolaroidId}
-                provider={provider || null}
-                onExport={handleExportClick}
-                onCopyShareLink={handleCopyShareLink}
-                onShare={handleShare}
-                onNewCardOverwrite={handleNewCardOverwrite}
-                onNewCardCreate={handleNewCardCreate}
-              />
-            </>
-          )}
-        </div>
+            </div>
+          </div>
       </div>
     </section>
   );

@@ -74,8 +74,14 @@ export interface Translations {
     };
     madeBy: string;
   };
-  form: {
+    form: {
     header: string;
+    sections: {
+      identity: string;
+      profile: string;
+      project: string;
+      style: string;
+    };
     socialHandles: {
       label: string;
       placeholder: string;
@@ -114,39 +120,6 @@ export interface Translations {
     subtitle: string;
     empty: string;
     emptySubtitle: string;
-    swipe?: {
-      loading: string;
-      caughtUp: string;
-      seeAgain: string;
-      pass: string;
-      connect: string;
-      matchGreat: string;
-      matchGood: string;
-      matchSome: string;
-      modelLabel: string;
-      signInPrompt: string;
-      signInPromptSubtitle: string;
-    };
-    tabs?: {
-      discover: string;
-      history: string;
-      matches: string;
-    };
-    history?: {
-      loading: string;
-      connected: string;
-      passed: string;
-      emptyConnected: string;
-      emptyConnectedSubtitle: string;
-      emptyPassed: string;
-      emptyPassedSubtitle: string;
-      emptyMatches: string;
-      emptyMatchesSubtitle: string;
-      matchedLabel: string;
-      mutualMatch: string;
-      buildingLabel: string;
-      connectButton: string;
-    };
     likes: {
       like: string;
       likedBy: string;
@@ -320,7 +293,7 @@ export const translations: Record<Language, Translations> = {
     },
     editor: {
       title: "Cafe Cursor",
-      subtitle: "Create your dev card — share your setup, meet others, enjoy good coffee.",
+      subtitle: "Your creative space — design your dev card, share your setup, meet builders.",
       loading: "Loading your card...",
       eventBadge: {
         location: "San Salvador, 3rd ed.",
@@ -384,6 +357,12 @@ export const translations: Record<Language, Translations> = {
     },
     form: {
       header: "Your profile",
+      sections: {
+        identity: "Identity",
+        profile: "Profile",
+        project: "Project",
+        style: "Style",
+      },
       socialHandles: {
         label: "Social handles",
         placeholder: "yourhandle",
@@ -424,43 +403,10 @@ export const translations: Record<Language, Translations> = {
       },
     },
     community: {
-      title: "Meet & Match",
-      subtitle: "Swipe through dev cards and connect with builders like you",
+      title: "Community",
+      subtitle: "See what the community is building",
       empty: "No community cards yet",
-      emptySubtitle: "Connect with other developers — you won't see your own cards here",
-      swipe: {
-        loading: "Loading community cards...",
-        caughtUp: "You're all caught up.",
-        seeAgain: "See again",
-        pass: "Pass",
-        connect: "Connect",
-        matchGreat: "Great fit",
-        matchGood: "Good fit",
-        matchSome: "Some overlap",
-        modelLabel: "Model",
-        signInPrompt: "Sign in to see people to connect with",
-        signInPromptSubtitle: "Create your dev card and start connecting with the community",
-      },
-      tabs: {
-        discover: "Discover",
-        history: "History",
-        matches: "Matches",
-      },
-      history: {
-        loading: "Loading history...",
-        connected: "Connected",
-        passed: "Passed",
-        emptyConnected: "No connections yet",
-        emptyConnectedSubtitle: "Swipe right on cards to connect",
-        emptyPassed: "No passed cards yet",
-        emptyPassedSubtitle: "Passed cards will appear here",
-        emptyMatches: "No matches yet",
-        emptyMatchesSubtitle: "When someone you connect with also connects with you, they'll appear here",
-        matchedLabel: "Matched",
-        mutualMatch: "Match",
-        buildingLabel: "Building",
-        connectButton: "Connect",
-      },
+      emptySubtitle: "Be the first to create a card",
       likes: {
         like: "Like",
         likedBy: "Liked by",
@@ -492,8 +438,8 @@ export const translations: Record<Language, Translations> = {
       newItems: "New",
       loadMore: "Loading more…",
       signedOut: {
-        title: "Get on the wall",
-        subtitle: "Sign in to create your dev card and join the community",
+        title: "Join the community",
+        subtitle: "See what builders are sharing — sign in to add yours",
         cta: "Join now",
       },
     },
@@ -518,11 +464,11 @@ export const translations: Record<Language, Translations> = {
     signedOut: {
       hero: {
         title: "Cafe Cursor",
-        subtitle: "Create your dev card, share your setup, and connect with builders worldwide.",
+        subtitle: "Create your developer identity — polaroid-style cards for the builder community.",
         features: [
           "Design a unique polaroid-style dev card",
-          "Browse the live wall of community cards",
-          "Match with developers who share your stack",
+          "Customize themes, badges, and your tech stack",
+          "Export high-res prints or share online",
         ],
       },
       editorTeaser: {
@@ -530,8 +476,8 @@ export const translations: Record<Language, Translations> = {
         subtitle: "Sign in to design and export your personalized dev card",
       },
       communityTeaser: {
-        title: "Meet & Match",
-        subtitle: "Sign in to discover and connect with developers like you",
+        title: "Browse the community",
+        subtitle: "Sign in to explore cards from developers around the world",
       },
     },
     imageUpload: {
@@ -660,7 +606,7 @@ export const translations: Record<Language, Translations> = {
     },
     editor: {
       title: "Cafe Cursor",
-      subtitle: "Crea tu tarjeta dev — comparte tu configuración, conoce gente, disfruta buen café.",
+      subtitle: "Tu espacio creativo — diseña tu tarjeta dev, comparte tu setup, conoce builders.",
       loading: "Cargando tu tarjeta...",
       eventBadge: {
         location: "San Salvador, 3.ª ed.",
@@ -724,6 +670,12 @@ export const translations: Record<Language, Translations> = {
     },
     form: {
       header: "Tu perfil",
+      sections: {
+        identity: "Identidad",
+        profile: "Perfil",
+        project: "Proyecto",
+        style: "Estilo",
+      },
       socialHandles: {
         label: "Redes sociales",
         placeholder: "tuhandle",
@@ -764,43 +716,10 @@ export const translations: Record<Language, Translations> = {
       },
     },
     community: {
-      title: "Conoce y haz match",
-      subtitle: "Desliza entre tarjetas dev y conecta con builders como tú",
+      title: "Comunidad",
+      subtitle: "Mira lo que la comunidad está construyendo",
       empty: "Aún no hay tarjetas de la comunidad",
-      emptySubtitle: "Conecta con otros desarrolladores — no verás tus propias tarjetas aquí",
-      swipe: {
-        loading: "Cargando tarjetas de la comunidad...",
-        caughtUp: "Ya viste todo.",
-        seeAgain: "Ver de nuevo",
-        pass: "Omitir",
-        connect: "Conectar",
-        matchGreat: "Gran afinidad",
-        matchGood: "Buena afinidad",
-        matchSome: "Algo en común",
-        modelLabel: "Modelo",
-        signInPrompt: "Inicia sesión para ver personas con las que conectar",
-        signInPromptSubtitle: "Crea tu tarjeta dev y comienza a conectar con la comunidad",
-      },
-      tabs: {
-        discover: "Descubrir",
-        history: "Historial",
-        matches: "Coincidencias",
-      },
-      history: {
-        loading: "Cargando historial...",
-        connected: "Conectados",
-        passed: "Omitidos",
-        emptyConnected: "Aún no hay conexiones",
-        emptyConnectedSubtitle: "Desliza a la derecha para conectar",
-        emptyPassed: "Aún no has omitido tarjetas",
-        emptyPassedSubtitle: "Las tarjetas omitidas aparecerán aquí",
-        emptyMatches: "Aún no hay coincidencias",
-        emptyMatchesSubtitle: "Cuando alguien con quien conectes también conecte contigo, aparecerá aquí",
-        matchedLabel: "Coincidencia",
-        mutualMatch: "Match",
-        buildingLabel: "Construyendo",
-        connectButton: "Conectar",
-      },
+      emptySubtitle: "Sé el primero en crear una tarjeta",
       likes: {
         like: "Me gusta",
         likedBy: "Le gustó a",
@@ -832,8 +751,8 @@ export const translations: Record<Language, Translations> = {
       newItems: "Nuevo",
       loadMore: "Cargando más…",
       signedOut: {
-        title: "Súbete al muro",
-        subtitle: "Inicia sesión para crear tu tarjeta dev y unirte a la comunidad",
+        title: "Únete a la comunidad",
+        subtitle: "Mira lo que los builders están compartiendo — inicia sesión para agregar la tuya",
         cta: "Únete ahora",
       },
     },
@@ -858,11 +777,11 @@ export const translations: Record<Language, Translations> = {
     signedOut: {
       hero: {
         title: "Cafe Cursor",
-        subtitle: "Crea tu tarjeta dev, comparte tu setup y conecta con builders de todo el mundo.",
+        subtitle: "Crea tu identidad de desarrollador — tarjetas estilo polaroid para la comunidad builder.",
         features: [
           "Diseña una tarjeta dev única estilo polaroid",
-          "Explora el muro en vivo de tarjetas de la comunidad",
-          "Haz match con desarrolladores que comparten tu stack",
+          "Personaliza temas, badges y tu tech stack",
+          "Exporta impresiones de alta resolución o comparte online",
         ],
       },
       editorTeaser: {
@@ -870,8 +789,8 @@ export const translations: Record<Language, Translations> = {
         subtitle: "Inicia sesión para diseñar y exportar tu tarjeta dev personalizada",
       },
       communityTeaser: {
-        title: "Conoce y haz match",
-        subtitle: "Inicia sesión para descubrir y conectar con desarrolladores como tú",
+        title: "Explora la comunidad",
+        subtitle: "Inicia sesión para explorar tarjetas de desarrolladores de todo el mundo",
       },
     },
     imageUpload: {

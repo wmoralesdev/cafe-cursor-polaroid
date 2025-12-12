@@ -11,7 +11,7 @@ export function HeaderLogo() {
       </div>
       <div className="flex flex-col">
         <span className="text-2xl font-semibold tracking-tight font-display text-fg">Cafe Cursor</span>
-        <span className="text-[10px] font-mono font-medium uppercase tracking-[0.1em] text-fg-muted">
+        <span className="text-xs font-mono font-medium uppercase tracking-widest text-fg-muted">
           {t.shell.subtitle}
         </span>
       </div>

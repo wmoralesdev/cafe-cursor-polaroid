@@ -44,7 +44,7 @@ export function TechExtras({ control, onInteraction }: TechExtrasProps) {
                     type="button"
                     onClick={() => toggleExtra(tech)}
                     className={clsx(
-                      "px-2.5 py-1 rounded-full text-[11px] font-medium border transition-all duration-150 font-mono",
+                      "px-2.5 py-1 rounded-full text-xs font-medium border transition-all duration-150 font-mono",
                       isSelected
                         ? "bg-accent text-white border-accent"
                         : clsx(

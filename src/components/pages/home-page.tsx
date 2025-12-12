@@ -5,10 +5,8 @@ import { EditorSection } from "@/components/sections/editor-section";
 import { SignedOutEditorTeaser } from "@/components/sections/signed-out-editor-teaser";
 import { AboutSection } from "@/components/sections/about-section";
 import { PhotoStrip } from "@/components/sections/photo-strip";
-import { CommunitySwipeSection } from "@/components/sections/community-swipe";
 import { PolaroidMarqueeSection } from "@/components/sections/polaroid-marquee";
 import { UserPolaroids } from "@/components/sections/user-polaroids";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { PolaroidModal } from "@/components/polaroid/polaroid-modal";
 import { AnimatedBackground } from "@/components/ui/animated-background";
 import { useSharedPolaroid } from "@/hooks/use-shared-polaroid";
@@ -33,7 +31,6 @@ export function HomePage() {
     <TrackingProvider>
       <LanguageProvider>
         <AnimatedBackground />
-        <ThemeToggle />
         <AppShell>
           {isAuthed ? (
             // Signed-in layout: Editor first
@@ -43,16 +40,14 @@ export function HomePage() {
                 initialPolaroid={activePolaroid}
                 onPolaroidChange={setActivePolaroid}
               />
-              <PolaroidMarqueeSection />
               <UserPolaroids />
-              <CommunitySwipeSection />
+              <PolaroidMarqueeSection />
             </>
           ) : (
             // Signed-out layout: Live Wall hero first
             <>
               <PolaroidMarqueeSection showSignInOverlay={!loading} />
               <SignedOutEditorTeaser />
-              <CommunitySwipeSection />
             </>
           )}
           <PhotoStrip />
@@ -65,3 +60,4 @@ export function HomePage() {
     </TrackingProvider>
   );
 }
+

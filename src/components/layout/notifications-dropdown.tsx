@@ -42,7 +42,7 @@ export function NotificationsDropdown({ userId }: NotificationsDropdownProps) {
       <button
         type="button"
         onClick={toggleNotifications}
-        className="relative p-2 text-fg-muted hover:text-fg transition-colors rounded-sm hover:bg-card-02"
+        className="relative flex items-center justify-center w-9 h-9 text-fg-muted hover:text-accent transition-colors rounded-sm hover:bg-card-02/50 border border-transparent hover:border-border focus:outline-none focus:ring-2 focus:ring-accent/20 focus:ring-offset-1"
         aria-label={t.notifications.title}
       >
         <Bell className="w-5 h-5" strokeWidth={1.5} />
@@ -55,9 +55,11 @@ export function NotificationsDropdown({ userId }: NotificationsDropdownProps) {
 
       {showNotifications && (
         <>
-          <div 
-            className="fixed inset-0 z-40" 
-            onClick={() => setShowNotifications(false)} 
+          <button
+            type="button"
+            className="fixed inset-0 z-40"
+            onClick={() => setShowNotifications(false)}
+            aria-label="Close notifications"
           />
           <div className="absolute right-0 mt-2 z-50 w-80 bg-card border border-border rounded-sm shadow-lg overflow-hidden">
             <div className="px-4 py-3 border-b border-border flex items-center justify-between">

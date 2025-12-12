@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { useLanguage } from "@/contexts/language-context";
 import { useAuth } from "@/hooks/use-auth";
-import { Github, Twitter, Camera, Palette, Users, Sparkles } from "lucide-react";
+import { SectionHeader } from "@/components/ui/section-header";
+import { Github, Twitter, Camera, Palette, Download } from "lucide-react";
 import { clsx } from "clsx";
 
 const features = [
   { icon: Camera, key: "create" },
   { icon: Palette, key: "style" },
-  { icon: Users, key: "connect" },
+  { icon: Download, key: "export" },
 ];
 
 export function SignedOutEditorTeaser() {
@@ -37,26 +38,22 @@ export function SignedOutEditorTeaser() {
 
   const featureTexts = t.signedOut?.hero?.features || [
     "Design a unique polaroid-style dev card",
-    "Browse the live wall of community cards",
-    "Match with developers who share your stack",
+    "Customize themes, badges, and your tech stack",
+    "Export high-res prints or share online",
   ];
 
   return (
-    <section className="w-full py-16 px-4 sm:px-6">
-      <div className="max-w-7xl mx-auto">
+    <section id="join" className="w-full py-16">
+      <div className="container mx-auto px-4">
         {/* Unified Card */}
-        <div className="bg-card/30 border border-border/50 rounded-xl overflow-hidden backdrop-blur-sm">
+        <div className="overflow-hidden bg-card border border-border rounded-xl shadow-sm">
           <div className="grid lg:grid-cols-2 gap-0">
             {/* Left: Content */}
             <div className="p-8 sm:p-12 flex flex-col justify-center space-y-8">
-              <div>
-                <h2 className="font-display text-3xl md:text-4xl font-semibold text-fg tracking-tight leading-tight mb-3">
-                  {t.signedOut?.hero?.title || "Join the session"}
-                </h2>
-                <p className="text-fg-muted font-body text-lg leading-relaxed">
-                  {t.signedOut?.hero?.subtitle || "Create your dev card, share your setup, and connect with builders worldwide."}
-                </p>
-              </div>
+              <SectionHeader
+                title={t.signedOut?.hero?.title || "Join the session"}
+                subtitle={t.signedOut?.hero?.subtitle || "Create your dev card, share your setup, and connect with builders worldwide."}
+              />
 
               {/* Feature list */}
               <ul className="space-y-4">
@@ -112,10 +109,10 @@ export function SignedOutEditorTeaser() {
                 {/* Image placeholder */}
                 <div className="aspect-square bg-gradient-to-br from-zinc-100 to-zinc-200 flex items-center justify-center relative overflow-hidden group">
                   <Camera className="w-12 h-12 text-zinc-300" strokeWidth={1} />
-                  {/* Overlay simulating match mode */}
-                  <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm flex items-center gap-1.5 animate-bounce">
-                    <Sparkles className="w-3 h-3 text-accent" />
-                    <span className="text-xs font-medium text-accent">98% Match</span>
+                  {/* Export badge */}
+                  <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm flex items-center gap-1.5">
+                    <Download className="w-3 h-3 text-accent" />
+                    <span className="text-xs font-medium text-accent">Print ready</span>
                   </div>
                 </div>
                 
@@ -143,3 +140,4 @@ export function SignedOutEditorTeaser() {
     </section>
   );
 }
+

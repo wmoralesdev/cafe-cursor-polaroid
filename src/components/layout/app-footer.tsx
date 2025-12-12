@@ -9,7 +9,7 @@ export function AppFooter() {
   return (
     <footer className="border-t border-border py-8 bg-card">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <p className="text-[11px] font-mono font-medium text-fg-muted tracking-wide">
+        <p className="text-xs font-mono font-medium text-fg-muted tracking-wide">
           {t.shell.footer}
         </p>
         <div className="flex items-center gap-4">
@@ -45,7 +45,7 @@ export function AppFooter() {
           <span className="text-border">·</span>
           <Link 
             to="/tech" 
-            className="text-[11px] font-mono font-medium text-fg-muted hover:text-accent transition-colors tracking-wide"
+            className="text-xs font-mono font-medium text-fg-muted hover:text-accent transition-colors tracking-wide"
           >
             {t.shell.nav.tech}
           </Link>

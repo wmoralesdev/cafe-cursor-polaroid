@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { useQueryClient, type InfiniteData } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import type { PolaroidRecord } from "@/lib/polaroids";
+import type { RealtimeChannel } from "@supabase/supabase-js";
 
 export type ConnectionStatus = "connecting" | "live" | "updating" | "offline";
 
@@ -13,19 +14,28 @@ interface MarqueePageData {
 
 const INFINITE_QUERY_KEY = ["polaroids", "community", "infinite"];
 
+// Retry configuration
+const MAX_RETRY_ATTEMPTS = 5;
+const BASE_RETRY_DELAY = 1000; // 1 second
+const MAX_RETRY_DELAY = 30000; // 30 seconds
+
 /**
  * Realtime subscription for the marquee feed.
  * - Buffers INSERTs instead of auto-prepending (no scroll jump)
  * - Updates in-place for UPDATEs
  * - Removes items for DELETEs
  * - Tracks connection status
+ * - Auto-reconnects on failure with exponential backoff
  */
 export function useMarqueeRealtime() {
   const queryClient = useQueryClient();
   const [status, setStatus] = useState<ConnectionStatus>("connecting");
   const [pendingItems, setPendingItems] = useState<PolaroidRecord[]>([]);
   const updateTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [retryCount, setRetryCount] = useState(0);
+  const retryTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const channelRef = useRef<RealtimeChannel | null>(null);
+  const retryAttemptRef = useRef(0);
+  const isCleaningUpRef = useRef(false);
 
   // Helper to check if a polaroid is "complete" (has image_url and valid handle)
   const isCompletePolaroid = useCallback((polaroid: PolaroidRecord): boolean => {
@@ -49,13 +59,32 @@ export function useMarqueeRealtime() {
     }, 800);
   }, []);
 
-  useEffect(() => {
-    if (retryCount > 0) {
-      console.log(`Reconnecting to marquee channel (attempt ${retryCount})...`);
+  // Calculate retry delay with exponential backoff
+  const getRetryDelay = useCallback((attempt: number) => {
+    const delay = Math.min(BASE_RETRY_DELAY * Math.pow(2, attempt), MAX_RETRY_DELAY);
+    // Add jitter (±25%) to prevent thundering herd
+    const jitter = delay * 0.25 * (Math.random() * 2 - 1);
+    return Math.round(delay + jitter);
+  }, []);
+
+  // Create and subscribe to the realtime channel
+  const createSubscription = useCallback(() => {
+    if (isCleaningUpRef.current) return;
+
+    // Remove existing channel if any
+    if (channelRef.current) {
+      supabase.removeChannel(channelRef.current);
+      channelRef.current = null;
     }
 
+    setStatus("connecting");
+
     const channel = supabase
-      .channel("marquee-polaroids")
+      .channel("marquee-polaroids", {
+        config: {
+          presence: { key: "" },
+        },
+      })
       .on(
         "postgres_changes",
         {
@@ -140,25 +169,56 @@ export function useMarqueeRealtime() {
           );
         }
       )
-      .subscribe((subscriptionStatus) => {
+      .subscribe((subscriptionStatus, err) => {
+        if (isCleaningUpRef.current) return;
+
         if (subscriptionStatus === "SUBSCRIBED") {
           setStatus("live");
+          retryAttemptRef.current = 0; // Reset retry counter on success
         } else if (subscriptionStatus === "CLOSED" || subscriptionStatus === "CHANNEL_ERROR") {
+          console.warn("Marquee realtime connection error:", err);
           setStatus("offline");
-          // Attempt reconnection after delay
-          setTimeout(() => {
-            setRetryCount((prev) => prev + 1);
-          }, 5000);
+
+          // Attempt reconnection if within retry limits
+          if (retryAttemptRef.current < MAX_RETRY_ATTEMPTS && !isCleaningUpRef.current) {
+            const delay = getRetryDelay(retryAttemptRef.current);
+            retryAttemptRef.current += 1;
+
+            console.log(`Marquee realtime: Retrying in ${delay}ms (attempt ${retryAttemptRef.current}/${MAX_RETRY_ATTEMPTS})`);
+
+            retryTimeoutRef.current = setTimeout(() => {
+              if (!isCleaningUpRef.current) {
+                createSubscription();
+              }
+            }, delay);
+          } else if (retryAttemptRef.current >= MAX_RETRY_ATTEMPTS) {
+            console.error("Marquee realtime: Max retry attempts reached. Staying offline.");
+          }
         }
       });
 
+    channelRef.current = channel;
+  }, [queryClient, isCompletePolaroid, flashUpdating, getRetryDelay]);
+
+  useEffect(() => {
+    isCleaningUpRef.current = false;
+    createSubscription();
+
     return () => {
+      isCleaningUpRef.current = true;
+
       if (updateTimeoutRef.current) {
         clearTimeout(updateTimeoutRef.current);
       }
-      supabase.removeChannel(channel);
+      if (retryTimeoutRef.current) {
+        clearTimeout(retryTimeoutRef.current);
+      }
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current);
+        channelRef.current = null;
+      }
     };
-  }, [queryClient, isCompletePolaroid, flashUpdating, retryCount]);
+  }, [createSubscription]);
 
   /**
    * Merge pending items into the infinite query cache (prepend to first page).
@@ -207,9 +267,19 @@ export function useMarqueeRealtime() {
     return itemsToMerge.length;
   }, [pendingItems, queryClient]);
 
+  /**
+   * Manually trigger a reconnection attempt.
+   * Useful for "Retry" buttons in the UI.
+   */
+  const reconnect = useCallback(() => {
+    retryAttemptRef.current = 0;
+    createSubscription();
+  }, [createSubscription]);
+
   return {
     status,
     pendingCount: pendingItems.length,
     mergePendingItems,
+    reconnect,
   };
 }

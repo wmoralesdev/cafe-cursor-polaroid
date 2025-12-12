@@ -2,21 +2,20 @@ import { Github, Users, Linkedin } from "lucide-react";
 import { XIcon } from "@/components/ui/x-icon";
 import { CursorIcon } from "@/components/ui/cursor-icon";
 import { useLanguage } from "@/contexts/language-context";
+import { SectionHeader } from "@/components/ui/section-header";
 
 export function AboutSection() {
   const { t } = useLanguage();
   return (
     <section id="about" className="py-12 sm:py-16 border-t border-border/50">
-      <div className="card-panel p-8 sm:p-12 text-center max-w-2xl mx-auto">
+      <div className="text-center max-w-2xl mx-auto px-4">
         
         <div className="flex items-center justify-center gap-2 mb-4">
           <CursorIcon className="w-6 h-6" />
           <Users className="w-5 h-5 text-fg-muted" strokeWidth={1.5} />
         </div>
         
-        <h2 className="font-display text-3xl font-semibold text-fg mb-6 tracking-tight">
-          {t.about.title}
-        </h2>
+        <SectionHeader title={t.about.title} className="mx-auto mb-6" titleClassName="text-3xl md:text-4xl" />
         
         <p className="text-lg text-fg/85 mb-6 leading-relaxed max-w-xl mx-auto font-body">
           <span className="font-semibold text-accent">Cafe Cursor</span> {t.about.description1}
@@ -29,15 +28,15 @@ export function AboutSection() {
         <div className="grid grid-cols-3 gap-4 border-t border-b border-border/50 py-6 mb-8">
             <div className="text-center">
                 <div className="text-2xl font-display font-medium text-fg">20+</div>
-                <div className="text-[10px] uppercase tracking-widest text-fg-muted font-mono mt-1">{t.about.stats.cities}</div>
+                <div className="text-xs uppercase tracking-widest text-fg-muted font-mono mt-1">{t.about.stats.cities}</div>
             </div>
             <div className="text-center border-l border-border/50">
                 <div className="text-2xl font-display font-medium text-fg">1K+</div>
-                <div className="text-[10px] uppercase tracking-widest text-fg-muted font-mono mt-1">{t.about.stats.attendees}</div>
+                <div className="text-xs uppercase tracking-widest text-fg-muted font-mono mt-1">{t.about.stats.attendees}</div>
             </div>
             <div className="text-center border-l border-border/50">
                 <div className="text-2xl font-display font-medium text-fg">∞</div>
-                <div className="text-[10px] uppercase tracking-widest text-fg-muted font-mono mt-1">{t.about.stats.vibes}</div>
+                <div className="text-xs uppercase tracking-widest text-fg-muted font-mono mt-1">{t.about.stats.vibes}</div>
             </div>
         </div>
         

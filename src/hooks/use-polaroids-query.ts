@@ -1,7 +1,6 @@
 import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import type { PolaroidRecord, CreatePolaroidParams, UpdatePolaroidParams } from "@/lib/polaroids";
-import type { CursorProfile } from "@/types/form";
 
 const MARQUEE_PAGE_SIZE = 20;
 
@@ -87,17 +86,6 @@ export function useInfiniteCommunityPolaroids(pageSize: number = MARQUEE_PAGE_SI
     },
     initialPageParam: 0,
     getNextPageParam: (lastPage) => lastPage.nextPage,
-  });
-}
-
-export function useNetworkingPolaroids(limit: number = 20, profileHint?: CursorProfile | null, enabled: boolean = true) {
-  return useQuery({
-    queryKey: ["polaroids", "networking", limit, profileHint ? JSON.stringify(profileHint) : null],
-    queryFn: async () => {
-      const { getNetworkingPolaroids } = await import("@/lib/polaroids");
-      return await getNetworkingPolaroids(limit, profileHint);
-    },
-    enabled,
   });
 }
 
@@ -261,29 +249,4 @@ export function useTogglePolaroidLike() {
   });
 }
 
-export function useRecordNetworkingSwipe() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({ polaroidId, decision }: { polaroidId: string; decision: "pass" | "connect" }) => {
-      const { recordNetworkingSwipe } = await import("@/lib/polaroids");
-      await recordNetworkingSwipe(polaroidId, decision);
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["polaroids", "networking"] });
-      queryClient.invalidateQueries({ queryKey: ["polaroids", "networking-history"] });
-    },
-  });
-}
-
-export function useNetworkingHistory(enabled: boolean = true) {
-  return useQuery({
-    queryKey: ["polaroids", "networking-history"],
-    queryFn: async () => {
-      const { getNetworkingHistory } = await import("@/lib/polaroids");
-      return await getNetworkingHistory();
-    },
-    enabled,
-  });
-}
 

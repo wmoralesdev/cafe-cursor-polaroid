@@ -1,8 +1,10 @@
 import { LanguageToggle } from "@/components/ui/language-toggle";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useAuth } from "@/hooks/use-auth";
 import { HeaderLogo } from "./header-logo";
 import { HeaderNavigation } from "./header-navigation";
 import { NotificationsDropdown } from "./notifications-dropdown";
+import { UserMenu } from "./user-menu";
 import { AppFooter } from "./app-footer";
 
 interface AppShellProps {
@@ -10,25 +12,18 @@ interface AppShellProps {
 }
 
 export function AppShell({ children }: AppShellProps) {
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
 
   return (
     <div className="min-h-screen flex flex-col overflow-x-hidden selection:bg-accent selection:text-white bg-bg">
       <header className="sticky top-0 z-50 border-b border-border bg-bg/95 backdrop-blur-sm">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6">
           <HeaderLogo />
-          <div className="flex items-center gap-4 sm:gap-6">
+          <div className="flex items-center gap-3 sm:gap-4">
             <HeaderNavigation />
             <NotificationsDropdown userId={user?.id || null} />
-            {user && (
-              <button
-                type="button"
-                onClick={signOut}
-                className="text-sm font-medium text-fg-muted hover:text-accent transition-colors duration-150 font-body"
-              >
-                Logout
-              </button>
-            )}
+            <UserMenu />
+            <ThemeToggle />
             <LanguageToggle />
           </div>
         </div>

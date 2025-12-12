@@ -46,7 +46,7 @@ export function EditorActions({
   const setShowNewCardChoice = useUIStore((state) => state.setShowNewCardChoice);
 
   return (
-    <div className="mt-8 w-full max-w-sm space-y-6">
+    <div className="mt-6 w-full max-w-sm space-y-6">
       {image && (
         <div className="p-5 card-panel space-y-4">
           <div className="space-y-3">
@@ -160,15 +160,29 @@ export function EditorActions({
 
         {!showNewCardChoice && (
           <>
-            <button 
-              type="button"
-              onClick={onExport}
-              disabled={isExporting || !image || !user}
-              className="w-full py-4 px-8 bg-accent text-white rounded-sm font-semibold tracking-wide shadow-md hover:bg-accent/90 hover:shadow-lg hover:-translate-y-0.5 hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-md disabled:hover:scale-100 font-body"
-            >
-              <Download className={`w-5 h-5 ${isExporting ? "animate-bounce" : ""}`} strokeWidth={1.5} />
-              {isExporting ? t.editor.exportButton.exporting : t.editor.exportButton.default}
-            </button>
+            <div className="flex flex-col gap-3">
+              <button 
+                type="button"
+                onClick={onExport}
+                disabled={isExporting || !image || !user}
+                className="w-full py-4 px-8 bg-accent text-white rounded-sm font-semibold tracking-wide shadow-md hover:bg-accent/90 hover:shadow-lg hover:-translate-y-0.5 hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-md disabled:hover:scale-100 font-body"
+              >
+                <Download className={`w-5 h-5 ${isExporting ? "animate-bounce" : ""}`} strokeWidth={1.5} />
+                {isExporting ? t.editor.exportButton.exporting : t.editor.exportButton.default}
+              </button>
+              
+              {user && (
+                <button
+                  type="button"
+                  onClick={onNewCardRequested}
+                  className="w-full py-2.5 px-6 text-fg-muted rounded-sm font-medium text-sm hover:text-fg hover:bg-card-02 transition-all duration-200 flex items-center justify-center gap-2"
+                >
+                  <Plus className="w-4 h-4" strokeWidth={1.5} />
+                  <span>{t.userPolaroids.newCard}</span>
+                </button>
+              )}
+            </div>
+
             {user && currentPolaroidId && (
               <button
                 type="button"

@@ -1,5 +1,6 @@
 import { clsx } from "clsx";
 import { useLanguage } from "@/contexts/language-context";
+import { SectionHeader } from "@/components/ui/section-header";
 
 type CommunityPhoto = {
   src: string;
@@ -54,27 +55,21 @@ export function PhotoStrip() {
   const { t } = useLanguage();
   
   return (
-    <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-12 overflow-hidden border-t border-border/50">
-      <div className="max-w-2xl mb-8">
-        <h2 className="font-display text-4xl md:text-5xl font-semibold text-fg tracking-tight leading-tight">
-          {t.showcase.title}
-        </h2>
-        <p className="text-fg-muted font-body text-lg mt-3 max-w-xl leading-relaxed">
-          {t.showcase.subtitle}
-        </p>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 auto-rows-[220px] md:auto-rows-[200px]">
-        {communityPhotos.map((photo) => (
-          <figure
-            key={photo.src}
-            className={clsx(
-              "relative group overflow-hidden rounded-sm card-panel bg-card shadow-sm transform-gpu",
-              photo.colSpanClass,
-              photo.rowSpanClass,
-              photo.tiltClass,
-              photo.accent ? "shadow-md" : null
-            )}
-          >
+    <section className="w-full py-12 overflow-hidden border-t border-border/50">
+      <div className="container mx-auto px-4">
+        <SectionHeader className="mb-8" title={t.showcase.title} subtitle={t.showcase.subtitle} />
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 auto-rows-[220px] md:auto-rows-[200px]">
+          {communityPhotos.map((photo) => (
+            <figure
+              key={photo.src}
+              className={clsx(
+                "relative group overflow-hidden rounded-sm card-panel bg-card shadow-sm transform-gpu",
+                photo.colSpanClass,
+                photo.rowSpanClass,
+                photo.tiltClass,
+                photo.accent ? "shadow-md" : null
+              )}
+            >
             <div
               className={clsx(
                 "absolute inset-0 mix-blend-multiply z-10 pointer-events-none",
@@ -95,8 +90,9 @@ export function PhotoStrip() {
                 </span>
               </figcaption>
             ) : null}
-          </figure>
-        ))}
+            </figure>
+          ))}
+        </div>
       </div>
     </section>
   );
