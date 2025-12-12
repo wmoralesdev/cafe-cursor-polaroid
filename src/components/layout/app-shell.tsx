@@ -21,10 +21,10 @@ export function AppShell({ children }: AppShellProps) {
           <HeaderLogo />
           <div className="flex items-center gap-3 sm:gap-4">
             <HeaderNavigation />
+            <LanguageToggle />
+            <ThemeToggle />
             <NotificationsDropdown userId={user?.id || null} />
             <UserMenu />
-            <ThemeToggle />
-            <LanguageToggle />
           </div>
         </div>
       </header>

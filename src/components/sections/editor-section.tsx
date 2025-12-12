@@ -13,7 +13,7 @@ import { useLanguage } from "@/contexts/language-context";
 import { useAuth } from "@/hooks/use-auth";
 import { useTracking } from "@/contexts/tracking-context";
 import { AuthOverlay } from "@/components/auth/auth-overlay";
-import { Loader2, CheckCircle2, AlertCircle } from "lucide-react";
+import { Loader2, CheckCircle2, AlertCircle, ChevronUp } from "lucide-react";
 import { useUpdatePolaroid, useCreatePolaroid } from "@/hooks/use-polaroids-query";
 import { useEditorUIStore } from "@/stores/editor-ui-store";
 import { useUIStore } from "@/stores/ui-store";
@@ -332,7 +332,7 @@ export function EditorSection({ initialPolaroid, onPolaroidChange }: EditorSecti
         {/* Adaptive layout: render each major block ONCE */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Preview (mobile first, desktop right) */}
-          <div className="lg:col-span-6 order-1 lg:order-2 flex flex-col items-center gap-6 relative animate-[fadeInUp_0.6s_ease-out_0.2s_forwards] opacity-0">
+          <div id="editor-preview" className="lg:col-span-6 order-1 lg:order-2 flex flex-col items-center gap-6 relative animate-[fadeInUp_0.6s_ease-out_0.2s_forwards] opacity-0">
             {isLoadingInitial ? (
               <div className="w-full h-[510px] bg-card rounded-sm shadow-polaroid flex flex-col items-center justify-center gap-4 animate-pulse">
                 <Loader2 className="w-8 h-8 animate-spin text-accent" strokeWidth={1.5} />
@@ -424,6 +424,21 @@ export function EditorSection({ initialPolaroid, onPolaroidChange }: EditorSecti
           </div>
         </div>
       </div>
+
+      {/* Floating button to scroll to preview (mobile only) */}
+      <button
+        type="button"
+        onClick={() => {
+          const previewElement = document.getElementById("editor-preview");
+          if (previewElement) {
+            previewElement.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        }}
+        className="lg:hidden fixed bottom-6 right-6 z-50 flex items-center justify-center w-14 h-14 bg-accent text-white rounded-full shadow-lg hover:bg-accent/90 hover:shadow-xl hover:scale-110 active:scale-95 transition-all duration-200"
+        aria-label={t.form.viewPreview}
+      >
+        <ChevronUp className="w-6 h-6" strokeWidth={2} />
+      </button>
     </section>
   );
 }

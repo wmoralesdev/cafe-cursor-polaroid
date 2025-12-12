@@ -80,8 +80,9 @@ function FeatureBadge({
         <span 
           className={clsx(baseClasses, "px-2 py-0.5 rounded-none")}
           style={{ 
-            backgroundColor: config.accent,
-            color: "white",
+            backgroundColor: config.accentLight,
+            color: config.accent,
+            border: `1px solid ${config.badgeBorder}`,
           }}
         >
           {label}
@@ -240,8 +241,12 @@ export function CursorProfileRow({ profile, source }: CursorProfileRowProps) {
           )}
           {profile.isMaxMode && (
             <div 
-              className="px-1.5 py-0.5 text-white rounded-sm text-[8px] font-bold uppercase tracking-wider"
-              style={{ backgroundColor: config.accent }}
+              className="px-1.5 py-0.5 rounded-sm text-[8px] font-bold uppercase tracking-wider"
+              style={{ 
+                backgroundColor: config.accentLight,
+                color: config.accent,
+                border: `1px solid ${config.badgeBorder}`,
+              }}
             >
               MAX
             </div>

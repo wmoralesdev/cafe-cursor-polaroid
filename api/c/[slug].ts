@@ -71,22 +71,27 @@ export default async function handler(request: Request) {
   }
 
   try {
+    // Use Edge Function instead of direct REST API
+    const functionsUrl = `${supabaseUrl}/functions/v1/get-polaroid-by-slug`;
     const response = await fetch(
-      `${supabaseUrl}/rest/v1/polaroids?slug=eq.${slug}&select=*`,
+      `${functionsUrl}?slug=${encodeURIComponent(slug)}`,
       {
+        method: "GET",
         headers: {
-          apikey: supabaseKey,
-          Authorization: `Bearer ${supabaseKey}`,
+          "Content-Type": "application/json",
+          "apikey": supabaseKey,
+          "Authorization": `Bearer ${supabaseKey}`,
         },
       }
     );
 
-    const data = await response.json() as any[];
-    const polaroid = data[0];
+    const result = await response.json() as { data?: any; error?: string };
 
-    if (!polaroid) {
+    if (!response.ok || result.error || !result.data) {
       return new Response('Polaroid not found', { status: 404 });
     }
+
+    const polaroid = result.data;
 
     const profile = polaroid.profile || {};
     const handle = profile.handles?.[0]?.handle || 'dev';

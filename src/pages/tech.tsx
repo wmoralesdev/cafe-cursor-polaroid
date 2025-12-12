@@ -5,6 +5,7 @@ import { useLanguage } from "@/contexts/language-context";
 import { useTheme } from "@/hooks/use-theme";
 import { CursorIcon } from "@/components/ui/cursor-icon";
 import { LanguageToggle } from "@/components/ui/language-toggle";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { AppFooter } from "@/components/layout/app-footer";
 import { CURSOR_PROMPT } from "@/constants/cursor-prompt";
 import { clsx } from "clsx";
@@ -412,6 +413,7 @@ export function TechPage() {
               <CursorIcon className="w-5 h-5" />
               <span className="font-display font-semibold text-fg">Cafe Cursor</span>
             </div>
+            <ThemeToggle />
             <LanguageToggle />
           </div>
         </div>

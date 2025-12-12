@@ -114,6 +114,7 @@ export interface Translations {
         matrix: string;
       };
     };
+    viewPreview: string;
   };
   community: {
     title: string;
@@ -402,6 +403,7 @@ export const translations: Record<Language, Translations> = {
           matrix: "Matrix",
         },
       },
+      viewPreview: "View preview",
     },
     community: {
       title: "Community",
@@ -716,6 +718,7 @@ export const translations: Record<Language, Translations> = {
           matrix: "Matrix",
         },
       },
+      viewPreview: "Ver vista previa",
     },
     community: {
       title: "Comunidad",

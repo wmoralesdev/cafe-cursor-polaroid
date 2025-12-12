@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { es, enUS } from "date-fns/locale";
 import { Trash2, Loader2, Heart } from "lucide-react";
@@ -38,6 +38,8 @@ export function PolaroidTile({
   const handle = firstHandle ? `@${firstHandle.handle}` : "@user";
   const { user } = useAuth();
   const toggleLike = useTogglePolaroidLike();
+  const [isHovered, setIsHovered] = useState(false);
+  const [isClicking, setIsClicking] = useState(false);
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -46,7 +48,14 @@ export function PolaroidTile({
 
   const handleLike = (e: React.MouseEvent) => {
     e.stopPropagation();
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/3b85e886-5738-4958-929a-efd54a8f8262',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H1',location:'src/components/polaroid/polaroid-tile.tsx:handleLike',message:'handleLike called',data:{polaroidId:polaroid.id,variant,hasUser:!!user,eventType:(e as any)?.type},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
+    setIsClicking(false);
     if (user) {
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/3b85e886-5738-4958-929a-efd54a8f8262',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H1',location:'src/components/polaroid/polaroid-tile.tsx:handleLike',message:'calling toggleLike.mutate',data:{polaroidId:polaroid.id},timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
       toggleLike.mutate(polaroid.id);
     }
   };
@@ -63,18 +72,36 @@ export function PolaroidTile({
         className
       )}
       style={width ? { width } : undefined}
+      onClick={(e) => {
+        // #region agent log
+        fetch('http://127.0.0.1:7243/ingest/3b85e886-5738-4958-929a-efd54a8f8262',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H1',location:'src/components/polaroid/polaroid-tile.tsx:root',message:'tile onClick fired',data:{polaroidId:polaroid.id,variant,targetTag:(e.target as HTMLElement | null)?.tagName ?? null},timestamp:Date.now()})}).catch(()=>{});
+        // #endregion
+        onSelect?.();
+      }}
+      onMouseEnter={() => {
+        setIsHovered(true);
+      }}
+      onMouseLeave={() => {
+        if (!isClicking) {
+          setIsHovered(false);
+        }
+      }}
     >
-      {/* Click target for selection */}
-      <button
-        type="button"
-        onClick={onSelect}
-        className="absolute inset-0 z-0 rounded-sm focus:outline-none focus:ring-2 focus:ring-accent/20 focus:ring-offset-1"
-        aria-label={`View card by ${handle}`}
-      />
 
       {/* Public Variant Content Overlay (Bottom) */}
       {variant === "public" && (
-        <div className="absolute bottom-0 left-0 right-0 z-20 p-3 bg-linear-to-t from-black/80 via-black/40 to-transparent pt-12 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-end justify-between">
+        <div 
+          className={clsx(
+            "absolute bottom-0 left-0 right-0 z-20 p-3 bg-linear-to-t from-black/80 via-black/40 to-transparent pt-12 transition-opacity duration-200 flex items-end justify-between",
+            (isHovered || isClicking) ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+          )}
+          onClick={(e) => {
+          // Prevent bubbling to container when clicking inside overlay
+          if ((e.target as HTMLElement).tagName === 'BUTTON') {
+            e.stopPropagation();
+          }
+          }}
+        >
            <div className="text-white pointer-events-none">
              <p className="font-mono text-xs font-medium">@{polaroid.profile.handles[0]?.handle || "user"}</p>
              <p className="text-[10px] opacity-80">{formatDistanceToNow(new Date(polaroid.created_at), { addSuffix: true, locale })}</p>
@@ -82,9 +109,22 @@ export function PolaroidTile({
            {user && (
              <button
                type="button"
-               onClick={handleLike}
+              onMouseDown={(e) => {
+                 setIsClicking(true);
+                handleLike(e);
+               }}
+               onMouseUp={() => {
+                 // Don't clear isClicking here - let handleLike do it
+               }}
+               onMouseLeave={() => {
+                 // Only clear if we're not in the middle of a click
+                 if (!isClicking) {
+                   setIsClicking(false);
+                 }
+               }}
+               style={{ pointerEvents: 'auto', zIndex: 30 }}
                className={clsx(
-                 "flex items-center gap-2 text-white transition-all pointer-events-auto px-3 py-2 rounded-full backdrop-blur-sm border",
+                 "flex items-center gap-2 text-white transition-all px-3 py-2 rounded-full backdrop-blur-sm border",
                  polaroid.viewer_has_liked 
                    ? "bg-red-500/90 border-red-400/50 hover:bg-red-500 shadow-lg" 
                    : "bg-white/20 border-white/30 hover:bg-white/30 shadow-md"
@@ -150,3 +190,4 @@ export function PolaroidTile({
     </div>
   );
 }
+

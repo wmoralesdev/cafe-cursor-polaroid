@@ -1,8 +1,8 @@
-import { type UseFormRegister, type FieldErrors } from "react-hook-form";
+import type { UseFormRegister, FieldErrors } from "react-hook-form";
 import { clsx } from "clsx";
-import { useMemo } from "react";
-import type { PolaroidFormValues } from "@/types/form";
+import { useState } from "react";
 import { useLanguage } from "@/contexts/language-context";
+import type { PolaroidFormValues } from "@/types/form";
 
 interface ProjectInputProps {
   register: UseFormRegister<PolaroidFormValues>;
@@ -14,10 +14,10 @@ export function ProjectInput({ register, errors, onInteraction }: ProjectInputPr
   const { t } = useLanguage();
   const error = errors.profile?.projectType;
   
-  const placeholder = useMemo(() => {
+  const placeholder = useState(() => {
     const placeholders = t.form.currentProject.placeholders;
     return placeholders[Math.floor(Math.random() * placeholders.length)];
-  }, [t]);
+  })[0];
 
   const registerResult = register("profile.projectType", { required: t.form.currentProject.errorRequired });
 

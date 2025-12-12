@@ -4,6 +4,7 @@ import { createClient } from "jsr:@supabase/supabase-js@2";
 interface GetPolaroidsRequest {
   type: "user" | "community";
   limit?: number;
+  offset?: number;
 }
 
 interface LikeRecord {
@@ -75,7 +76,7 @@ Deno.serve(async (req: Request) => {
     
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const { type, limit = 20 }: GetPolaroidsRequest = await req.json();
+    const { type, limit = 20, offset = 0 }: GetPolaroidsRequest = await req.json();
 
     // Try to get viewer ID if auth header is present
     let viewerId: string | null = null;
@@ -103,7 +104,8 @@ Deno.serve(async (req: Request) => {
         .from("polaroids")
         .select("*")
         .eq("user_id", viewerId)
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .range(offset, offset + limit - 1);
 
       if (error) {
         throw new Error(`Failed to get user polaroids: ${error.message}`);
@@ -132,12 +134,14 @@ Deno.serve(async (req: Request) => {
       );
     } else if (type === "community") {
       // Public polaroids: have image_url AND at least one non-empty handle
+      // For pagination, we fetch more than needed to account for filtering
+      const fetchLimit = offset === 0 ? limit * 2 : limit * 3;
       const { data, error } = await supabase
         .from("polaroids")
         .select("*")
         .not("image_url", "is", null)
         .order("created_at", { ascending: false })
-        .limit(limit * 2);
+        .range(offset, offset + fetchLimit - 1);
 
       if (error) {
         throw new Error(`Failed to get community polaroids: ${error.message}`);
@@ -152,8 +156,10 @@ Deno.serve(async (req: Request) => {
           polaroid.profile.handles[0]?.handle?.trim()
       );
 
-      const shuffled = filtered.sort(() => Math.random() - 0.5);
-      const result = shuffled.slice(0, limit);
+      // Only shuffle on first page (offset === 0), otherwise maintain order for pagination
+      const result = offset === 0 
+        ? filtered.sort(() => Math.random() - 0.5).slice(0, limit)
+        : filtered.slice(0, limit);
 
       // Enrich with like data
       if (result.length > 0) {

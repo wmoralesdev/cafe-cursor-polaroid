@@ -176,7 +176,6 @@ export function useMarqueeRealtime() {
           setStatus("live");
           retryAttemptRef.current = 0; // Reset retry counter on success
         } else if (subscriptionStatus === "CLOSED" || subscriptionStatus === "CHANNEL_ERROR") {
-          console.warn("Marquee realtime connection error:", err);
           setStatus("offline");
 
           // Attempt reconnection if within retry limits
@@ -184,15 +183,11 @@ export function useMarqueeRealtime() {
             const delay = getRetryDelay(retryAttemptRef.current);
             retryAttemptRef.current += 1;
 
-            console.log(`Marquee realtime: Retrying in ${delay}ms (attempt ${retryAttemptRef.current}/${MAX_RETRY_ATTEMPTS})`);
-
             retryTimeoutRef.current = setTimeout(() => {
               if (!isCleaningUpRef.current) {
                 createSubscription();
               }
             }, delay);
-          } else if (retryAttemptRef.current >= MAX_RETRY_ATTEMPTS) {
-            console.error("Marquee realtime: Max retry attempts reached. Staying offline.");
           }
         }
       });

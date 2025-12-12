@@ -117,20 +117,29 @@ export async function listUserPolaroids(): Promise<PolaroidRecord[]> {
  * Get a single polaroid by ID
  */
 export async function getPolaroid(id: string): Promise<PolaroidRecord | null> {
-  const { data, error } = await supabase
-    .from("polaroids")
-    .select("*")
-    .eq("id", id)
-    .single();
-
-  if (error) {
-    if (error.code === "PGRST116") {
-      return null; // Not found
+  // Use Edge Function instead of direct REST API
+  const functionsUrl = `${supabaseUrl}/functions/v1/get-polaroid-by-id`;
+  const response = await fetch(
+    `${functionsUrl}?id=${encodeURIComponent(id)}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": import.meta.env.VITE_SUPABASE_ANON_KEY || "",
+      },
     }
-    throw new Error(`Failed to get polaroid: ${error.message}`);
+  );
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    if (response.status === 404 || result?.error === "Polaroid not found") {
+      return null;
+    }
+    throw new Error(result?.error || `Failed to get polaroid: ${response.statusText}`);
   }
 
-  return data;
+  return result?.data || null;
 }
 
 /**
@@ -257,9 +266,15 @@ export async function recordNetworkingSwipe(
  * Toggle like on a polaroid
  */
 export async function togglePolaroidLike(polaroidId: string): Promise<ToggleLikeResult> {
+  // #region agent log
+  fetch('http://127.0.0.1:7243/ingest/3b85e886-5738-4958-929a-efd54a8f8262',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H2',location:'src/lib/polaroids.ts:togglePolaroidLike',message:'before invoke toggle-polaroid-like',data:{polaroidId},timestamp:Date.now()})}).catch(()=>{});
+  // #endregion
   const { data, error } = await supabase.functions.invoke("toggle-polaroid-like", {
     body: { polaroidId },
   });
+  // #region agent log
+  fetch('http://127.0.0.1:7243/ingest/3b85e886-5738-4958-929a-efd54a8f8262',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H2',location:'src/lib/polaroids.ts:togglePolaroidLike',message:'after invoke toggle-polaroid-like',data:{hasError:!!error,errorMessage:error?.message ?? null,hasData:!!data,dataError:(data as any)?.error ?? null},timestamp:Date.now()})}).catch(()=>{});
+  // #endregion
 
   if (error) {
     throw new Error(`Failed to toggle like: ${error.message}`);

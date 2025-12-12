@@ -7,6 +7,7 @@ import { OGPreviewPage } from "@/pages/og-preview";
 import { SharedPolaroidPage } from "@/pages/shared-polaroid";
 import { AdminPolaroidsPage } from "@/components/pages/admin-polaroids-page";
 import { AdminRoute } from "@/components/admin/admin-route";
+import { ScrollToTop } from "@/components/scroll-to-top";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -22,6 +23,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <BrowserRouter>
+          <ScrollToTop />
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/tech" element={<TechPageWrapper />} />
