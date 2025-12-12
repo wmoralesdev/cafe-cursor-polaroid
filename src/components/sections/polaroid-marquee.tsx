@@ -194,12 +194,19 @@ export function PolaroidMarqueeSection({ showSignInOverlay = false }: PolaroidMa
       // Only hijack if hovering over rail
       if (!rail.contains(e.target as Node)) return;
 
-      e.preventDefault();
-      markInteraction();
-
-      // Apply both deltaY and deltaX for trackpad support
-      rail.scrollLeft += e.deltaY + e.deltaX;
-      checkLoadMore();
+      // Determine scroll intent: horizontal vs vertical
+      const absDeltaX = Math.abs(e.deltaX);
+      const absDeltaY = Math.abs(e.deltaY);
+      const isHorizontalIntent = absDeltaX > absDeltaY || (absDeltaX > 0 && absDeltaY < 10);
+      
+      // Only hijack horizontal scrolling - allow vertical scrolling to pass through
+      if (isHorizontalIntent) {
+        e.preventDefault();
+        markInteraction();
+        rail.scrollLeft += e.deltaY + e.deltaX;
+        checkLoadMore();
+      }
+      // Vertical scrolling (deltaY >> deltaX) passes through for page scrolling
     },
     [markInteraction, checkLoadMore]
   );
