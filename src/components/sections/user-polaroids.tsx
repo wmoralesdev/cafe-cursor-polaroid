@@ -1,7 +1,8 @@
+import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { PolaroidTile } from "@/components/polaroid/polaroid-tile";
 import { useLanguage } from "@/hooks/use-language";
-import { useUserPolaroids, useDeletePolaroid } from "@/hooks/use-polaroids-query";
+import { useUserPolaroids, useDeletePolaroid, useSetMarkForPrinting } from "@/hooks/use-polaroids-query";
 import { useUIStore } from "@/stores/ui-store";
 import { usePolaroidStore } from "@/stores/polaroid-store";
 import { SectionHeader } from "@/components/ui/section-header";
@@ -12,12 +13,15 @@ export function UserPolaroids() {
   const { t } = useLanguage();
   const { data: polaroids = [], isLoading: loading, error } = useUserPolaroids(!!user);
   const deleteMutation = useDeletePolaroid();
+  const markMutation = useSetMarkForPrinting();
   const deletingId = useUIStore((state) => state.deletingId);
   const setDeletingId = useUIStore((state) => state.setDeletingId);
   const confirmDeleteId = useUIStore((state) => state.confirmDeleteId);
   const setConfirmDeleteId = useUIStore((state) => state.setConfirmDeleteId);
   const activePolaroidId = usePolaroidStore((state) => state.activePolaroid?.id || null);
   const handleSelectPolaroid = usePolaroidStore((state) => state.handleSelectPolaroid);
+  
+  const [overrideMarkId, setOverrideMarkId] = useState<string | null>(null);
   
   const userAvatarUrl = user?.user_metadata?.avatar_url || user?.user_metadata?.picture || null;
 
@@ -44,6 +48,50 @@ export function UserPolaroids() {
   const handleCancelDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
     setConfirmDeleteId(null);
+  };
+
+  const handleMarkForPrinting = async (e: React.MouseEvent, polaroidId: string) => {
+    e.stopPropagation();
+    const polaroid = polaroids.find((p) => p.id === polaroidId);
+    if (!polaroid) return;
+
+    const isCurrentlyMarked = polaroid.marked_for_printing;
+
+    if (isCurrentlyMarked) {
+      // Unmark
+      try {
+        await markMutation.mutateAsync({ polaroidId, marked: false });
+      } catch (error) {
+        console.error("Failed to unmark polaroid:", error);
+      }
+    } else {
+      // Try to mark without override first
+      try {
+        await markMutation.mutateAsync({ polaroidId, marked: true, override: false });
+      } catch (error: unknown) {
+        // Check if it's the "already marked" error
+        if (error instanceof Error && "existingMarkedPolaroidId" in error) {
+          setOverrideMarkId(polaroidId);
+        } else {
+          console.error("Failed to mark polaroid:", error);
+        }
+      }
+    }
+  };
+
+  const handleConfirmOverride = async (e: React.MouseEvent, polaroidId: string) => {
+    e.stopPropagation();
+    setOverrideMarkId(null);
+    try {
+      await markMutation.mutateAsync({ polaroidId, marked: true, override: true });
+    } catch (error) {
+      console.error("Failed to mark polaroid:", error);
+    }
+  };
+
+  const handleCancelOverride = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setOverrideMarkId(null);
   };
 
   if (!user) {
@@ -87,6 +135,9 @@ export function UserPolaroids() {
                   onSelect={() => handleSelectPolaroid(polaroid)}
                   onDelete={() => handleDeleteClick(polaroid.id)}
                   isDeleting={deletingId === polaroid.id}
+                  isMarkedForPrinting={polaroid.marked_for_printing}
+                  onMarkForPrinting={(e) => handleMarkForPrinting(e, polaroid.id)}
+                  isMarking={markMutation.isPending}
                 >
                   {confirmDeleteId === polaroid.id && (
                     // biome-ignore lint/a11y/useKeyWithClickEvents: Stop propagation for overlay
@@ -109,6 +160,35 @@ export function UserPolaroids() {
                           <button
                             type="button"
                             onClick={handleCancelDelete}
+                            className="flex-1 px-4 py-2 glass-panel-inner text-fg rounded-sm font-medium text-sm transition-colors"
+                          >
+                            {t.userPolaroids.cancel}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  {overrideMarkId === polaroid.id && (
+                    // biome-ignore lint/a11y/useKeyWithClickEvents: Stop propagation for overlay
+                    <div
+                      className="absolute inset-0 bg-black/60 backdrop-blur-sm rounded-sm flex items-center justify-center z-20 p-4"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div className="glass-panel-inner p-4 rounded-sm max-w-xs w-full shadow-lg">
+                        <p className="font-body text-fg mb-4 text-center text-sm">
+                          {t.userPolaroids.overridePrintMarkConfirm}
+                        </p>
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={(e) => handleConfirmOverride(e, polaroid.id)}
+                            className="flex-1 px-4 py-2 bg-accent text-white rounded-sm font-medium text-sm hover:opacity-90 transition-opacity"
+                          >
+                            {t.userPolaroids.markForPrinting}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleCancelOverride}
                             className="flex-1 px-4 py-2 glass-panel-inner text-fg rounded-sm font-medium text-sm transition-colors"
                           >
                             {t.userPolaroids.cancel}

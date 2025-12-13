@@ -43,6 +43,7 @@ FUNCTIONS=(
     "record-networking-swipe"
     "toggle-polaroid-like"
     "update-polaroid"
+    "set-mark-for-printing"
 )
 
 # Functions that should allow anonymous access (no JWT verification)

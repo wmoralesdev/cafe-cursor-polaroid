@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { es, enUS } from "date-fns/locale";
-import { Trash2, Loader2, Heart } from "lucide-react";
+import { Trash2, Loader2, Heart, Printer } from "lucide-react";
 import { clsx } from "clsx";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
@@ -19,6 +19,9 @@ interface PolaroidTileProps {
   className?: string;
   width?: number | string;
   children?: React.ReactNode;
+  isMarkedForPrinting?: boolean;
+  onMarkForPrinting?: (e: React.MouseEvent) => void;
+  isMarking?: boolean;
 }
 
 export function PolaroidTile({
@@ -31,6 +34,9 @@ export function PolaroidTile({
   className,
   width,
   children,
+  isMarkedForPrinting = false,
+  onMarkForPrinting,
+  isMarking = false,
 }: PolaroidTileProps) {
   const { t, lang } = useLanguage();
   const locale = lang === "es" ? es : enUS;
@@ -63,6 +69,7 @@ export function PolaroidTile({
           ? "bg-transparent border-2 border-transparent hover:border-accent" 
           : "bg-transparent border-2 border-transparent hover:border-accent", // Public variant might be simpler or styled by parent
         isSelected && variant === "user" ? "ring-2 ring-accent shadow-md" : "",
+        isMarkedForPrinting && variant === "user" ? "ring-2 ring-accent ring-offset-2 ring-offset-bg" : "",
         className
       )}
       style={width ? { width } : undefined}
@@ -140,22 +147,45 @@ export function PolaroidTile({
            <div className="text-white pointer-events-none">
              <p className="text-[10px] opacity-80">{formatDistanceToNow(new Date(polaroid.created_at), { addSuffix: true, locale })}</p>
            </div>
-           {onDelete && (
-             <button
-               type="button"
-               onClick={handleDelete}
-               disabled={isDeleting}
-               className="flex items-center gap-2 text-white transition-all pointer-events-auto px-3 py-2 rounded-full bg-red-500/90 border border-red-400/50 hover:bg-red-500 shadow-lg backdrop-blur-sm disabled:opacity-50"
-               aria-label={t.userPolaroids.delete}
-               title={t.userPolaroids.delete}
-             >
-               {isDeleting ? (
-                 <Loader2 className="w-4 h-4 animate-spin" strokeWidth={1.5} />
-               ) : (
-                 <Trash2 className="w-4 h-4" strokeWidth={1.5} />
-               )}
-             </button>
-           )}
+           <div className="flex items-center gap-2">
+             {onMarkForPrinting && (
+               <button
+                 type="button"
+                 onClick={onMarkForPrinting}
+                 disabled={isMarking}
+                 className={clsx(
+                   "flex items-center gap-2 text-white transition-all pointer-events-auto px-3 py-2 rounded-full backdrop-blur-sm border shadow-lg disabled:opacity-50",
+                   isMarkedForPrinting
+                     ? "bg-accent/90 border-accent/50 hover:bg-accent"
+                     : "bg-white/20 border-white/30 hover:bg-white/30"
+                 )}
+                 aria-label={isMarkedForPrinting ? t.userPolaroids.unmarkForPrinting : t.userPolaroids.markForPrinting}
+                 title={isMarkedForPrinting ? t.userPolaroids.unmarkForPrinting : t.userPolaroids.markForPrinting}
+               >
+                 {isMarking ? (
+                   <Loader2 className="w-4 h-4 animate-spin" strokeWidth={1.5} />
+                 ) : (
+                   <Printer className="w-4 h-4" strokeWidth={1.5} />
+                 )}
+               </button>
+             )}
+             {onDelete && (
+               <button
+                 type="button"
+                 onClick={handleDelete}
+                 disabled={isDeleting}
+                 className="flex items-center gap-2 text-white transition-all pointer-events-auto px-3 py-2 rounded-full bg-red-500/90 border border-red-400/50 hover:bg-red-500 shadow-lg backdrop-blur-sm disabled:opacity-50"
+                 aria-label={t.userPolaroids.delete}
+                 title={t.userPolaroids.delete}
+               >
+                 {isDeleting ? (
+                   <Loader2 className="w-4 h-4 animate-spin" strokeWidth={1.5} />
+                 ) : (
+                   <Trash2 className="w-4 h-4" strokeWidth={1.5} />
+                 )}
+               </button>
+             )}
+           </div>
         </div>
       )}
 

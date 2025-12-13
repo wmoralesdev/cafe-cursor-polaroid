@@ -26,6 +26,10 @@ export interface PolaroidRecord {
   like_count?: number;
   viewer_has_liked?: boolean;
   recent_likers?: RecentLiker[];
+  // Printing metadata
+  marked_for_printing?: boolean;
+  marked_for_printing_at?: string | null;
+  printed_count?: number; // Admin-only enrichment
 }
 
 export interface CreatePolaroidParams {

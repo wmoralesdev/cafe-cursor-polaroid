@@ -244,4 +244,58 @@ export function useTogglePolaroidLike() {
   });
 }
 
+export function useSetMarkForPrinting() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ polaroidId, marked, override = false }: { polaroidId: string; marked: boolean; override?: boolean }) => {
+      const { data, error } = await supabase.functions.invoke("set-mark-for-printing", {
+        body: { polaroidId, marked, override },
+      });
+
+      if (error) {
+        throw new Error(`Failed to set mark for printing: ${error.message}`);
+      }
+
+      if (data?.error) {
+        const err = new Error(data.error) as Error & { existingMarkedPolaroidId?: string };
+        err.existingMarkedPolaroidId = data.existingMarkedPolaroidId;
+        throw err;
+      }
+
+      return data?.data as PolaroidRecord;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["polaroids", "user"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-polaroids"] });
+    },
+  });
+}
+
+export function useMarkPolaroidPrinted() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (polaroidId: string) => {
+      const { data, error } = await supabase.functions.invoke("mark-polaroid-printed", {
+        body: { polaroidId },
+      });
+
+      if (error) {
+        throw new Error(`Failed to mark polaroid as printed: ${error.message}`);
+      }
+
+      if (data?.error) {
+        throw new Error(data.error);
+      }
+
+      return data?.data as PolaroidRecord;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-polaroids"] });
+      queryClient.invalidateQueries({ queryKey: ["polaroids", "user"] });
+    },
+  });
+}
+
 

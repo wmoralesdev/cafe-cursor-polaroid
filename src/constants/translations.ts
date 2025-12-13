@@ -169,6 +169,9 @@ export interface Translations {
     delete: string;
     deleteConfirm: string;
     cancel: string;
+    markForPrinting: string;
+    unmarkForPrinting: string;
+    overridePrintMarkConfirm: string;
   };
   notifications: {
     title: string;
@@ -458,6 +461,9 @@ export const translations: Record<Language, Translations> = {
       delete: "Delete",
       deleteConfirm: "Are you sure you want to delete this card? This action cannot be undone.",
       cancel: "Cancel",
+      markForPrinting: "Mark for printing",
+      unmarkForPrinting: "Unmark",
+      overridePrintMarkConfirm: "You already have a card marked for printing. Do you want to replace it with this one?",
     },
     notifications: {
       title: "Notifications",
@@ -773,6 +779,9 @@ export const translations: Record<Language, Translations> = {
       delete: "Eliminar",
       deleteConfirm: "¿Estás seguro de que quieres eliminar esta tarjeta? Esta acción no se puede deshacer.",
       cancel: "Cancelar",
+      markForPrinting: "Marcar para imprimir",
+      unmarkForPrinting: "Desmarcar",
+      overridePrintMarkConfirm: "Ya tienes una tarjeta marcada para imprimir. ¿Quieres reemplazarla con esta?",
     },
     notifications: {
       title: "Notificaciones",

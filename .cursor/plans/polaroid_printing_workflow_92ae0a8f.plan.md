@@ -4,30 +4,30 @@ overview: Add a per-user single 'marked for printing' selection, an admin 'mark 
 todos:
   - id: db-migration
     content: Add marked_for_printing columns, unique index, print events table, and RPC helpers
-    status: pending
+    status: completed
   - id: edge-set-mark
     content: Implement set-mark-for-printing edge function (auth + override behavior)
-    status: pending
+    status: completed
     dependencies:
       - db-migration
   - id: edge-mark-printed
     content: Implement mark-polaroid-printed edge function (admin-only, inserts print event)
-    status: pending
+    status: completed
     dependencies:
       - db-migration
   - id: edge-admin-list
     content: Extend get-admin-polaroids to return marked flag + printed counts and support filtering
-    status: pending
+    status: completed
     dependencies:
       - db-migration
   - id: frontend-user-ui
     content: Add mark/unmark + override confirmation UX to UserPolaroids/PolaroidTile
-    status: pending
+    status: completed
     dependencies:
       - edge-set-mark
   - id: frontend-admin-ui
     content: Add marked indicator/filter, owner display, printed count column, and mark-printed action
-    status: pending
+    status: completed
     dependencies:
       - edge-admin-list
       - edge-mark-printed

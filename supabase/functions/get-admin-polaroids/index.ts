@@ -9,6 +9,7 @@ interface GetAdminPolaroidsRequest {
   sortBy?: string;
   sortOrder?: "asc" | "desc";
   dateRange?: "24h" | "7d" | "30d" | "all";
+  markedForPrinting?: boolean;
 }
 
 interface LikeRecord {
@@ -142,6 +143,7 @@ Deno.serve(async (req: Request) => {
       sortBy = "created_at",
       sortOrder = "desc",
       dateRange = "all",
+      markedForPrinting,
     } = body;
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
@@ -157,6 +159,9 @@ Deno.serve(async (req: Request) => {
 
     if (provider) {
       query = query.eq("provider", provider);
+    }
+    if (markedForPrinting !== undefined) {
+      query = query.eq("marked_for_printing", markedForPrinting);
     }
     if (dateRange !== "all") {
       const now = new Date();
@@ -197,7 +202,29 @@ Deno.serve(async (req: Request) => {
         .select("polaroid_id, user_id, liker_name, liker_avatar_url, created_at")
         .in("polaroid_id", polaroidIds);
 
-      const enrichedPolaroids = enrichPolaroidsWithLikes(polaroids, likes || [], null);
+      // Get unique user_ids for print counts
+      const uniqueUserIds = [...new Set(polaroids.map((p) => p.user_id))];
+      let printCountsMap = new Map<string, number>();
+      
+      if (uniqueUserIds.length > 0) {
+        const { data: printCounts } = await supabase.rpc("get_print_counts", {
+          user_ids: uniqueUserIds,
+        });
+        
+        if (printCounts) {
+          printCountsMap = new Map(
+            printCounts.map((pc: { user_id: string; printed_count: number }) => [
+              pc.user_id,
+              pc.printed_count,
+            ])
+          );
+        }
+      }
+
+      const enrichedPolaroids = enrichPolaroidsWithLikes(polaroids, likes || [], null).map((polaroid) => ({
+        ...polaroid,
+        printed_count: printCountsMap.get(polaroid.user_id as string) || 0,
+      }));
       
       return new Response(
         JSON.stringify({

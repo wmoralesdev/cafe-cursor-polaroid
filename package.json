@@ -9,7 +9,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "deploy:functions": "bash scripts/deploy-functions.sh",
-    "check:unused-functions": "bash scripts/check-unused-functions.sh"
+    "check:unused-functions": "bash scripts/check-unused-functions.sh",
+    "db:push": "supabase db push"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.86.0",

@@ -2,10 +2,10 @@ import { useState, useEffect, useCallback } from "react";
 import { AppShell } from "@/components/layout/app-shell";
 import { LanguageProvider } from "@/contexts/language-context";
 import { useAdminPolaroidsQuery, type AdminPolaroidsFilters } from "@/hooks/use-admin-polaroids-query";
-import { Search, Download, ChevronLeft, ChevronRight, Trash2, Eye } from "lucide-react";
+import { Search, Download, ChevronLeft, ChevronRight, Trash2, Eye, Printer, CheckCircle2 } from "lucide-react";
 import { clsx } from "clsx";
 import type { PolaroidRecord } from "@/lib/polaroids";
-import { useDeletePolaroid } from "@/hooks/use-polaroids-query";
+import { useDeletePolaroid, useMarkPolaroidPrinted } from "@/hooks/use-polaroids-query";
 import { useQueryClient } from "@tanstack/react-query";
 
 function AdminPolaroidsContent() {
@@ -25,6 +25,7 @@ function AdminPolaroidsContent() {
 
   const { data, isLoading, error } = useAdminPolaroidsQuery(filters);
   const deletePolaroid = useDeletePolaroid();
+  const markPrinted = useMarkPolaroidPrinted();
   const queryClient = useQueryClient();
 
   // Debounce search input
@@ -132,6 +133,17 @@ function AdminPolaroidsContent() {
     }
   }, [data, downloadImage]);
 
+  const handleMarkPrinted = useCallback(async (id: string) => {
+    if (!confirm("Mark this polaroid as printed?")) return;
+    try {
+      await markPrinted.mutateAsync(id);
+      queryClient.invalidateQueries({ queryKey: ["admin-polaroids"] });
+    } catch (error) {
+      console.error("Failed to mark polaroid as printed:", error);
+      alert("Failed to mark polaroid as printed");
+    }
+  }, [markPrinted, queryClient]);
+
   const pagination = data?.pagination;
   const polaroids = data?.data || [];
 
@@ -176,6 +188,18 @@ function AdminPolaroidsContent() {
               <option value="24h">Last 24 Hours</option>
               <option value="7d">Last 7 Days</option>
               <option value="30d">Last 30 Days</option>
+            </select>
+            <select
+              value={filters.markedForPrinting === undefined ? "" : filters.markedForPrinting ? "true" : "false"}
+              onChange={(e) => {
+                const value = e.target.value;
+                handleFilterChange("markedForPrinting", value === "" ? undefined : value === "true");
+              }}
+              className="px-4 py-2 bg-card border border-border rounded-sm text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent"
+            >
+              <option value="">All Status</option>
+              <option value="true">Marked for Printing</option>
+              <option value="false">Not Marked</option>
             </select>
             <select
               value={`${filters.sortBy}_${filters.sortOrder}`}
@@ -269,7 +293,7 @@ function AdminPolaroidsContent() {
                       Preview
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-fg-muted uppercase tracking-wider">
-                      Username
+                      Owner
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-fg-muted uppercase tracking-wider">
                       Title
@@ -279,6 +303,12 @@ function AdminPolaroidsContent() {
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-fg-muted uppercase tracking-wider">
                       Likes
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-fg-muted uppercase tracking-wider">
+                      Marked
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-fg-muted uppercase tracking-wider">
+                      Printed
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-fg-muted uppercase tracking-wider">
                       Created
@@ -291,6 +321,8 @@ function AdminPolaroidsContent() {
                 <tbody className="divide-y divide-border">
                   {polaroids.map((polaroid) => {
                     const username = polaroid.profile?.handles?.[0]?.handle || "N/A";
+                    const userId = polaroid.user_id;
+                    const shortUserId = userId ? `${userId.slice(0, 8)}...` : "N/A";
                     // Use portrait image_url, not landscape og_image_url
                     const imageUrl = polaroid.image_url;
                     return (
@@ -316,7 +348,12 @@ function AdminPolaroidsContent() {
                             </div>
                           )}
                         </td>
-                        <td className="px-4 py-3 text-sm text-fg">{username}</td>
+                        <td className="px-4 py-3 text-sm">
+                          <div className="flex flex-col">
+                            <span className="text-fg">@{username}</span>
+                            <span className="text-fg-muted text-xs font-mono">{shortUserId}</span>
+                          </div>
+                        </td>
                         <td className="px-4 py-3 text-sm text-fg">
                           {polaroid.title || <span className="text-fg-muted">Untitled</span>}
                         </td>
@@ -325,6 +362,19 @@ function AdminPolaroidsContent() {
                         </td>
                         <td className="px-4 py-3 text-sm text-fg-muted">
                           {polaroid.like_count || 0}
+                        </td>
+                        <td className="px-4 py-3 text-sm">
+                          {polaroid.marked_for_printing ? (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 bg-accent/20 text-accent rounded-sm text-xs">
+                              <CheckCircle2 className="w-3 h-3" />
+                              Marked
+                            </span>
+                          ) : (
+                            <span className="text-fg-muted text-xs">—</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-fg-muted">
+                          {polaroid.printed_count || 0}
                         </td>
                         <td className="px-4 py-3 text-sm text-fg-muted">
                           {new Date(polaroid.created_at).toLocaleDateString()}
@@ -346,6 +396,15 @@ function AdminPolaroidsContent() {
                               title="Download"
                             >
                               <Download className="w-4 h-4 text-fg-muted" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleMarkPrinted(polaroid.id)}
+                              disabled={markPrinted.isPending}
+                              className="p-1.5 hover:bg-card-02 rounded-sm transition-colors text-accent disabled:opacity-50"
+                              title="Mark as Printed"
+                            >
+                              <Printer className="w-4 h-4" />
                             </button>
                             <button
                               type="button"
@@ -449,6 +508,15 @@ function AdminPolaroidsContent() {
                     <div className="text-fg">{detailPolaroid.slug || "N/A"}</div>
                   </div>
                   <div>
+                    <div className="text-fg-muted">Owner</div>
+                    <div className="text-fg">
+                      @{detailPolaroid.profile?.handles?.[0]?.handle || "N/A"}
+                    </div>
+                    <div className="text-fg-muted text-xs font-mono mt-1">
+                      {detailPolaroid.user_id}
+                    </div>
+                  </div>
+                  <div>
                     <div className="text-fg-muted">Title</div>
                     <div className="text-fg">{detailPolaroid.title || "Untitled"}</div>
                   </div>
@@ -459,6 +527,23 @@ function AdminPolaroidsContent() {
                   <div>
                     <div className="text-fg-muted">Likes</div>
                     <div className="text-fg">{detailPolaroid.like_count || 0}</div>
+                  </div>
+                  <div>
+                    <div className="text-fg-muted">Marked for Printing</div>
+                    <div className="text-fg">
+                      {detailPolaroid.marked_for_printing ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-1 bg-accent/20 text-accent rounded-sm text-xs">
+                          <CheckCircle2 className="w-3 h-3" />
+                          Yes
+                        </span>
+                      ) : (
+                        "No"
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-fg-muted">Printed Count</div>
+                    <div className="text-fg">{detailPolaroid.printed_count || 0}</div>
                   </div>
                   <div>
                     <div className="text-fg-muted">Created</div>
@@ -481,6 +566,15 @@ function AdminPolaroidsContent() {
                   >
                     <Download className="w-4 h-4" />
                     Download Image
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleMarkPrinted(detailPolaroid.id)}
+                    disabled={markPrinted.isPending}
+                    className="flex items-center gap-2 px-4 py-2 bg-card border border-border rounded-sm text-sm hover:bg-card-01 transition-colors text-accent disabled:opacity-50"
+                  >
+                    <Printer className="w-4 h-4" />
+                    Mark as Printed
                   </button>
                   <button
                     type="button"

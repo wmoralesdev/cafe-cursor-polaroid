@@ -10,6 +10,7 @@ export interface AdminPolaroidsFilters {
   sortBy?: string;
   sortOrder?: "asc" | "desc";
   dateRange?: "24h" | "7d" | "30d" | "all";
+  markedForPrinting?: boolean;
 }
 
 export interface AdminPolaroidsResponse {
