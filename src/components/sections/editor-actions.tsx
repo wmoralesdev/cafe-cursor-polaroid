@@ -1,5 +1,4 @@
-import { Download, Maximize2, Move, Github, Plus, Share2 } from "lucide-react";
-import { XIcon } from "@/components/ui/x-icon";
+import { Download, Maximize2, Move, Github, Plus } from "lucide-react";
 import { useLanguage } from "@/hooks/use-language";
 import { useEditorUIStore } from "@/stores/editor-ui-store";
 import { useUIStore } from "@/stores/ui-store";
@@ -16,7 +15,6 @@ interface EditorActionsProps {
   currentPolaroidId: string | null;
   provider?: string | null;
   onExport: () => void;
-  onCopyShareLink: () => void;
   onShare: (provider: "twitter" | "github") => void;
   onNewCardOverwrite: () => void;
   onNewCardCreate: () => void;
@@ -35,14 +33,12 @@ export function EditorActions({
   currentPolaroidId,
   provider,
   onExport,
-  onCopyShareLink,
   onShare,
   onNewCardOverwrite,
   onNewCardCreate,
   onNewCardRequested,
 }: EditorActionsProps) {
   const { t } = useLanguage();
-  const shareCopied = useEditorUIStore((state) => state.shareCopied);
   const isSharing = useEditorUIStore((state) => state.isSharing);
   const showNewCardChoice = useUIStore((state) => state.showNewCardChoice);
   const setShowNewCardChoice = useUIStore((state) => state.setShowNewCardChoice);
@@ -184,33 +180,11 @@ export function EditorActions({
                 </button>
               )}
             </div>
-
-            {user && currentPolaroidId && (
-              <button
-                type="button"
-                onClick={onCopyShareLink}
-                className="w-full py-3 px-6 bg-card border border-border text-fg rounded-sm font-medium tracking-wide shadow-sm hover:bg-card-02 hover:shadow-md hover:-translate-y-0.5 hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-sm disabled:hover:scale-100 font-body"
-              >
-                <Share2 className="w-4 h-4" strokeWidth={1.5} />
-                <span>{shareCopied ? t.editor.share.copied : t.editor.share.link}</span>
-              </button>
-            )}
           </>
         )}
 
         {provider && currentPolaroidId && (
           <>
-            {provider === "twitter" && (
-              <button
-                type="button"
-                onClick={() => onShare("twitter")}
-                disabled={isSharing || isExporting || !image || !user || !currentPolaroidId}
-                className="w-full py-3 px-6 bg-card border border-border text-fg rounded-sm font-medium tracking-wide shadow-sm hover:bg-card-02 hover:shadow-md hover:-translate-y-0.5 hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-sm disabled:hover:scale-100 font-body"
-              >
-                <XIcon className="w-4 h-4" />
-                <span>{isSharing ? t.editor.share.openingX : t.editor.share.onX}</span>
-              </button>
-            )}
             {provider === "github" && (
               <button
                 type="button"

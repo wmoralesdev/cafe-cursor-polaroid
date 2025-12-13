@@ -227,25 +227,6 @@ export function EditorSection({ initialPolaroid, onPolaroidChange }: EditorSecti
     }
   }, [newCardRequested, isEditingExisting, currentPolaroidId, handleNewCardHandled, setShowNewCardChoice]);
 
-  const handleCopyShareLink = async () => {
-    if (!user || !currentPolaroidId) {
-      return;
-    }
-
-    try {
-      await forceSave();
-      const baseUrl = window.location.origin + window.location.pathname;
-      const shareUrl = new URL(baseUrl);
-      shareUrl.searchParams.set("ref", user.id);
-      const shareUrlString = shareUrl.toString();
-      
-      await navigator.clipboard.writeText(shareUrlString);
-      setShareCopied(true);
-      setTimeout(() => setShareCopied(false), 2000);
-    } catch (err) {
-      console.error("Failed to copy share link", err);
-    }
-  };
 
   const handleShare = async (socialProvider: "twitter" | "github") => {
     if (!user || !currentPolaroidId || !image) {
@@ -396,7 +377,6 @@ export function EditorSection({ initialPolaroid, onPolaroidChange }: EditorSecti
                     currentPolaroidId={currentPolaroidId}
                     provider={provider || null}
                     onExport={handleExportClick}
-                    onCopyShareLink={handleCopyShareLink}
                     onShare={handleShare}
                     onNewCardOverwrite={handleNewCardOverwrite}
                     onNewCardCreate={handleNewCardCreate}
