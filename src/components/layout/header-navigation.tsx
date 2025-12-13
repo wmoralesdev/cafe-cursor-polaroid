@@ -29,6 +29,12 @@ export function HeaderNavigation() {
       >
         {t.shell.nav.tech}
       </Link>
+      <Link 
+        to="/links" 
+        className="text-sm font-medium text-fg-muted hover:text-accent transition-colors duration-150 font-body hover:underline underline-offset-4 decoration-1"
+      >
+        {t.shell.nav.links}
+      </Link>
     </nav>
   );
 }

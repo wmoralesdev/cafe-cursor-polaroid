@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { CursorIcon } from "@/components/ui/cursor-icon";
 import { useLanguage } from "@/hooks/use-language";
 
@@ -5,7 +6,7 @@ export function HeaderLogo() {
   const { t } = useLanguage();
 
   return (
-    <div className="flex items-center gap-3">
+    <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
       <div className="text-accent">
         <CursorIcon className="h-6 w-6" />
       </div>
@@ -15,7 +16,7 @@ export function HeaderLogo() {
           {t.shell.subtitle}
         </span>
       </div>
-    </div>
+    </Link>
   );
 }
 

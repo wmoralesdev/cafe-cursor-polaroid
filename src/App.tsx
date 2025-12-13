@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "@/contexts/auth-context-provider";
 import { HomePage } from "@/components/pages/home-page";
 import { TechPageWrapper } from "@/components/pages/tech-page-wrapper";
+import { LinksPage } from "@/components/pages/links-page";
 import { OGPreviewPage } from "@/pages/og-preview";
 import { SharedPolaroidPage } from "@/pages/shared-polaroid";
 import { AdminPolaroidsPage } from "@/components/pages/admin-polaroids-page";
@@ -27,6 +28,7 @@ function App() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/tech" element={<TechPageWrapper />} />
+            <Route path="/links" element={<LinksPage />} />
             <Route path="/c/:slug" element={<SharedPolaroidPage />} />
             <Route
               path="/admin"

@@ -12,6 +12,10 @@
     {
       "source": "/tech",
       "destination": "/index.html"
+    },
+    {
+      "source": "/links",
+      "destination": "/index.html"
     }
   ],
   "headers": [

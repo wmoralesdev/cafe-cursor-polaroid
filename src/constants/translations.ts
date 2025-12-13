@@ -7,6 +7,7 @@ export interface Translations {
       devCard: string;
       about: string;
       tech: string;
+      links: string;
     };
     footer: string;
   };
@@ -73,6 +74,27 @@ export interface Translations {
       vibes: string;
     };
     madeBy: string;
+  };
+  links: {
+    title: string;
+    whatsapp: {
+      label: string;
+      description: string;
+    };
+    x: {
+      label: string;
+      description: string;
+      handle: string;
+    };
+    github: {
+      label: string;
+      description: string;
+      handle: string;
+    };
+    mainSite: {
+      label: string;
+      description: string;
+    };
   };
     form: {
     header: string;
@@ -293,6 +315,7 @@ export const translations: Record<Language, Translations> = {
         devCard: "Dev card",
         about: "About",
         tech: "Tech",
+        links: "Links",
       },
       get footer() { return `Made with love by Walter — Cursor Ambassador for El Salvador`; },
     },
@@ -359,6 +382,27 @@ export const translations: Record<Language, Translations> = {
         vibes: "Vibes",
       },
       madeBy: "Made with love by Walter — Cursor Ambassador for El Salvador",
+    },
+    links: {
+      title: "Links",
+      whatsapp: {
+        label: "WhatsApp Community",
+        description: "Join our community chat to connect with developers building with Cursor",
+      },
+      x: {
+        label: "X (Twitter)",
+        description: "Follow me on X for updates and tech insights",
+        handle: "@wmoralesdev",
+      },
+      github: {
+        label: "GitHub",
+        description: "Check out my open source projects and contributions",
+        handle: "@wmoralesdev",
+      },
+      mainSite: {
+        label: "Main Site",
+        description: "Return to the Cafe Cursor homepage",
+      },
     },
     form: {
       header: "Your profile",
@@ -611,6 +655,7 @@ export const translations: Record<Language, Translations> = {
         devCard: "Tarjeta dev",
         about: "Acerca de",
         tech: "Tech",
+        links: "Enlaces",
       },
       get footer() { return `Hecho con amor por Walter — Cursor Ambassador para El Salvador`; },
     },
@@ -677,6 +722,27 @@ export const translations: Record<Language, Translations> = {
         vibes: "Vibes",
       },
       madeBy: "Hecho con amor por Walter — Cursor Ambassador para El Salvador",
+    },
+    links: {
+      title: "Enlaces",
+      whatsapp: {
+        label: "Comunidad WhatsApp",
+        description: "Únete a nuestro chat comunitario para conectar con desarrolladores que construyen con Cursor",
+      },
+      x: {
+        label: "X (Twitter)",
+        description: "Sígueme en X para actualizaciones e insights tecnológicos",
+        handle: "@wmoralesdev",
+      },
+      github: {
+        label: "GitHub",
+        description: "Revisa mis proyectos open source y contribuciones",
+        handle: "@wmoralesdev",
+      },
+      mainSite: {
+        label: "Sitio principal",
+        description: "Volver a la página principal de Cafe Cursor",
+      },
     },
     form: {
       header: "Tu perfil",
