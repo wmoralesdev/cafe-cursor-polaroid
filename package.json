@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy:functions": "bash scripts/deploy-functions.sh",
+    "check:unused-functions": "bash scripts/check-unused-functions.sh"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.86.0",
