@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Database, Server, Palette, Camera, Share2, Printer, Zap, Globe, Code2, Layers, Heart, KeyRound, Save, Terminal, Copy, Check, FileCode, Sparkles, RefreshCw, FileText, Route, Calendar, BarChart } from "lucide-react";
+import { ArrowLeft, Database, Server, Palette, Camera, Printer, Zap, Globe, Code2, Layers, Heart, KeyRound, Save, Terminal, Copy, Check, FileCode, Sparkles, RefreshCw, FileText, Route, Calendar, BarChart } from "lucide-react";
 import { useLanguage } from "@/hooks/use-language";
 import { useTheme } from "@/hooks/use-theme";
 import { CursorIcon } from "@/components/ui/cursor-icon";
@@ -27,12 +27,14 @@ const techStack = [
 const edgeFunctions = [
   { name: "create-polaroid", key: "createPolaroid" as const },
   { name: "get-polaroids", key: "getPolaroids" as const },
+  { name: "get-polaroid-by-id", key: "getPolaroidById" as const },
   { name: "get-polaroid-by-slug", key: "getPolaroidBySlug" as const },
   { name: "update-polaroid", key: "updatePolaroid" as const },
   { name: "delete-polaroid", key: "deletePolaroid" as const },
-  { name: "post-polaroid", key: "postPolaroid" as const },
   { name: "toggle-polaroid-like", key: "toggleLike" as const },
   { name: "get-like-notifications", key: "getNotifications" as const },
+  { name: "set-mark-for-printing", key: "setMarkForPrinting" as const },
+  { name: "mark-polaroid-printed", key: "markPolaroidPrinted" as const },
   { name: "get-admin-polaroids", key: "getAdminPolaroids" as const },
 ];
 
@@ -130,6 +132,16 @@ const codeSnippets: Record<string, { lines: Array<{ text: string; color: string 
       { text: '  .limit(20);', color: "#d4d4d4" },
     ],
   },
+  "get-polaroid-by-id": {
+    lines: [
+      { text: 'const id = url.searchParams.get("id");', color: "#d4d4d4" },
+      { text: '', color: "" },
+      { text: 'const { data } = await supabase', color: "#d4d4d4" },
+      { text: '  .from("polaroids")', color: "#d4d4d4" },
+      { text: '  .select("*")', color: "#d4d4d4" },
+      { text: '  .eq("id", id).single();', color: "#d4d4d4" },
+    ],
+  },
   "get-admin-polaroids": {
     lines: [
       { text: '// Admin-only: Check user role', color: "#6a9955" },
@@ -141,6 +153,30 @@ const codeSnippets: Record<string, { lines: Array<{ text: string; color: string 
       { text: 'let query = supabase.from("polaroids")', color: "#d4d4d4" },
       { text: '  .select("*, profile->handles")', color: "#d4d4d4" },
       { text: '  .order(sortBy, { ascending: sortAsc });', color: "#d4d4d4" },
+    ],
+  },
+  "set-mark-for-printing": {
+    lines: [
+      { text: 'const { polaroidId, marked, override } = await req.json();', color: "#d4d4d4" },
+      { text: '', color: "" },
+      { text: '// Use RPC to handle marking logic', color: "#6a9955" },
+      { text: 'const { data } = await supabase.rpc(', color: "#d4d4d4" },
+      { text: '  "set_user_marked_for_printing",', color: "#d4d4d4" },
+      { text: '  { target_polaroid_id, requesting_user_id, override }', color: "#d4d4d4" },
+      { text: ');', color: "#d4d4d4" },
+    ],
+  },
+  "mark-polaroid-printed": {
+    lines: [
+      { text: '// Admin-only: Check admin access', color: "#6a9955" },
+      { text: 'if (!isAdmin(user.id)) {', color: "#d4d4d4" },
+      { text: '  return new Response(JSON.stringify({ error: "Forbidden" }),', color: "#d4d4d4" },
+      { text: '    { status: 403 });', color: "#d4d4d4" },
+      { text: '}', color: "#d4d4d4" },
+      { text: '', color: "" },
+      { text: '// Create print event', color: "#6a9955" },
+      { text: 'await supabase.from("polaroid_print_events")', color: "#d4d4d4" },
+      { text: '  .insert({ polaroid_id, user_id, printed_by });', color: "#d4d4d4" },
     ],
   },
 };
@@ -310,13 +346,12 @@ function ArchitectureDiagram({ t }: { t: ReturnType<typeof useLanguage>["t"] }) 
   );
 }
 
-function FlowDiagram() {
+function FlowDiagram({ t }: { t: ReturnType<typeof useLanguage>["t"] }) {
   const steps = [
-    { num: 1, title: "Create & Autosave", desc: "Fill profile, upload photo. Auto-saves to database" },
-    { num: 2, title: "Generate Portrait", desc: "Automatically generates portrait image after creation" },
-    { num: 3, title: "Preview", desc: "See live preview with 3D tilt effect" },
-    { num: 4, title: "Export", desc: "Download high-res PNG for printing" },
-    { num: 5, title: "Share", desc: "Post to X or share link. Generates OG image" },
+    { num: 1, ...t.tech.flow.create },
+    { num: 2, ...t.tech.flow.preview },
+    { num: 3, ...t.tech.flow.export },
+    { num: 4, ...t.tech.flow.share },
   ];
 
   return (
@@ -383,13 +418,48 @@ export function TechPage() {
   const { t } = useLanguage();
   const { theme } = useTheme();
 
+  // Calculate read time (200 words per minute average)
+  const calculateReadTime = () => {
+    // Count words from all visible content sections
+    const sections = [
+      t.tech.subtitle,
+      t.tech.sections.techStack,
+      t.tech.sections.userFlow,
+      t.tech.sections.architecture,
+      t.tech.sections.features,
+      t.tech.sections.edgeFunctions,
+      t.tech.sections.printPipeline,
+      t.tech.sections.cursorPrompt,
+      ...Object.values(t.tech.features).map(f => f.title + " " + f.desc),
+      ...Object.values(t.tech.flow).map(f => f.title + " " + f.desc),
+      ...Object.values(t.tech.arch).filter((_, i) => i % 2 === 1), // descriptions only
+      ...Object.values(t.tech.edgeFns),
+      t.tech.print.domRender.title + " " + t.tech.print.domRender.desc,
+      t.tech.print.screenshot.title + " " + t.tech.print.screenshot.desc,
+      t.tech.print.storage.title + " " + t.tech.print.storage.desc,
+      t.tech.print.printReady.title + " " + t.tech.print.printReady.desc,
+      t.tech.print.details.title,
+      t.tech.print.details.step1.title + " " + t.tech.print.details.step1.desc,
+      t.tech.print.details.step2.title + " " + t.tech.print.details.step2.desc,
+      t.tech.print.details.step3.title + " " + t.tech.print.details.step3.desc,
+      t.tech.print.details.step4.title + " " + t.tech.print.details.step4.desc,
+      CURSOR_PROMPT,
+    ];
+    
+    const allText = sections.join(" ");
+    const wordCount = allText.split(/\s+/).length;
+    const minutes = Math.max(1, Math.ceil(wordCount / 200));
+    return minutes;
+  };
+
+  const readTimeMinutes = calculateReadTime();
+
   // Features with translations - now including likes, oauth, autosave
   const features = [
     { icon: Camera, ...t.tech.features.imageCapture },
     { icon: Palette, ...t.tech.features.themeSystem },
     { icon: Database, ...t.tech.features.realtimeSync },
     { icon: Printer, ...t.tech.features.printExport },
-    { icon: Share2, ...t.tech.features.socialSharing },
     { icon: Globe, ...t.tech.features.i18n },
     { icon: Heart, ...t.tech.features.likes },
     { icon: KeyRound, ...t.tech.features.oauth },
@@ -425,8 +495,11 @@ export function TechPage() {
           <h1 className="font-display text-4xl md:text-5xl font-semibold text-fg mb-4 tracking-tight">
             {t.tech.title}
           </h1>
-          <p className="text-lg text-fg-muted max-w-2xl mx-auto font-body">
+          <p className="text-lg text-fg-muted max-w-2xl mx-auto font-body mb-3">
             {t.tech.subtitle}
+          </p>
+          <p className="text-sm text-fg-muted">
+            {t.tech.readTime.replace("{minutes}", readTimeMinutes.toString())}
           </p>
         </section>
 
@@ -465,7 +538,7 @@ export function TechPage() {
             {t.tech.sections.userFlow}
           </h2>
           <div className="card-panel p-6">
-            <FlowDiagram />
+            <FlowDiagram t={t} />
           </div>
         </section>
 

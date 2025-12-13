@@ -227,6 +227,7 @@ export interface Translations {
     back: string;
     title: string;
     subtitle: string;
+    readTime: string;
     sections: {
       techStack: string;
       userFlow: string;
@@ -277,12 +278,14 @@ export interface Translations {
     edgeFns: {
       createPolaroid: string;
       getPolaroids: string;
+      getPolaroidById: string;
       getPolaroidBySlug: string;
       updatePolaroid: string;
       deletePolaroid: string;
-      postPolaroid: string;
       toggleLike: string;
       getNotifications: string;
+      setMarkForPrinting: string;
+      markPolaroidPrinted: string;
       getAdminPolaroids: string;
     };
     print: {
@@ -545,6 +548,7 @@ export const translations: Record<Language, Translations> = {
       back: "Back",
       title: "Under the Hood",
       subtitle: "A technical look at how we built the Cafe Cursor card experience.",
+      readTime: "{minutes} min read",
       sections: {
         techStack: "Tech Stack",
         userFlow: "User Flow",
@@ -552,10 +556,10 @@ export const translations: Record<Language, Translations> = {
         features: "Technical Features",
         edgeFunctions: "Edge Functions",
         printPipeline: "Print Pipeline",
-        cursorPrompt: "Generate with Cursor",
+        cursorPrompt: "Prompt starter for Cursor",
       },
       cursorPrompt: {
-        description: "Copy this detailed prompt and paste it into Cursor to generate this entire application:",
+        description: "This is a starter prompt to help you build this application with Cursor. Copy and paste it into Cursor, then work iteratively—build incrementally, test frequently, and refine as you go:",
         copy: "Copy Prompt",
         copied: "Copied!",
       },
@@ -583,7 +587,7 @@ export const translations: Record<Language, Translations> = {
       },
       features: {
         imageCapture: { title: "Image Capture", desc: "Drop or upload your photo, adjust zoom and pan for the perfect crop within the polaroid frame." },
-        themeSystem: { title: "Theme System", desc: "5 unique card themes (Classic, Minimal, Coffee, Zen, Tokyo) with themed stamps and tape strips." },
+        themeSystem: { title: "Theme System", desc: "7 unique card themes (Classic, Minimal, Web, Sakura, Tokyo, Cyberpunk, Matrix) with themed stamps and tape strips." },
         realtimeSync: { title: "Real-time Sync", desc: "Auto-save to Supabase with optimistic updates. Your cards sync across devices instantly." },
         printExport: { title: "Print-Ready Export", desc: "White background preserved for physical printing. Export at high resolution for perfect prints." },
         socialSharing: { title: "Social Sharing", desc: "Share your card on X or copy a direct link. Each card gets a unique shareable URL." },
@@ -595,12 +599,14 @@ export const translations: Record<Language, Translations> = {
       edgeFns: {
         createPolaroid: "Create polaroid record with profile data and source image",
         getPolaroids: "Fetch community cards with pagination & filters",
+        getPolaroidById: "Get single card by ID",
         getPolaroidBySlug: "Get single card by slug for sharing",
         updatePolaroid: "Update card metadata and upload portrait image",
         deletePolaroid: "Remove card and associated storage",
-        postPolaroid: "Upload exported card image to storage",
         toggleLike: "Like/unlike a community card",
         getNotifications: "Fetch like notifications for user",
+        setMarkForPrinting: "Mark/unmark card for printing (one per user)",
+        markPolaroidPrinted: "Admin: Record print event and clear print mark",
         getAdminPolaroids: "Admin: Fetch all polaroids with search, filters, pagination",
       },
       print: {
@@ -610,7 +616,7 @@ export const translations: Record<Language, Translations> = {
         },
         screenshot: { 
           title: "Screenshot", 
-          desc: "modern-screenshot (domToPng) captures DOM at 4x scale (1360×2040px) for high-resolution output" 
+          desc: "modern-screenshot (domToPng) captures DOM at 4x scale (1360×1836px) for high-resolution output" 
         },
         storage: { 
           title: "Storage", 
@@ -885,18 +891,19 @@ export const translations: Record<Language, Translations> = {
       back: "Volver",
       title: "Bajo el capó",
       subtitle: "Una mirada técnica a cómo construimos la experiencia de tarjetas de Cafe Cursor.",
+      readTime: "{minutes} min de lectura",
       sections: {
-        techStack: "Stack Tecnológico",
-        userFlow: "Flujo del Usuario",
+        techStack: "Stack tecnológico",
+        userFlow: "Flujo del usuario",
         architecture: "Arquitectura",
-        features: "Características Técnicas",
+        features: "Características técnicas",
         edgeFunctions: "Edge Functions",
-        printPipeline: "Pipeline de Impresión",
-        cursorPrompt: "Generar con Cursor",
+        printPipeline: "Pipeline de impresión",
+        cursorPrompt: "Prompt inicial para Cursor",
       },
       cursorPrompt: {
-        description: "Copia este prompt detallado y pégalo en Cursor para generar toda esta aplicación:",
-        copy: "Copiar Prompt",
+        description: "Este es un prompt inicial para ayudarte a construir esta aplicación con Cursor. Cópialo y pégalo en Cursor, luego trabaja de forma iterativa—construye incrementalmente, prueba frecuentemente y refina mientras avanzas:",
+        copy: "Copiar prompt",
         copied: "¡Copiado!",
       },
       flow: {
@@ -911,7 +918,7 @@ export const translations: Record<Language, Translations> = {
         tailwind: "Tailwind 4",
         tailwindDesc: "Variables CSS",
         reactQuery: "React Query",
-        reactQueryDesc: "Estado del Servidor",
+        reactQueryDesc: "Estado del servidor",
         edgeFunctions: "Edge Functions",
         edgeFunctionsDesc: "Deno Runtime · Edge Global",
         postgres: "PostgreSQL",
@@ -922,25 +929,27 @@ export const translations: Record<Language, Translations> = {
         storageDesc: "Respaldado por CDN",
       },
       features: {
-        imageCapture: { title: "Captura de Imagen", desc: "Arrastra o sube tu foto, ajusta zoom y posición para el recorte perfecto en el marco." },
-        themeSystem: { title: "Sistema de Temas", desc: "5 temas únicos (Clásico, Minimal, Café, Zen, Tokio) con sellos y cintas temáticas." },
-        realtimeSync: { title: "Sincronización en Tiempo Real", desc: "Autoguardado en Supabase con actualizaciones optimistas. Tus tarjetas se sincronizan al instante." },
-        printExport: { title: "Exportación para Impresión", desc: "Fondo blanco preservado para impresión física. Exporta en alta resolución." },
-        socialSharing: { title: "Compartir en Redes", desc: "Comparte tu tarjeta en X o copia un enlace directo. Cada tarjeta tiene una URL única." },
+        imageCapture: { title: "Captura de imagen", desc: "Arrastra o sube tu foto, ajusta zoom y posición para el recorte perfecto en el marco." },
+        themeSystem: { title: "Sistema de temas", desc: "7 temas únicos (Clásico, Minimal, Web, Sakura, Tokio, Cyberpunk, Matrix) con sellos y cintas temáticas." },
+        realtimeSync: { title: "Sincronización en tiempo real", desc: "Autoguardado en Supabase con actualizaciones optimistas. Tus tarjetas se sincronizan al instante." },
+        printExport: { title: "Exportación para impresión", desc: "Fondo blanco preservado para impresión física. Exporta en alta resolución." },
+        socialSharing: { title: "Compartir en redes", desc: "Comparte tu tarjeta en X o copia un enlace directo. Cada tarjeta tiene una URL única." },
         i18n: { title: "Internacionalización", desc: "Soporte completo en inglés y español con fácil extensibilidad para más idiomas." },
-        likes: { title: "Likes y Notificaciones", desc: "Da like a tarjetas de la comunidad y recibe notificaciones cuando otros den like a las tuyas." },
+        likes: { title: "Likes y notificaciones", desc: "Da like a tarjetas de la comunidad y recibe notificaciones cuando otros den like a las tuyas." },
         oauth: { title: "Integración OAuth", desc: "Inicia sesión con GitHub o X (Twitter) vía Supabase Auth. Autenticación segura y fluida." },
         autosave: { title: "Autoguardado", desc: "El estado del formulario se guarda automáticamente con debounce. Nunca pierdas tu progreso." },
       },
       edgeFns: {
         createPolaroid: "Crear registro de polaroid con datos de perfil e imagen fuente",
         getPolaroids: "Obtener tarjetas de la comunidad con paginación y filtros",
+        getPolaroidById: "Obtener tarjeta por ID",
         getPolaroidBySlug: "Obtener tarjeta por slug para compartir",
         updatePolaroid: "Actualizar metadatos y subir imagen de retrato",
         deletePolaroid: "Eliminar tarjeta y almacenamiento asociado",
-        postPolaroid: "Subir imagen de tarjeta exportada al storage",
         toggleLike: "Dar/quitar like a una tarjeta de la comunidad",
         getNotifications: "Obtener notificaciones de likes del usuario",
+        setMarkForPrinting: "Marcar/desmarcar tarjeta para impresión (una por usuario)",
+        markPolaroidPrinted: "Admin: Registrar evento de impresión y limpiar marca",
         getAdminPolaroids: "Admin: Obtener todas las polaroids con búsqueda, filtros, paginación",
       },
       print: {
@@ -950,24 +959,24 @@ export const translations: Record<Language, Translations> = {
         },
         screenshot: { 
           title: "Captura", 
-          desc: "modern-screenshot (domToPng) captura el DOM a escala 4x (1360×2040px) para salida de alta resolución" 
+          desc: "modern-screenshot (domToPng) captura el DOM a escala 4x (1360×1836px) para salida de alta resolución" 
         },
         storage: { 
           title: "Storage", 
           desc: "Data URL convertida a blob, subida a Supabase Storage con parámetros de consulta para invalidar caché" 
         },
         printReady: { 
-          title: "Listo para Imprimir", 
+          title: "Listo para imprimir", 
           desc: "Imagen final optimizada a 340×459px (ratio de impresión 100×148mm) con 2x DPI para impresión nítida" 
         },
         details: {
           title: "Cómo funciona",
           step1: {
-            title: "1. Renderizado de Componente",
+            title: "1. Renderizado de componente",
             desc: "El componente PolaroidCard renderiza con todos los datos del usuario: información del perfil, imagen subida, tema seleccionado, badges y sello. El componente usa fondo blanco (#ffffff) para asegurar impresión limpia.",
           },
           step2: {
-            title: "2. Captura de Alta Resolución",
+            title: "2. Captura de alta resolución",
             desc: "Usando domToPng de modern-screenshot, capturamos el elemento DOM renderizado a escala 4x. Esto significa que un componente de 340×459px se convierte en una imagen de 1360×1836px, asegurando detalles nítidos al imprimir. Un retraso de 100ms asegura que todos los recursos estén cargados antes de la captura.",
           },
           step3: {
@@ -975,7 +984,7 @@ export const translations: Record<Language, Translations> = {
             desc: "El data URL generado se convierte a un blob PNG y se sube a Supabase Storage en el bucket 'polaroids'. La URL incluye un parámetro de consulta de timestamp (?v=timestamp) para invalidar la caché del CDN y asegurar imágenes frescas en cada actualización.",
           },
           step4: {
-            title: "4. Optimización para Impresión",
+            title: "4. Optimización para impresión",
             desc: "La imagen final está optimizada para papel de 100×148mm (4×6 pulgadas) con dos polaroids lado a lado. Cada polaroid usa un ratio de aspecto de 340×459px (74:100mm cuando se rota 90°), asegurando ajuste perfecto sin recortar bordes o sellos.",
           },
         },

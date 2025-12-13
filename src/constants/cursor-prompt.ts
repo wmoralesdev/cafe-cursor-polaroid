@@ -1,4 +1,6 @@
-export const CURSOR_PROMPT = `Build a "Cafe Cursor" polaroid-style developer card application. This is a full-stack web app where developers create personalized polaroid-style cards showcasing their Cursor IDE setup, tech stack, and profile.
+export const CURSOR_PROMPT = `This is a starter prompt to help you build a "Cafe Cursor" polaroid-style developer card application. This is a full-stack web app where developers create personalized polaroid-style cards showcasing their Cursor IDE setup, tech stack, and profile.
+
+**Important:** This is a starting point for iterative development. Work in small steps, ask clarifying questions, test frequently, and refine based on feedback. Don't try to generate everything at once—build incrementally and verify each piece works before moving forward.
 
 ## Core Concept
 Users create digital polaroid cards (like physical instant photos) that display:
@@ -85,15 +87,17 @@ Cards can be exported as high-res PNGs for physical printing (100×148mm paper, 
 
 1. **create-polaroid**: Creates new polaroid with profile data, uploads source image, generates slug
 2. **get-polaroids**: Fetches community cards with pagination, sorting (likes/date), filtering
-3. **get-polaroid-by-slug**: Gets single card by slug for sharing
-4. **update-polaroid**: Updates profile/image, handles image replacement, generates rendered portrait
-5. **delete-polaroid**: Deletes card and associated storage files
-6. **post-polaroid**: Uploads exported card image
+3. **get-polaroid-by-id**: Gets single card by ID (public access, no auth required)
+4. **get-polaroid-by-slug**: Gets single card by slug for sharing (public access)
+5. **update-polaroid**: Updates profile/image, handles image replacement, generates rendered portrait
+6. **delete-polaroid**: Deletes card and associated storage files
 7. **toggle-polaroid-like**: Like/unlike functionality with notification creation
-8. **get-like-notifications**: Fetches notifications for user
-9. **get-admin-polaroids**: Admin-only endpoint for moderation
+8. **get-like-notifications**: Fetches notifications for authenticated user
+9. **set-mark-for-printing**: Mark/unmark card for printing (one per user, uses RPC function)
+10. **mark-polaroid-printed**: Admin-only endpoint to record print events and clear print marks
+11. **get-admin-polaroids**: Admin-only endpoint for moderation with search, filters, pagination
 
-All functions use Supabase service role key, validate auth, and implement proper error handling.
+All functions use Supabase service role key, validate auth where required, and implement proper error handling with CORS headers.
 
 ## Key Features
 
@@ -154,14 +158,7 @@ Print dimensions calculated from constants:
 - Each polaroid: 74mm wide × 100mm tall (when rotated)
 - Pixel dimensions: 340×459px (maintains 0.74 aspect ratio)
 
-### 6. Social Sharing
-- Unique slug per card (handle-random)
-- Share link with referral tracking
-- OG image generation (1200×630px landscape)
-- Twitter/X sharing integration
-- Copy link to clipboard
-
-### 7. Community Features
+### 6. Community Features
 - Public feed of all cards
 - Like/unlike functionality
 - Like notifications with actor info
@@ -169,7 +166,7 @@ Print dimensions calculated from constants:
 - Sorting (newest, most liked)
 - Filtering (MAX mode only)
 
-### 8. Internationalization
+### 7. Internationalization
 - English & Spanish support
 - Language toggle in header
 - All UI text translated
@@ -289,7 +286,25 @@ supabase/
 - Background: Pure white (#ffffff)
 - Format: PNG with transparency where needed
 
-Build this application following modern React best practices, ensuring type safety, performance, and excellent user experience.`;
+## Development Approach
+
+**Start with:**
+1. Set up the project structure (Vite + React + TypeScript)
+2. Configure Supabase connection and auth
+3. Build the basic form and preview components
+4. Implement one theme first (classic), then add others
+5. Add autosave functionality
+6. Implement export/print pipeline
+7. Add community features incrementally
+
+**Iterate and refine:**
+- Test each feature as you build it
+- Ask questions if requirements are unclear
+- Make small, focused changes
+- Verify functionality before moving to the next feature
+- Refactor when needed, but prioritize working code first
+
+Build this application following modern React best practices, ensuring type safety, performance, and excellent user experience. Remember: this is a starting point—work iteratively and don't hesitate to ask for clarification or make adjustments as you go.`;
 
 
 
