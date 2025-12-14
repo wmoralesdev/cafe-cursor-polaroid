@@ -5,6 +5,7 @@ interface GetPolaroidsRequest {
   type: "user" | "community";
   limit?: number;
   offset?: number;
+  shuffle_first_page?: boolean;
 }
 
 interface LikeRecord {
@@ -76,7 +77,7 @@ Deno.serve(async (req: Request) => {
     
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const { type, limit = 20, offset = 0 }: GetPolaroidsRequest = await req.json();
+    const { type, limit = 20, offset = 0, shuffle_first_page = true }: GetPolaroidsRequest = await req.json();
 
     // Try to get viewer ID if auth header is present
     let viewerId: string | null = null;
@@ -156,8 +157,8 @@ Deno.serve(async (req: Request) => {
           polaroid.profile.handles[0]?.handle?.trim()
       );
 
-      // Only shuffle on first page (offset === 0), otherwise maintain order for pagination
-      const result = offset === 0 
+      // Only shuffle on first page (offset === 0) if shuffle_first_page is true, otherwise maintain order for pagination
+      const result = offset === 0 && shuffle_first_page
         ? filtered.sort(() => Math.random() - 0.5).slice(0, limit)
         : filtered.slice(0, limit);
 

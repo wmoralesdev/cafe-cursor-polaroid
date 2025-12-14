@@ -4,7 +4,11 @@ export interface Translations {
   shell: {
     subtitle: string;
     nav: {
+      browse: string;
+      gallery: string;
+      new: string;
       devCard: string;
+      more: string;
       about: string;
       tech: string;
       links: string;
@@ -180,6 +184,16 @@ export interface Translations {
     title: string;
     subtitle: string;
   };
+  gallery: {
+    title: string;
+    subtitle: string;
+    loading: string;
+    errorTitle: string;
+    emptyTitle: string;
+    emptySubtitle: string;
+    loadingMore: string;
+    allLoaded: string;
+  };
   userPolaroids: {
     title: string;
     subtitle: string;
@@ -315,7 +329,11 @@ export const translations: Record<Language, Translations> = {
     shell: {
       subtitle: "Community coffee sessions",
       nav: {
+        browse: "Browse",
+        gallery: "Gallery",
+        new: "New",
         devCard: "Dev card",
+        more: "More",
         about: "About",
         tech: "Tech",
         links: "Links",
@@ -478,6 +496,16 @@ export const translations: Record<Language, Translations> = {
     showcase: {
       title: "Cafe Cursor around the world",
       subtitle: "A glimpse into our global community",
+    },
+    gallery: {
+      title: "Built by the Community",
+      subtitle: "Every card tells a story. Discover the developers behind the code.",
+      loading: "Loading polaroids...",
+      errorTitle: "Error loading polaroids",
+      emptyTitle: "No polaroids yet",
+      emptySubtitle: "Be the first to create one!",
+      loadingMore: "Loading more...",
+      allLoaded: "All polaroids loaded",
     },
     marquee: {
       title: "Live wall",
@@ -658,7 +686,11 @@ export const translations: Record<Language, Translations> = {
     shell: {
       subtitle: "Sesiones de café comunitarias",
       nav: {
+        browse: "Explorar",
+        gallery: "Galería",
+        new: "Nuevo",
         devCard: "Tarjeta dev",
+        more: "Más",
         about: "Acerca de",
         tech: "Tech",
         links: "Enlaces",
@@ -821,6 +853,16 @@ export const translations: Record<Language, Translations> = {
     showcase: {
       title: "Cafe Cursor alrededor del mundo",
       subtitle: "Un vistazo a nuestra comunidad global",
+    },
+    gallery: {
+      title: "Construido por la Comunidad",
+      subtitle: "Cada tarjeta cuenta una historia. Descubre a los desarrolladores detrás del código.",
+      loading: "Cargando polaroids...",
+      errorTitle: "Error al cargar polaroids",
+      emptyTitle: "Aún no hay polaroids",
+      emptySubtitle: "¡Sé el primero en crear una!",
+      loadingMore: "Cargando más...",
+      allLoaded: "Todas las polaroids cargadas",
     },
     marquee: {
       title: "Muro en vivo",

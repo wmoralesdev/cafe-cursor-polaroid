@@ -1,40 +1,63 @@
-import { Link } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
+import { NavDropdown } from "./nav-dropdown";
 
 export function HeaderNavigation() {
   const { t } = useLanguage();
   const { user } = useAuth();
+  const location = useLocation();
 
-  // Point to #editor when signed-in (editor exists), #join when signed-out (teaser exists)
-  const devCardHref = user ? "#editor" : "#join";
+  // Point to /new#editor when signed-in (editor exists), /new#join when signed-out (teaser exists)
+  const devCardHref = user ? "/new#editor" : "/new#join";
 
   return (
-    <nav className="hidden gap-8 sm:flex">
+    <nav className="hidden gap-6 sm:flex items-center">
+      {/* Browse Dropdown */}
+      <NavDropdown
+        label={t.shell.nav.browse || "Browse"}
+        items={[
+          {
+            label: t.shell.nav.gallery,
+            to: "/",
+            isActive: location.pathname === "/",
+          },
+          {
+            label: t.shell.nav.new,
+            to: "/new",
+            isActive: location.pathname === "/new",
+          },
+        ]}
+      />
+
+      {/* Create Link */}
       <a 
-        href={devCardHref} 
+        href={devCardHref}
         className="text-sm font-medium text-fg-muted hover:text-accent transition-colors duration-150 font-body hover:underline underline-offset-4 decoration-1"
       >
         {t.shell.nav.devCard}
       </a>
-      <a 
-        href="#about" 
-        className="text-sm font-medium text-fg-muted hover:text-accent transition-colors duration-150 font-body hover:underline underline-offset-4 decoration-1"
-      >
-        {t.shell.nav.about}
-      </a>
-      <Link 
-        to="/tech" 
-        className="text-sm font-medium text-fg-muted hover:text-accent transition-colors duration-150 font-body hover:underline underline-offset-4 decoration-1"
-      >
-        {t.shell.nav.tech}
-      </Link>
-      <Link 
-        to="/links" 
-        className="text-sm font-medium text-fg-muted hover:text-accent transition-colors duration-150 font-body hover:underline underline-offset-4 decoration-1"
-      >
-        {t.shell.nav.links}
-      </Link>
+
+      {/* More Dropdown */}
+      <NavDropdown
+        label={t.shell.nav.more || "More"}
+        items={[
+          {
+            label: t.shell.nav.about,
+            href: "/#about",
+          },
+          {
+            label: t.shell.nav.tech,
+            to: "/tech",
+            isActive: location.pathname === "/tech",
+          },
+          {
+            label: t.shell.nav.links,
+            to: "/links",
+            isActive: location.pathname === "/links",
+          },
+        ]}
+      />
     </nav>
   );
 }

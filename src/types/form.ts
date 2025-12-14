@@ -23,6 +23,8 @@ export interface CursorProfile {
   stampRotation?: number;
   generatedAt?: string; // ISO date string (YYYY-MM-DD)
   polaroidTheme?: PolaroidTheme;
+  imageZoom?: number;
+  imagePosition?: { x: number; y: number };
 }
 
 export interface PolaroidFormValues {

@@ -62,14 +62,15 @@ export const PolaroidCard = forwardRef<HTMLDivElement, PolaroidCardProps>(
               "w-full pt-5 px-3 pb-3 shadow-polaroid flex flex-col",
             ],
             variant === "export" && [
-              "pt-5 px-3 pb-3 shadow-polaroid flex flex-col",
+              "pt-5 px-3 pb-3 shadow-polaroid flex flex-col w-full",
             ],
             className
           )}
           style={{
-            width: variant === "preview" ? undefined : POLAROID_WIDTH_PX,
-            maxWidth: variant === "preview" ? POLAROID_WIDTH_PX : undefined,
-            height: POLAROID_HEIGHT_PX,
+            width: variant === "preview" ? undefined : "100%",
+            maxWidth: variant === "preview" ? POLAROID_WIDTH_PX : "100%",
+            height: variant === "preview" ? POLAROID_HEIGHT_PX : undefined,
+            aspectRatio: `${POLAROID_WIDTH_PX} / ${POLAROID_HEIGHT_PX}`,
             backgroundColor: "#ffffff",
           }}
         >

@@ -50,6 +50,7 @@ export function useCommunityPolaroids(limit: number = 20) {
 /**
  * Infinite query for the marquee feed. Fetches complete polaroids (with image_url and valid handles)
  * ordered by created_at desc with deterministic paging via range().
+ * Shuffles the first page for variety.
  */
 export function useInfiniteCommunityPolaroids(pageSize: number = MARQUEE_PAGE_SIZE) {
   return useInfiniteQuery({
@@ -58,11 +59,46 @@ export function useInfiniteCommunityPolaroids(pageSize: number = MARQUEE_PAGE_SI
       const offset = pageParam * pageSize;
 
       const { data, error } = await supabase.functions.invoke("get-polaroids", {
-        body: { type: "community", limit: pageSize, offset },
+        body: { type: "community", limit: pageSize, offset, shuffle_first_page: true },
       });
 
       if (error) {
         throw new Error(`Failed to get infinite community polaroids: ${error.message}`);
+      }
+
+      if (data?.error) {
+        throw new Error(data.error);
+      }
+
+      const items = (data?.data || []) as PolaroidRecord[];
+
+      return {
+        items,
+        nextPage: items.length === pageSize ? pageParam + 1 : undefined,
+        pageParam,
+      };
+    },
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) => lastPage.nextPage,
+  });
+}
+
+/**
+ * Infinite query for the public gallery grid. Fetches complete polaroids (with image_url and valid handles)
+ * ordered by created_at desc with deterministic paging. Does NOT shuffle for historical consistency.
+ */
+export function useInfinitePublicPolaroids(pageSize: number = 20) {
+  return useInfiniteQuery({
+    queryKey: ["polaroids", "public", "infinite"],
+    queryFn: async ({ pageParam = 0 }) => {
+      const offset = pageParam * pageSize;
+
+      const { data, error } = await supabase.functions.invoke("get-polaroids", {
+        body: { type: "community", limit: pageSize, offset, shuffle_first_page: false },
+      });
+
+      if (error) {
+        throw new Error(`Failed to get infinite public polaroids: ${error.message}`);
       }
 
       if (data?.error) {

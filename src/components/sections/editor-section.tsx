@@ -1,5 +1,5 @@
 import type React from "react";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useImagePicker } from "@/hooks/use-image-picker";
 import { usePolaroidForm, getDefaultProfile } from "@/hooks/use-polaroid-form";
 import { useExportPolaroid } from "@/hooks/use-export-polaroid";
@@ -64,7 +64,11 @@ export function EditorSection({ initialPolaroid, onPolaroidChange }: EditorSecti
     onDrop, 
     onFileChange, 
     clearImage 
-  } = useImagePicker({ initialImage });
+  } = useImagePicker({ 
+    initialImage,
+    initialZoom: initialPolaroid?.profile.imageZoom,
+    initialPosition: initialPolaroid?.profile.imagePosition,
+  });
   
   const { control, register, watch, errors, handleFields, appendHandle, removeHandle, reset } = usePolaroidForm({
     initialProfile: initialPolaroid?.profile,
@@ -113,8 +117,15 @@ export function EditorSection({ initialPolaroid, onPolaroidChange }: EditorSecti
     }
   }, [generateImageDataUrl, updateMutation, polaroidRef]);
 
+  // Merge zoom and position into profile for saving
+  const profileWithImageSettings = useMemo(() => ({
+    ...profile,
+    imageZoom: zoom,
+    imagePosition: position,
+  }), [profile, zoom, position]);
+
   const { currentPolaroidId, syncStatus, forceSave } = usePolaroidAutosave({
-    profile,
+    profile: profileWithImageSettings,
     image,
     user: user || null,
     hasUserInteracted,

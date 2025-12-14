@@ -2,6 +2,8 @@ import { useCallback, useState, useEffect, useRef } from "react";
 
 interface UseImagePickerOptions {
   initialImage?: string | null;
+  initialZoom?: number;
+  initialPosition?: { x: number; y: number };
 }
 
 const MAX_IMAGE_DIMENSION = 1200;
@@ -52,25 +54,31 @@ function compressImage(dataUrl: string): Promise<string> {
 export function useImagePicker(options: UseImagePickerOptions = {}) {
   const [image, setImage] = useState<string | null>(options.initialImage ?? null);
   const [error, setError] = useState<string | null>(null);
-  const [zoom, setZoom] = useState(1);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(options.initialZoom ?? 1);
+  const [position, setPosition] = useState(options.initialPosition ?? { x: 0, y: 0 });
 
   // Initialize image from options (only on mount or when initialImage changes)
   const initialImageRef = useRef(options.initialImage);
+  const initialZoomRef = useRef(options.initialZoom);
+  const initialPositionRef = useRef(options.initialPosition);
   useEffect(() => {
-    if (options.initialImage !== initialImageRef.current) {
+    if (options.initialImage !== initialImageRef.current || 
+        options.initialZoom !== initialZoomRef.current ||
+        options.initialPosition !== initialPositionRef.current) {
       initialImageRef.current = options.initialImage;
+      initialZoomRef.current = options.initialZoom;
+      initialPositionRef.current = options.initialPosition;
       if (options.initialImage !== undefined) {
         // Use setTimeout to defer state updates outside the effect
         const imageValue = options.initialImage ?? null;
         setTimeout(() => {
           setImage(imageValue);
-          setZoom(1);
-          setPosition({ x: 0, y: 0 });
+          setZoom(options.initialZoom ?? 1);
+          setPosition(options.initialPosition ?? { x: 0, y: 0 });
         }, 0);
       }
     }
-  }, [options.initialImage]);
+  }, [options.initialImage, options.initialZoom, options.initialPosition]);
 
   const processFile = useCallback((file: File) => {
     if (!file.type.startsWith("image/")) {

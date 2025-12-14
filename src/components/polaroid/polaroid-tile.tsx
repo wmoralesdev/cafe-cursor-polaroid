@@ -6,6 +6,7 @@ import { clsx } from "clsx";
 import { useLanguage } from "@/hooks/use-language";
 import { useAuth } from "@/hooks/use-auth";
 import { useTogglePolaroidLike } from "@/hooks/use-polaroids-query";
+import { PolaroidCard } from "@/components/polaroid/polaroid-card";
 import type { PolaroidRecord } from "@/lib/polaroids";
 
 interface PolaroidTileProps {
@@ -40,8 +41,6 @@ export function PolaroidTile({
 }: PolaroidTileProps) {
   const { t, lang } = useLanguage();
   const locale = lang === "es" ? es : enUS;
-  const firstHandle = polaroid.profile.handles[0];
-  const handle = firstHandle ? `@${firstHandle.handle}` : "@user";
   const { user } = useAuth();
   const toggleLike = useTogglePolaroidLike();
   const [isHovered, setIsHovered] = useState(false);
@@ -194,17 +193,15 @@ export function PolaroidTile({
         "relative z-10 pointer-events-none transition-transform duration-300",
         variant === "public" || variant === "user" ? "group-hover:scale-[1.02]" : ""
       )}>
-        {polaroid.image_url ? (
-          <img
-            src={polaroid.image_url}
-            alt={`Polaroid by ${handle}`}
-            className="w-full h-auto shadow-sm rounded-sm"
-          />
-        ) : (
-          <div className="w-full aspect-[3/4] bg-card-01 rounded-sm flex items-center justify-center text-fg-muted">
-            <span className="text-sm">No image</span>
-          </div>
-        )}
+        <PolaroidCard
+          image={polaroid.source_image_url || polaroid.image_url}
+          profile={polaroid.profile}
+          variant="export"
+          source={polaroid.source}
+          className="w-full"
+          zoom={polaroid.profile.imageZoom ?? 1}
+          position={polaroid.profile.imagePosition ?? { x: 0, y: 0 }}
+        />
       </div>
       
       {children}
