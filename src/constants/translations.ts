@@ -194,6 +194,16 @@ export interface Translations {
     loadingMore: string;
     allLoaded: string;
   };
+  analytics: {
+    loading: string;
+    totalCards: string;
+    maxModePct: string;
+    planDistribution: string;
+    topFeatures: string;
+    topModels: string;
+    topTechStack: string;
+    noData: string;
+  };
   userPolaroids: {
     title: string;
     subtitle: string;
@@ -506,6 +516,16 @@ export const translations: Record<Language, Translations> = {
       emptySubtitle: "Be the first to create one!",
       loadingMore: "Loading more...",
       allLoaded: "All polaroids loaded",
+    },
+    analytics: {
+      loading: "Loading analytics...",
+      totalCards: "Total Cards",
+      maxModePct: "using Max mode",
+      planDistribution: "Plan Distribution",
+      topFeatures: "Top Features",
+      topModels: "Top Models",
+      topTechStack: "Top Tech Stack",
+      noData: "No data",
     },
     marquee: {
       title: "Live wall",
@@ -863,6 +883,16 @@ export const translations: Record<Language, Translations> = {
       emptySubtitle: "¡Sé el primero en crear una!",
       loadingMore: "Cargando más...",
       allLoaded: "Todas las polaroids cargadas",
+    },
+    analytics: {
+      loading: "Cargando analíticas...",
+      totalCards: "Total de Tarjetas",
+      maxModePct: "usando Max mode",
+      planDistribution: "Distribución de Planes",
+      topFeatures: "Características Populares",
+      topModels: "Modelos Populares",
+      topTechStack: "Tech Stack Popular",
+      noData: "Sin datos",
     },
     marquee: {
       title: "Muro en vivo",

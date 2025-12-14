@@ -29,6 +29,7 @@ if [ ! -d "supabase/functions" ]; then
 fi
 
 # Get list of functions (all directories in supabase/functions except deno.json)
+# Note: Database RPC functions (like get_community_analytics) are deployed via migrations, not this script
 FUNCTIONS=(
     "create-polaroid"
     "delete-polaroid"

@@ -4,6 +4,7 @@ import { PolaroidTile } from "@/components/polaroid/polaroid-tile";
 import { PolaroidModal } from "@/components/polaroid/polaroid-modal";
 import { PolaroidRerenderQueue } from "@/components/polaroid/polaroid-rerender-queue";
 import { SectionHeader } from "@/components/ui/section-header";
+import { CommunityAnalytics } from "@/components/sections/community-analytics";
 import { Loader2 } from "lucide-react";
 import { useLanguage } from "@/hooks/use-language";
 import type { PolaroidRecord } from "@/lib/polaroids";
@@ -61,6 +62,8 @@ export function PublicPolaroidGridSection() {
           title={t.gallery.title}
           subtitle={t.gallery.subtitle}
         />
+
+        <CommunityAnalytics />
 
         {isLoading ? (
           <div className="glass-panel-inner p-12 rounded-sm text-center">
@@ -122,3 +125,4 @@ export function PublicPolaroidGridSection() {
     </section>
   );
 }
+

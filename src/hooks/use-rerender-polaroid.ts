@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { domToPng } from "modern-screenshot";
 import { useUpdatePolaroid } from "@/hooks/use-polaroids-query";
+import { useAuth } from "@/hooks/use-auth";
 import type { PolaroidRecord } from "@/lib/polaroids";
 
 interface UseRerenderPolaroidOptions {
@@ -17,6 +18,10 @@ export function useRerenderPolaroid({ polaroid, polaroidRef, enabled = true }: U
   const [isRerendering, setIsRerendering] = useState(false);
   const [hasRerendered, setHasRerendered] = useState(false);
   const updateMutation = useUpdatePolaroid();
+  const { user } = useAuth();
+  
+  // Only allow re-rendering if user owns the polaroid
+  const canRerender = polaroid && user && polaroid.user_id === user.id;
 
   const generateImageDataUrl = useCallback(async (): Promise<string | null> => {
     // #region agent log
@@ -68,11 +73,11 @@ export function useRerenderPolaroid({ polaroid, polaroidRef, enabled = true }: U
 
   const rerenderPolaroid = useCallback(async () => {
     // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/3b85e886-5738-4958-929a-efd54a8f8262',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'use-rerender-polaroid.ts:68',message:'rerenderPolaroid called',data:{hasPolaroid:!!polaroid,polaroidId:polaroid?.id,needsRerender,hasRerendered,isRerendering,hasRef:!!polaroidRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'G'})}).catch(()=>{});
+    fetch('http://127.0.0.1:7243/ingest/3b85e886-5738-4958-929a-efd54a8f8262',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'use-rerender-polaroid.ts:68',message:'rerenderPolaroid called',data:{hasPolaroid:!!polaroid,polaroidId:polaroid?.id,needsRerender,hasRerendered,isRerendering,hasRef:!!polaroidRef.current,canRerender},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'G'})}).catch(()=>{});
     // #endregion
-    if (!polaroid || !needsRerender || hasRerendered || isRerendering || !polaroidRef.current) {
+    if (!polaroid || !needsRerender || hasRerendered || isRerendering || !polaroidRef.current || !canRerender) {
       // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/3b85e886-5738-4958-929a-efd54a8f8262',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'use-rerender-polaroid.ts:71',message:'rerenderPolaroid aborted',data:{reason:!polaroid?'no polaroid':!needsRerender?'no need':hasRerendered?'already rendered':isRerendering?'already rendering':!polaroidRef.current?'no ref':'unknown'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'G'})}).catch(()=>{});
+      fetch('http://127.0.0.1:7243/ingest/3b85e886-5738-4958-929a-efd54a8f8262',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'use-rerender-polaroid.ts:71',message:'rerenderPolaroid aborted',data:{reason:!polaroid?'no polaroid':!needsRerender?'no need':hasRerendered?'already rendered':isRerendering?'already rendering':!polaroidRef.current?'no ref':!canRerender?'not owner':'unknown'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'G'})}).catch(()=>{});
       // #endregion
       return;
     }
@@ -112,24 +117,25 @@ export function useRerenderPolaroid({ polaroid, polaroidRef, enabled = true }: U
       fetch('http://127.0.0.1:7243/ingest/3b85e886-5738-4958-929a-efd54a8f8262',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'use-rerender-polaroid.ts:104',message:'Render process finished',data:{polaroidId:polaroid.id,hasRerendered},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'F'})}).catch(()=>{});
       // #endregion
     }
-  }, [polaroid, needsRerender, hasRerendered, isRerendering, generateImageDataUrl, updateMutation, polaroidRef]);
+  }, [polaroid, needsRerender, hasRerendered, isRerendering, canRerender, generateImageDataUrl, updateMutation, polaroidRef]);
 
   useEffect(() => {
     // #region agent log
     const polaroidId = polaroid?.id;
-    fetch('http://127.0.0.1:7243/ingest/3b85e886-5738-4958-929a-efd54a8f8262',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'use-rerender-polaroid.ts:110',message:'Effect trigger check',data:{enabled,needsRerender,hasRerendered,isRerendering,polaroidId,willSchedule:enabled&&needsRerender&&!hasRerendered&&!isRerendering},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'F'})}).catch(()=>{});
+    fetch('http://127.0.0.1:7243/ingest/3b85e886-5738-4958-929a-efd54a8f8262',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'use-rerender-polaroid.ts:110',message:'Effect trigger check',data:{enabled,needsRerender,hasRerendered,isRerendering,canRerender,polaroidId,willSchedule:enabled&&needsRerender&&!hasRerendered&&!isRerendering&&canRerender},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'F'})}).catch(()=>{});
     // #endregion
-    if (enabled && needsRerender && !hasRerendered && !isRerendering && polaroid) {
+    if (enabled && needsRerender && !hasRerendered && !isRerendering && canRerender && polaroid) {
       // Delay to ensure component is mounted
       const timer = setTimeout(() => {
         rerenderPolaroid();
       }, 1000);
       return () => clearTimeout(timer);
     }
-  }, [enabled, needsRerender, hasRerendered, isRerendering, rerenderPolaroid, polaroid]);
+  }, [enabled, needsRerender, hasRerendered, isRerendering, canRerender, rerenderPolaroid, polaroid]);
 
   return {
     isRerendering,
     needsRerender,
   };
 }
+
