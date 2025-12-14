@@ -1,15 +1,10 @@
 import { useLocation } from "react-router-dom";
 import { useLanguage } from "@/hooks/use-language";
-import { useAuth } from "@/hooks/use-auth";
 import { NavDropdown } from "./nav-dropdown";
 
 export function HeaderNavigation() {
   const { t } = useLanguage();
-  const { user } = useAuth();
   const location = useLocation();
-
-  // Point to /new#editor when signed-in (editor exists), /new#join when signed-out (teaser exists)
-  const devCardHref = user ? "/new#editor" : "/new#join";
 
   return (
     <nav className="hidden gap-6 sm:flex items-center">
@@ -29,14 +24,6 @@ export function HeaderNavigation() {
           },
         ]}
       />
-
-      {/* Create Link */}
-      <a 
-        href={devCardHref}
-        className="text-sm font-medium text-fg-muted hover:text-accent transition-colors duration-150 font-body hover:underline underline-offset-4 decoration-1"
-      >
-        {t.shell.nav.devCard}
-      </a>
 
       {/* More Dropdown */}
       <NavDropdown
